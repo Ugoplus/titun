@@ -42,6 +42,8 @@ export const verifyAdminCredentials = async (
     console.info("Admin authentication check", {
       emailMatches,
       passwordMatches,
+      passwordLength: password.length,
+      hasScryptCredential: Boolean(scryptCredential),
     });
   return emailMatches && passwordMatches;
 };
