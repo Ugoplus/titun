@@ -1,0 +1,1 @@
+*/5 * * * * curl --fail --silent --show-error -X POST -H "Authorization: Bearer REPLACE_WITH_CRON_SECRET" https://shop.titun.co/api/cron/release-stock >/dev/null

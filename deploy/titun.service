@@ -1,0 +1,22 @@
+[Unit]
+Description=TITUN storefront
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=titun
+Group=titun
+WorkingDirectory=/opt/titun
+EnvironmentFile=/opt/titun/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node /opt/titun/.next/standalone/server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/titun/uploads
+
+[Install]
+WantedBy=multi-user.target

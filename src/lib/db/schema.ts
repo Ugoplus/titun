@@ -1,0 +1,179 @@
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+
+export const orderStatus = pgEnum("order_status", [
+  "pending",
+  "paid",
+  "failed",
+  "fulfilled",
+  "cancelled",
+  "refunded",
+]);
+
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    scent: text("scent").notNull(),
+    description: text("description").notNull(),
+    category: text("category").notNull(),
+    packSize: text("pack_size").notNull(),
+    price: integer("price").notNull(),
+    currency: text("currency").notNull().default("NGN"),
+    stockOnHand: integer("stock_on_hand").notNull().default(0),
+    stockReserved: integer("stock_reserved").notNull().default(0),
+    lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
+    lowStockAlertedAt: timestamp("low_stock_alerted_at", { withTimezone: true }),
+    images: jsonb("images").$type<string[]>().notNull().default([]),
+    featured: boolean("featured").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("products_slug_unique").on(table.slug)],
+);
+
+export const discounts = pgTable(
+  "discounts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    code: text("code").notNull(),
+    type: text("type", { enum: ["percentage", "fixed"] }).notNull(),
+    value: integer("value").notNull(),
+    active: boolean("active").notNull().default(true),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    maxUses: integer("max_uses"),
+    usedCount: integer("used_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("discounts_code_unique").on(table.code)],
+);
+
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    reference: text("reference").notNull(),
+    status: orderStatus("status").notNull().default("pending"),
+    customerName: text("customer_name").notNull(),
+    customerEmail: text("customer_email").notNull(),
+    customerPhone: text("customer_phone").notNull(),
+    deliveryAddress: text("delivery_address").notNull(),
+    deliveryCity: text("delivery_city").notNull(),
+    notes: text("notes"),
+    subtotal: integer("subtotal").notNull(),
+    discountAmount: integer("discount_amount").notNull().default(0),
+    total: integer("total").notNull(),
+    currency: text("currency").notNull().default("NGN"),
+    discountCode: text("discount_code"),
+    paymentProvider: text("payment_provider").notNull().default("paystack"),
+    paymentReference: text("payment_reference"),
+    reservationExpiresAt: timestamp("reservation_expires_at", { withTimezone: true }).notNull(),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("orders_reference_unique").on(table.reference),
+    index("orders_status_created_idx").on(table.status, table.createdAt),
+  ],
+);
+
+export const orderItems = pgTable("order_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
+  productId: uuid("product_id").notNull().references(() => products.id),
+  productName: text("product_name").notNull(),
+  scent: text("scent").notNull(),
+  packSize: text("pack_size").notNull(),
+  image: text("image"),
+  unitPrice: integer("unit_price").notNull(),
+  quantity: integer("quantity").notNull(),
+  lineTotal: integer("line_total").notNull(),
+});
+
+export const inventoryEvents = pgTable(
+  "inventory_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productId: uuid("product_id").notNull().references(() => products.id),
+    orderId: uuid("order_id").references(() => orders.id),
+    type: text("type", { enum: ["restock", "sale", "adjustment", "reservation_release"] }).notNull(),
+    quantityChange: integer("quantity_change").notNull(),
+    stockAfter: integer("stock_after").notNull(),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("inventory_product_created_idx").on(table.productId, table.createdAt)],
+);
+
+export const communityMembers = pgTable(
+  "community_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
+    lastEventAt: timestamp("last_event_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("community_members_email_unique").on(table.email)],
+);
+
+export const events = pgTable(
+  "events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    venue: text("venue").notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    image: text("image"),
+    ticketProductId: uuid("ticket_product_id").notNull().references(() => products.id),
+    published: boolean("published").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("events_slug_unique").on(table.slug), uniqueIndex("events_ticket_product_unique").on(table.ticketProductId)],
+);
+
+export const eventProducts = pgTable(
+  "event_products",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    eventId: uuid("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").notNull().references(() => products.id),
+    displayOrder: integer("display_order").notNull().default(0),
+  },
+  (table) => [uniqueIndex("event_products_unique").on(table.eventId, table.productId)],
+);
+
+export const eventAttendees = pgTable(
+  "event_attendees",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    eventId: uuid("event_id").notNull().references(() => events.id),
+    memberId: uuid("member_id").notNull().references(() => communityMembers.id),
+    orderId: uuid("order_id").notNull().references(() => orders.id),
+    ticketQuantity: integer("ticket_quantity").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("event_attendees_order_event_unique").on(table.orderId, table.eventId)],
+);
+
+export type Product = typeof products.$inferSelect;
+export type Order = typeof orders.$inferSelect;
+export type Event = typeof events.$inferSelect;
