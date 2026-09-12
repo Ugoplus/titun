@@ -6,15 +6,32 @@ const cookieName = "titun-admin";
 
 const getSecret = () => {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 32) throw new Error("AUTH_SECRET must be at least 32 characters");
+  if (!secret || secret.length < 32)
+    throw new Error("AUTH_SECRET must be at least 32 characters");
   return new TextEncoder().encode(secret);
 };
 
-export const verifyAdminCredentials = async (email: string, password: string) => {
-  const expectedEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
-  if (!expectedEmail || !passwordHash || email.toLowerCase() !== expectedEmail) return false;
-  return compare(password, passwordHash);
+export const verifyAdminCredentials = async (
+  email: string,
+  password: string,
+) => {
+  const expectedEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const passwordHash = process.env.ADMIN_PASSWORD_HASH?.trim().replace(
+    /^(['"])(.*)\1$/,
+    "$2",
+  );
+  const emailMatches = Boolean(
+    expectedEmail && email.trim().toLowerCase() === expectedEmail,
+  );
+  const passwordMatches = Boolean(
+    passwordHash && (await compare(password, passwordHash)),
+  );
+  if (process.env.ADMIN_AUTH_DEBUG === "true")
+    console.info("Admin authentication check", {
+      emailMatches,
+      passwordMatches,
+    });
+  return emailMatches && passwordMatches;
 };
 
 export const createAdminSession = async (email: string) => {
