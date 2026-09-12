@@ -1,4 +1,4 @@
-import { compare } from "bcryptjs";
+import { compareSync } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -24,7 +24,7 @@ export const verifyAdminCredentials = async (
     expectedEmail && email.trim().toLowerCase() === expectedEmail,
   );
   const passwordMatches = Boolean(
-    passwordHash && (await compare(password, passwordHash)),
+    passwordHash && compareSync(password, passwordHash),
   );
   if (process.env.ADMIN_AUTH_DEBUG === "true")
     console.info("Admin authentication check", {
