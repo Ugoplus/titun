@@ -2,5 +2,100 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { getProducts } from "@/lib/catalog";
+
 export const metadata: Metadata = { title: "Shop" };
-export default async function ShopPage({ searchParams }: PageProps<"/shop">) { const query = await searchParams; const selectedCategory = typeof query.category === "string" ? query.category : ""; const search = typeof query.q === "string" ? query.q.toLowerCase() : ""; const allProducts = await getProducts(); const categories = [...new Set(allProducts.map((product) => product.category))]; const filtered = allProducts.filter((product) => (!selectedCategory || product.category === selectedCategory) && (!search || `${product.name} ${product.scent} ${product.description}`.toLowerCase().includes(search))); return <div className="mx-auto max-w-[1440px] px-5 py-12 md:px-8 md:py-20"><div className="grid gap-8 border-b border-ink/20 pb-10 md:grid-cols-[1fr_auto] md:items-end"><div><p className="text-xs font-bold uppercase tracking-[.1em] text-ink/55">TITUN collection</p><h1 className="mt-2 font-display text-[clamp(4rem,8vw,8rem)] leading-none tracking-[-.06em]">Shop refresh.</h1></div><form className="flex border-b border-ink"><input aria-label="Search products" name="q" defaultValue={search} placeholder="Search by name or scent" className="h-12 min-w-0 flex-1 bg-transparent px-1 text-base outline-none md:w-64"/><button className="px-3 text-sm font-bold">Search</button></form></div><nav className="flex gap-2 overflow-x-auto py-7 text-xs font-bold uppercase tracking-[.06em]"><Link href="/shop" className={`whitespace-nowrap border px-4 py-3 ${!selectedCategory ? "bg-ink text-cream" : "border-ink/20"}`}>All</Link>{categories.map((category) => <Link key={category} href={`/shop?category=${encodeURIComponent(category)}`} className={`whitespace-nowrap border px-4 py-3 ${selectedCategory === category ? "bg-ink text-cream" : "border-ink/20"}`}>{category}</Link>)}</nav>{filtered.length ? <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">{filtered.map((product, index) => <ProductCard key={product.id} product={product} index={index}/>)}</div> : <div className="py-28 text-center"><p className="font-display text-4xl">Nothing matched that search.</p><Link href="/shop" className="mt-5 inline-block border-b border-ink text-sm font-bold">Clear filters</Link></div>}</div>; }
+
+export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
+  const query = await searchParams;
+  const selectedCategory =
+    typeof query.category === "string" ? query.category : "";
+  const search = typeof query.q === "string" ? query.q.toLowerCase() : "";
+  const allProducts = await getProducts();
+  const categories = [
+    ...new Set(allProducts.map((product) => product.category)),
+  ];
+  const filtered = allProducts.filter(
+    (product) =>
+      (!selectedCategory || product.category === selectedCategory) &&
+      (!search ||
+        `${product.name} ${product.scent} ${product.description}`
+          .toLowerCase()
+          .includes(search)),
+  );
+
+  return (
+    <div className="mx-auto max-w-[1440px] px-5 py-12 md:px-8 md:py-20">
+      <div className="grid gap-8 border-b border-ink/20 pb-10 md:grid-cols-[1fr_auto] md:items-end">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
+            TITUN collection
+          </p>
+          <h1 className="mt-2 font-display text-[clamp(4rem,8vw,8rem)] leading-none tracking-[-.04em]">
+            Shop refresh.
+          </h1>
+        </div>
+        <form className="flex border-b border-ink">
+          <input
+            aria-label="Search products"
+            name="q"
+            defaultValue={search}
+            placeholder="Search by name or scent"
+            className="h-12 min-w-0 flex-1 bg-transparent px-1 text-base outline-none md:w-64"
+          />
+          <button className="min-h-11 px-3 text-sm font-bold">Search</button>
+        </form>
+      </div>
+
+      <div className="relative">
+        <nav
+          aria-label="Product categories"
+          className="filter-scroll flex gap-2 overflow-x-auto py-7 pr-12 text-xs font-bold uppercase tracking-[.06em] md:pr-0"
+        >
+          <Link
+            href="/shop"
+            className={`min-h-11 whitespace-nowrap border px-4 py-3 ${!selectedCategory ? "bg-ink text-cream" : "border-ink/20"}`}
+          >
+            All
+          </Link>
+          {categories.map((category) => (
+            <Link
+              key={category}
+              href={`/shop?category=${encodeURIComponent(category)}`}
+              className={`min-h-11 whitespace-nowrap border px-4 py-3 ${selectedCategory === category ? "bg-ink text-cream" : "border-ink/20"}`}
+            >
+              {category}
+            </Link>
+          ))}
+        </nav>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-cream to-transparent md:hidden"
+        />
+      </div>
+
+      {filtered.length ? (
+        <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              headingLevel="h2"
+              priority={index === 0}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="py-28 text-center">
+          <p className="font-display text-4xl">Nothing matched that search.</p>
+          <Link
+            href="/shop"
+            className="mt-5 inline-block border-b border-ink text-sm font-bold"
+          >
+            Clear filters
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
