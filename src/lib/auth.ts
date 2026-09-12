@@ -1,4 +1,5 @@
 import { compareSync } from "bcryptjs";
+import { scryptSync, timingSafeEqual } from "node:crypto";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -20,12 +21,23 @@ export const verifyAdminCredentials = async (
     /^(['"])(.*)\1$/,
     "$2",
   );
+  const scryptCredential = process.env.ADMIN_PASSWORD_SCRYPT?.trim();
   const emailMatches = Boolean(
     expectedEmail && email.trim().toLowerCase() === expectedEmail,
   );
-  const passwordMatches = Boolean(
-    passwordHash && compareSync(password, passwordHash),
-  );
+  let passwordMatches = false;
+  if (scryptCredential) {
+    const [salt, storedKey] = scryptCredential.split(":");
+    if (salt && storedKey) {
+      const suppliedKey = scryptSync(password, salt, 64);
+      const expectedKey = Buffer.from(storedKey, "hex");
+      passwordMatches =
+        suppliedKey.length === expectedKey.length &&
+        timingSafeEqual(suppliedKey, expectedKey);
+    }
+  } else if (passwordHash) {
+    passwordMatches = compareSync(password, passwordHash);
+  }
   if (process.env.ADMIN_AUTH_DEBUG === "true")
     console.info("Admin authentication check", {
       emailMatches,
