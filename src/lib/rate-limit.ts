@@ -34,6 +34,12 @@ export function getClientIp(requestHeaders: Headers) {
   return "unknown";
 }
 
+export function getRequestHeaders(source: Pick<Request, "headers"> | Headers) {
+  return "get" in source && typeof source.get === "function"
+    ? source
+    : (source as Pick<Request, "headers">).headers;
+}
+
 function hashBucket(scope: string, subject: string) {
   const secret = process.env.AUTH_SECRET;
   if (!secret) throw new Error("AUTH_SECRET is required for rate limiting");
@@ -46,7 +52,7 @@ export async function consumeRateLimit(
   source: Pick<Request, "headers"> | Headers,
   { scope, limit, windowSeconds, identity }: RateLimitPolicy,
 ): Promise<RateLimitResult> {
-  const requestHeaders = "headers" in source ? source.headers : source;
+  const requestHeaders = getRequestHeaders(source);
   const subject = identity
     ? `identity:${identity.toLowerCase()}`
     : `ip:${getClientIp(requestHeaders)}`;

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getClientIp, rateLimitResponse } from "./rate-limit";
+import {
+  getClientIp,
+  getRequestHeaders,
+  rateLimitResponse,
+} from "./rate-limit";
 
 describe("getClientIp", () => {
   it("prefers the address supplied by the trusted reverse proxy", () => {
@@ -21,6 +25,14 @@ describe("getClientIp", () => {
     expect(getClientIp(new Headers({ "x-real-ip": "not-an-ip" }))).toBe(
       "unknown",
     );
+  });
+});
+
+describe("getRequestHeaders", () => {
+  it("recognises Headers-compatible objects even when they expose a headers property", () => {
+    const source = new Headers({ "x-real-ip": "203.0.113.22" });
+    Object.defineProperty(source, "headers", { value: { invalid: true } });
+    expect(getRequestHeaders(source).get("x-real-ip")).toBe("203.0.113.22");
   });
 });
 
