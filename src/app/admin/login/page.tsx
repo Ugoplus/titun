@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   createAdminSession,
   isAdmin,
   verifyAdminCredentials,
 } from "@/lib/auth";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 export default async function AdminLoginPage({
   searchParams,
@@ -14,6 +16,20 @@ export default async function AdminLoginPage({
     "use server";
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
+    const requestHeaders = await headers();
+    const ipLimit = await consumeRateLimit(requestHeaders, {
+      scope: "admin-login-ip",
+      limit: 120,
+      windowSeconds: 60 * 60,
+    });
+    const accountLimit = await consumeRateLimit(requestHeaders, {
+      scope: "admin-login-account",
+      limit: 30,
+      windowSeconds: 60 * 60,
+      identity: email.trim().toLowerCase() || "unknown",
+    });
+    if (!ipLimit.allowed || !accountLimit.allowed)
+      redirect("/admin/login?error=rate-limit");
     if (!(await verifyAdminCredentials(email, password)))
       redirect("/admin/login?error=1");
     await createAdminSession(email);
@@ -35,7 +51,9 @@ export default async function AdminLoginPage({
           role="alert"
           className="mt-5 border border-red-800 bg-red-50 p-3 text-sm text-red-900"
         >
-          That email or password was not recognised.
+          {params.error === "rate-limit"
+            ? "Too many sign-in attempts. Please wait and try again."
+            : "That email or password was not recognised."}
         </p>
       )}
       <form action={login} className="mt-8 grid gap-5">

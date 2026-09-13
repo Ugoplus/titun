@@ -130,6 +130,15 @@ CREATE TABLE IF NOT EXISTS "event_attendees" (
   UNIQUE (order_id, event_id)
 );
 
+CREATE TABLE IF NOT EXISTS "rate_limit_events" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "bucket" text NOT NULL,
+  "occurred_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS rate_limit_bucket_occurred_idx ON rate_limit_events(bucket, occurred_at);
+CREATE INDEX IF NOT EXISTS rate_limit_occurred_idx ON rate_limit_events(occurred_at);
+
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),

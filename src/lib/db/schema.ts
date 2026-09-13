@@ -35,12 +35,18 @@ export const products = pgTable(
     stockOnHand: integer("stock_on_hand").notNull().default(0),
     stockReserved: integer("stock_reserved").notNull().default(0),
     lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
-    lowStockAlertedAt: timestamp("low_stock_alerted_at", { withTimezone: true }),
+    lowStockAlertedAt: timestamp("low_stock_alerted_at", {
+      withTimezone: true,
+    }),
     images: jsonb("images").$type<string[]>().notNull().default([]),
     featured: boolean("featured").notNull().default(false),
     active: boolean("active").notNull().default(true),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [uniqueIndex("products_slug_unique").on(table.slug)],
 );
@@ -56,7 +62,9 @@ export const discounts = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     maxUses: integer("max_uses"),
     usedCount: integer("used_count").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [uniqueIndex("discounts_code_unique").on(table.code)],
 );
@@ -80,10 +88,16 @@ export const orders = pgTable(
     discountCode: text("discount_code"),
     paymentProvider: text("payment_provider").notNull().default("paystack"),
     paymentReference: text("payment_reference"),
-    reservationExpiresAt: timestamp("reservation_expires_at", { withTimezone: true }).notNull(),
+    reservationExpiresAt: timestamp("reservation_expires_at", {
+      withTimezone: true,
+    }).notNull(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     uniqueIndex("orders_reference_unique").on(table.reference),
@@ -93,8 +107,12 @@ export const orders = pgTable(
 
 export const orderItems = pgTable("order_items", {
   id: uuid("id").defaultRandom().primaryKey(),
-  orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
-  productId: uuid("product_id").notNull().references(() => products.id),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => products.id),
   productName: text("product_name").notNull(),
   scent: text("scent").notNull(),
   packSize: text("pack_size").notNull(),
@@ -108,15 +126,23 @@ export const inventoryEvents = pgTable(
   "inventory_events",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    productId: uuid("product_id").notNull().references(() => products.id),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
     orderId: uuid("order_id").references(() => orders.id),
-    type: text("type", { enum: ["restock", "sale", "adjustment", "reservation_release"] }).notNull(),
+    type: text("type", {
+      enum: ["restock", "sale", "adjustment", "reservation_release"],
+    }).notNull(),
     quantityChange: integer("quantity_change").notNull(),
     stockAfter: integer("stock_after").notNull(),
     note: text("note"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [index("inventory_product_created_idx").on(table.productId, table.createdAt)],
+  (table) => [
+    index("inventory_product_created_idx").on(table.productId, table.createdAt),
+  ],
 );
 
 export const communityMembers = pgTable(
@@ -126,8 +152,12 @@ export const communityMembers = pgTable(
     email: text("email").notNull(),
     name: text("name").notNull(),
     phone: text("phone").notNull(),
-    joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
-    lastEventAt: timestamp("last_event_at", { withTimezone: true }).defaultNow().notNull(),
+    joinedAt: timestamp("joined_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastEventAt: timestamp("last_event_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [uniqueIndex("community_members_email_unique").on(table.email)],
 );
@@ -142,36 +172,79 @@ export const events = pgTable(
     venue: text("venue").notNull(),
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     image: text("image"),
-    ticketProductId: uuid("ticket_product_id").notNull().references(() => products.id),
+    ticketProductId: uuid("ticket_product_id")
+      .notNull()
+      .references(() => products.id),
     published: boolean("published").notNull().default(false),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [uniqueIndex("events_slug_unique").on(table.slug), uniqueIndex("events_ticket_product_unique").on(table.ticketProductId)],
+  (table) => [
+    uniqueIndex("events_slug_unique").on(table.slug),
+    uniqueIndex("events_ticket_product_unique").on(table.ticketProductId),
+  ],
 );
 
 export const eventProducts = pgTable(
   "event_products",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    eventId: uuid("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
-    productId: uuid("product_id").notNull().references(() => products.id),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id),
     displayOrder: integer("display_order").notNull().default(0),
   },
-  (table) => [uniqueIndex("event_products_unique").on(table.eventId, table.productId)],
+  (table) => [
+    uniqueIndex("event_products_unique").on(table.eventId, table.productId),
+  ],
 );
 
 export const eventAttendees = pgTable(
   "event_attendees",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    eventId: uuid("event_id").notNull().references(() => events.id),
-    memberId: uuid("member_id").notNull().references(() => communityMembers.id),
-    orderId: uuid("order_id").notNull().references(() => orders.id),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id),
+    memberId: uuid("member_id")
+      .notNull()
+      .references(() => communityMembers.id),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id),
     ticketQuantity: integer("ticket_quantity").notNull().default(1),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
-  (table) => [uniqueIndex("event_attendees_order_event_unique").on(table.orderId, table.eventId)],
+  (table) => [
+    uniqueIndex("event_attendees_order_event_unique").on(
+      table.orderId,
+      table.eventId,
+    ),
+  ],
+);
+
+export const rateLimitEvents = pgTable(
+  "rate_limit_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    bucket: text("bucket").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("rate_limit_bucket_occurred_idx").on(table.bucket, table.occurredAt),
+    index("rate_limit_occurred_idx").on(table.occurredAt),
+  ],
 );
 
 export type Product = typeof products.$inferSelect;

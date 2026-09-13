@@ -64,17 +64,21 @@ export const createAdminSession = async (email: string) => {
   });
 };
 
-export const isAdmin = async () => {
+export const getAdminIdentity = async () => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(cookieName)?.value;
-    if (!token) return false;
+    if (!token) return null;
     const { payload } = await jwtVerify(token, getSecret());
-    return payload.role === "admin";
+    return payload.role === "admin" && typeof payload.email === "string"
+      ? payload.email
+      : null;
   } catch {
-    return false;
+    return null;
   }
 };
+
+export const isAdmin = async () => Boolean(await getAdminIdentity());
 
 export const clearAdminSession = async () => {
   const cookieStore = await cookies();
