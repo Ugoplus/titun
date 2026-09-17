@@ -25,6 +25,9 @@ export function ProductCard({
   const defaultQuantity = getDefaultPurchaseQuantity(product);
   const packOptions = getPackOptions(product);
   const startingPrice = packOptions[0].total;
+  const hasMultiplePacks = packOptions.length > 1;
+  const isConfigurableGiftBox = product.category === "Boxes and multipacks";
+  const canAdd = available >= defaultQuantity;
   const Heading = headingLevel;
   return (
     <article className="group bg-white">
@@ -46,18 +49,29 @@ export function ProductCard({
             {product.scent}
           </p>
           <p className="mt-3 text-sm font-bold tabular-nums">
-            {packOptions.length > 1 ? "From " : ""}
+            {hasMultiplePacks ? "From " : ""}
             {formatMoney(startingPrice, product.currency)}
+            {hasMultiplePacks ? ` · ${packOptions[0].quantity} pieces` : ""}
           </p>
         </Link>
-        <button
-          disabled={available < 1}
-          onClick={() => addItem(product, defaultQuantity)}
-          className="flex h-11 w-11 items-center justify-center bg-ink text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label={`Add ${product.name} ${defaultQuantity}-piece pack to basket`}
-        >
-          <Plus />
-        </button>
+        {isConfigurableGiftBox ? (
+          <Link
+            href={`/products/${product.slug}`}
+            className="flex h-11 w-11 items-center justify-center bg-ink text-white transition-colors hover:bg-walnut"
+            aria-label={`Choose products for ${product.name}`}
+          >
+            <Plus />
+          </Link>
+        ) : (
+          <button
+            disabled={!canAdd}
+            onClick={() => addItem(product, defaultQuantity)}
+            className="flex h-11 w-11 items-center justify-center bg-ink text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label={`Add ${product.name} ${defaultQuantity}-piece pack to basket`}
+          >
+            <Plus />
+          </button>
+        )}
       </div>
     </article>
   );
