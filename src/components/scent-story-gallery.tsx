@@ -30,7 +30,16 @@ export function ScentStoryGallery({ stories }: { stories: ScentStory[] }) {
               type="button"
               aria-expanded={selected}
               aria-controls={panelId}
-              onClick={() => setSelectedName(selected ? null : story.name)}
+              onClick={(event) => {
+                setSelectedName(selected ? null : story.name);
+                if (!selected) {
+                  event.currentTarget.scrollIntoView({
+                    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                    block: "nearest",
+                    inline: "center",
+                  });
+                }
+              }}
               className="group block snap-start bg-ink text-left text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
             >
               <span className="relative block aspect-[944/1080] overflow-hidden">
