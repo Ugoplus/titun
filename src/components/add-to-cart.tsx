@@ -15,6 +15,9 @@ export function AddToCart({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(
     getDefaultPurchaseQuantity(product),
   );
+  const giftBoxScents = ["Green Tea", "Lemongrass", "Sandalwood"] as const;
+  const [selectedScents, setSelectedScents] = useState<string[]>([...giftBoxScents]);
+  const isGiftBox = product.category === "Boxes and multipacks";
   const { addItem } = useCart();
   const available = product.stockOnHand - product.stockReserved;
   const selected =
@@ -23,6 +26,31 @@ export function AddToCart({ product }: { product: Product }) {
 
   return (
     <div>
+      {isGiftBox && (
+        <fieldset className="mb-6">
+          <legend className="mb-2 text-sm font-semibold">Choose the towels in your gift box</legend>
+          <p className="mb-4 max-w-lg text-xs leading-relaxed text-ink/65">
+            Select one or more scents. We’ll balance your chosen scents across the box.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {giftBoxScents.map((scent) => {
+              const checked = selectedScents.includes(scent);
+              return (
+                <label key={scent} className={`flex min-h-12 cursor-pointer items-center gap-3 border px-4 text-sm font-semibold ${checked ? "border-ink bg-ink text-white" : "border-ink/25 bg-white"}`}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => setSelectedScents((current) =>
+                      checked ? current.filter((item) => item !== scent) : [...current, scent],
+                    )}
+                  />
+                  {scent}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
       {options.length > 1 && (
         <fieldset>
           <legend className="mb-3 text-sm font-semibold">Choose your pack</legend>
@@ -87,11 +115,15 @@ export function AddToCart({ product }: { product: Product }) {
         </fieldset>
       )}
       <button
-        disabled={!selectedAvailable}
+        disabled={!selectedAvailable || (isGiftBox && selectedScents.length === 0)}
         className="mt-4 flex min-h-14 w-full items-center justify-between bg-ink px-6 font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-40"
-        onClick={() => addItem(product, quantity)}
+        onClick={() => addItem(
+          product,
+          quantity,
+          isGiftBox ? { giftBoxScents: selectedScents } : undefined,
+        )}
       >
-        <span>{selectedAvailable ? "Add to basket" : "Pack unavailable"}</span>
+        <span>{!selectedAvailable ? "Pack unavailable" : isGiftBox && selectedScents.length === 0 ? "Choose at least one scent" : "Add to basket"}</span>
         <span className="tabular-nums">
           {formatMoney(selected.total, product.currency)}
         </span>

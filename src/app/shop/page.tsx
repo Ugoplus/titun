@@ -18,6 +18,7 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
     typeof query.category === "string" ? query.category : "";
   const search = typeof query.q === "string" ? query.q.toLowerCase() : "";
   const allProducts = await getProducts();
+  const wipes = allProducts.filter((product) => product.category === "Refreshing wet wipes");
   const categories = [
     ...new Set(allProducts.map((product) => product.category)),
   ];
@@ -108,20 +109,19 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
         <div className="grid gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-end">
           <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">Refreshing wet wipes</h2>
           <div className="max-w-xl lg:justify-self-end">
-            <p className="text-base leading-relaxed text-ink/65">A separate 40 GSM spunlace nonwoven format for dining, travel and movement. Retail pack pricing is being finalised.</p>
-            <Link href="/corporate?product=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Enquire about wipes <ArrowRight /></Link>
+            <p className="text-base leading-relaxed text-ink/65">A separate 40 GSM spunlace nonwoven format for dining, travel and movement. ₦500 per wipe with a 50-piece minimum order.</p>
+            <Link href="/custom-orders" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Request branded wipes <ArrowRight /></Link>
           </div>
         </div>
         <div className="mt-9 grid gap-4 sm:grid-cols-3">
-          {[
-            ["Green Tea", "/images/titun/green-tea-wipes.jpg"],
-            ["Sandalwood", "/images/titun/sandalwood-wipes.jpg"],
-            ["Lemongrass", "/images/titun/lemongrass-wipes.jpg"],
-          ].map(([name, image]) => (
-            <figure key={name} className="border border-ink/15 bg-white">
-              <div className="relative aspect-square"><Image src={image} alt={`${name} TITUN wet wipe`} fill className="object-cover" /></div>
-              <figcaption className="border-t border-ink/15 p-4 font-display text-2xl">{name}</figcaption>
-            </figure>
+          {wipes.map((product) => (
+            <Link key={product.id} href={`/products/${product.slug}`} className="border border-ink/15 bg-white">
+              <div className="relative aspect-square"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill className="object-cover" /></div>
+              <div className="border-t border-ink/15 p-4">
+                <p className="font-display text-2xl">{product.name}</p>
+                <p className="mt-2 text-sm font-semibold">₦500 each · minimum 50</p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>

@@ -16,6 +16,15 @@ export const sampleProducts: Product[] = [
   {
     id: "44444444-4444-4444-8444-444444444444", slug: "titun-discovery-gift-box", name: "TITUN Discovery Gift Box", scent: "Green tea, lemongrass and sandalwood", description: "A presentation-ready collection of TITUN’s signature refreshing towels for gifting and elevated hospitality.", category: "Boxes and multipacks", packSize: "Curated gift box", price: 1450000, currency: "NGN", stockOnHand: 9, stockReserved: 0, lowStockThreshold: 5, lowStockAlertedAt: null, images: ["/images/titun/gift-box.jpg"], featured: false, active: true, createdAt: now, updatedAt: now,
   },
+  {
+    id: "55555555-5555-4555-8555-555555555555", slug: "green-tea-refreshing-wipes", name: "Green Tea Refreshing Wipes", scent: "Fresh · Clean · Restorative", description: "Individually wrapped Green Tea wet wipes for dining, travel, events and everyday refreshment.", category: "Refreshing wet wipes", packSize: "Minimum 50 wipes", price: 50000, currency: "NGN", stockOnHand: 1000, stockReserved: 0, lowStockThreshold: 100, lowStockAlertedAt: null, images: ["/images/titun/green-tea-wipes.jpg"], featured: false, active: true, createdAt: now, updatedAt: now,
+  },
+  {
+    id: "66666666-6666-4666-8666-666666666666", slug: "lemongrass-refreshing-wipes", name: "Lemongrass Refreshing Wipes", scent: "Bright · Fresh · Invigorating", description: "Individually wrapped Lemongrass wet wipes for dining, travel, events and everyday refreshment.", category: "Refreshing wet wipes", packSize: "Minimum 50 wipes", price: 50000, currency: "NGN", stockOnHand: 1000, stockReserved: 0, lowStockThreshold: 100, lowStockAlertedAt: null, images: ["/images/titun/lemongrass-wipes.jpg"], featured: false, active: true, createdAt: now, updatedAt: now,
+  },
+  {
+    id: "77777777-7777-4777-8777-777777777777", slug: "sandalwood-refreshing-wipes", name: "Sandalwood Refreshing Wipes", scent: "Warm · Refined · Grounding", description: "Individually wrapped Sandalwood wet wipes for dining, travel, events and everyday refreshment.", category: "Refreshing wet wipes", packSize: "Minimum 50 wipes", price: 50000, currency: "NGN", stockOnHand: 1000, stockReserved: 0, lowStockThreshold: 100, lowStockAlertedAt: null, images: ["/images/titun/sandalwood-wipes.jpg"], featured: false, active: true, createdAt: now, updatedAt: now,
+  },
 ];
 
 export const getProducts = async () => {

@@ -11,10 +11,24 @@ export const checkoutSchema = z.object({
   }),
   items: z.array(z.object({
     productId: z.uuid(),
-    quantity: z.int().min(1).max(100),
+    quantity: z.int().min(1).max(200),
+    configuration: z.object({
+      giftBoxScents: z.array(z.enum(["Green Tea", "Lemongrass", "Sandalwood"])).min(1).max(3).optional(),
+    }).optional(),
   })).min(1).max(20),
   discountCode: z.string().trim().max(40).optional(),
   paymentProvider: z.enum(["paystack", "stripe"]),
+});
+
+export const customOrderSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  company: z.string().trim().max(140).optional(),
+  email: z.email().max(254).transform((value) => value.trim().toLowerCase()),
+  phone: z.string().trim().min(7).max(30),
+  orderType: z.enum(["Branded towels", "Branded wipes", "Custom gift boxes", "Event order", "Other"]),
+  estimatedQuantity: z.int().min(50).max(1_000_000),
+  artworkUrl: z.string().trim().regex(/^\/uploads\/[a-f0-9-]+\.(?:jpg|png|webp)$/).optional(),
+  message: z.string().trim().min(10).max(2000),
 });
 
 export const productSchema = z.object({

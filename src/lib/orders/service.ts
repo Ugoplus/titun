@@ -25,7 +25,11 @@ export type CheckoutInput = {
     city: string;
     notes?: string;
   };
-  items: { productId: string; quantity: number }[];
+  items: {
+    productId: string;
+    quantity: number;
+    configuration?: { giftBoxScents?: string[] };
+  }[];
   discountCode?: string;
   paymentProvider: PaymentProvider;
 };
@@ -41,8 +45,14 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     if (catalog.length !== requestedIds.length) throw new Error("One or more products are unavailable");
 
     const quantityById = new Map(input.items.map((item) => [item.productId, item.quantity]));
+    const configurationById = new Map(input.items.map((item) => [item.productId, item.configuration]));
     const pricedItems = catalog.map((product) => {
       const quantity = quantityById.get(product.id) ?? 0;
+      const configuration = configurationById.get(product.id);
+      if (
+        product.category === "Boxes and multipacks" &&
+        !configuration?.giftBoxScents?.length
+      ) throw new Error("Choose at least one scent for your gift box");
       const pricing = getLinePricing(product, quantity);
       return {
         productId: product.id,
@@ -106,6 +116,7 @@ export const createPendingOrder = async (input: CheckoutInput) => {
         unitPrice: pricing.unitPrice,
         quantity,
         lineTotal: pricing.total,
+        configuration: configurationById.get(product.id) ?? {},
       };
     }));
 

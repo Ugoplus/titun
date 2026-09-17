@@ -11,16 +11,26 @@ import {
 import type { Product } from "@/lib/db/schema";
 import {
   getDefaultPurchaseQuantity,
-  isRefreshingTowel,
+  getPackOptions,
+  hasPackOptions,
 } from "@/lib/product-pricing";
 
-export type CartItem = { product: Product; quantity: number };
+export type CartConfiguration = { giftBoxScents?: string[] };
+export type CartItem = {
+  product: Product;
+  quantity: number;
+  configuration?: CartConfiguration;
+};
 type CartContextValue = {
   items: CartItem[];
   count: number;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (
+    product: Product,
+    quantity?: number,
+    configuration?: CartConfiguration,
+  ) => void;
   addItems: (items: CartItem[], openDrawer?: boolean) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
@@ -42,8 +52,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           stored.map((item) => ({
             ...item,
             quantity:
-              isRefreshingTowel(item.product) &&
-              ![25, 50, 100].includes(item.quantity)
+              hasPackOptions(item.product) &&
+              !getPackOptions(item.product).some((option) => option.quantity === item.quantity)
                 ? getDefaultPurchaseQuantity(item.product)
                 : item.quantity,
           })),
@@ -58,7 +68,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (hasLoaded)
       localStorage.setItem("titun-cart", JSON.stringify(items));
   }, [items, hasLoaded]);
-  const addItem = useCallback((product: Product, suppliedQuantity?: number) => {
+  const addItem = useCallback((product: Product, suppliedQuantity?: number, configuration?: CartConfiguration) => {
     const quantity = suppliedQuantity ?? getDefaultPurchaseQuantity(product);
     setItems((current) => {
       const existing = current.find((item) => item.product.id === product.id);
@@ -67,28 +77,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             item.product.id === product.id
               ? {
                   ...item,
-                  quantity: isRefreshingTowel(product)
+                  quantity: hasPackOptions(product)
                     ? quantity
                     : Math.min(20, item.quantity + quantity),
+                  configuration: configuration ?? item.configuration,
                 }
               : item,
           )
-        : [...current, { product, quantity }];
+        : [...current, { product, quantity, configuration }];
     });
     setIsOpen(true);
   }, []);
   const addItems = useCallback((newItems: CartItem[], openDrawer = false) => {
     setItems((current) => newItems.reduce((next, incoming) => {
-      const incomingQuantity = isRefreshingTowel(incoming.product)
+      const incomingQuantity = hasPackOptions(incoming.product)
         ? getDefaultPurchaseQuantity(incoming.product)
         : incoming.quantity;
       const existing = next.find((item) => item.product.id === incoming.product.id);
       return existing
         ? next.map((item) => item.product.id === incoming.product.id ? {
             ...item,
-            quantity: isRefreshingTowel(incoming.product)
+            quantity: hasPackOptions(incoming.product)
               ? incomingQuantity
               : Math.min(20, item.quantity + incomingQuantity),
+            configuration: incoming.configuration ?? item.configuration,
           } : item)
         : [...next, { ...incoming, quantity: incomingQuantity }];
     }, current));
@@ -99,7 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems((current) =>
         current.map((item) =>
           item.product.id === productId
-            ? { ...item, quantity: Math.max(1, Math.min(100, quantity)) }
+            ? { ...item, quantity: Math.max(1, Math.min(200, quantity)) }
             : item,
         ),
       ),

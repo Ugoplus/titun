@@ -120,6 +120,10 @@ export const orderItems = pgTable("order_items", {
   unitPrice: integer("unit_price").notNull(),
   quantity: integer("quantity").notNull(),
   lineTotal: integer("line_total").notNull(),
+  configuration: jsonb("configuration")
+    .$type<{ giftBoxScents?: string[] }>()
+    .notNull()
+    .default({}),
 });
 
 export const inventoryEvents = pgTable(
@@ -277,6 +281,23 @@ export const corporateEnquiries = pgTable("corporate_enquiries", {
     .defaultNow()
     .notNull(),
 });
+
+export const customOrderRequests = pgTable("custom_order_requests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  reference: text("reference").notNull(),
+  name: text("name").notNull(),
+  company: text("company"),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  orderType: text("order_type").notNull(),
+  estimatedQuantity: integer("estimated_quantity").notNull(),
+  artworkUrl: text("artwork_url"),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => [uniqueIndex("custom_order_requests_reference_unique").on(table.reference)]);
 
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;

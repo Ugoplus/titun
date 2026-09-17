@@ -89,3 +89,27 @@ export const sendCorporateEnquiryAlert = async (enquiry: {
     `<div style="font-family:Arial,sans-serif;color:#181511;max-width:640px;margin:auto"><p style="letter-spacing:.08em;text-transform:uppercase">TITUN</p><h1 style="font-family:Georgia,serif;font-weight:400">New corporate enquiry</h1><table style="border-collapse:collapse;width:100%">${rows}</table><h2 style="font-family:Georgia,serif;font-weight:400">Message</h2><p>${escapeHtml(enquiry.message)}</p></div>`,
   );
 };
+
+export const sendCustomOrderAlert = async (request: {
+  reference: string;
+  name: string;
+  company: string | null;
+  email: string;
+  phone: string;
+  orderType: string;
+  estimatedQuantity: number;
+  artworkUrl: string | null;
+  message: string;
+}) => {
+  const recipient = process.env.ORDER_NOTIFICATION_EMAIL ?? process.env.EMAIL_FROM;
+  if (!recipient) return;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const artwork = request.artworkUrl
+    ? `<p><a href="${escapeHtml(`${siteUrl}${request.artworkUrl}`)}">View uploaded artwork</a></p>`
+    : "<p>No artwork was uploaded.</p>";
+  await sendEmail(
+    recipient,
+    `Custom order request · ${request.reference}`,
+    `<div style="font-family:Arial,sans-serif;color:#181511;max-width:640px;margin:auto"><p style="letter-spacing:.08em;text-transform:uppercase">TITUN</p><h1 style="font-family:Georgia,serif;font-weight:400">New custom order request</h1><p><strong>${escapeHtml(request.orderType)}</strong> · ${request.estimatedQuantity.toLocaleString("en-NG")} units</p><p>${escapeHtml(request.name)}${request.company ? ` · ${escapeHtml(request.company)}` : ""}<br>${escapeHtml(request.email)}<br>${escapeHtml(request.phone)}</p>${artwork}<h2 style="font-family:Georgia,serif;font-weight:400">Requirements</h2><p>${escapeHtml(request.message)}</p></div>`,
+  );
+};

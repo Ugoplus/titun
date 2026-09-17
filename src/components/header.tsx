@@ -16,6 +16,7 @@ const navigation = [
   ["Refreshing towels", "/shop?category=Refreshing%20towels"],
   ["Wet wipes", "/shop#wipes"],
   ["Corporate orders", "/corporate"],
+  ["Custom orders", "/custom-orders"],
   ["Community", "/community"],
   ["About", "/about"],
   ["Contact", "/contact"],

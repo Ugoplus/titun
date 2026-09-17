@@ -11,6 +11,14 @@ export function isRefreshingTowel(product: Pick<Product, "category">) {
   return product.category === "Refreshing towels" || product.category === "Individual towels";
 }
 
+export function isRefreshingWipe(product: Pick<Product, "category">) {
+  return product.category === "Refreshing wet wipes";
+}
+
+export function hasPackOptions(product: Pick<Product, "category">) {
+  return isRefreshingTowel(product) || isRefreshingWipe(product);
+}
+
 export function getTowelPackOptions(bestValueUnitPrice: number): PackOption[] {
   const standardUnitPrice = Math.round(bestValueUnitPrice / 0.9 / 100) * 100;
   const fullPrice = standardUnitPrice * 100;
@@ -30,13 +38,22 @@ export function getTowelPackOptions(bestValueUnitPrice: number): PackOption[] {
 }
 
 export function getPackOptions(product: Pick<Product, "category" | "price" | "packSize">) {
-  return isRefreshingTowel(product)
-    ? getTowelPackOptions(product.price)
-    : [{ quantity: 1, total: product.price, label: product.packSize }];
+  if (isRefreshingTowel(product)) return getTowelPackOptions(product.price);
+  if (isRefreshingWipe(product)) {
+    return [50, 100, 200].map((quantity) => ({
+      quantity,
+      total: product.price * quantity,
+      label: `${quantity} wipes`,
+      note: quantity === 50 ? "Minimum order" : undefined,
+    }));
+  }
+  return [{ quantity: 1, total: product.price, label: product.packSize }];
 }
 
 export function getDefaultPurchaseQuantity(product: Pick<Product, "category">) {
-  return isRefreshingTowel(product) ? 25 : 1;
+  if (isRefreshingTowel(product)) return 25;
+  if (isRefreshingWipe(product)) return 50;
+  return 1;
 }
 
 export function getLinePricing(

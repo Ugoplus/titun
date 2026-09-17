@@ -79,6 +79,9 @@ CREATE TABLE IF NOT EXISTS "order_items" (
   "line_total" integer NOT NULL
 );
 
+ALTER TABLE order_items
+  ADD COLUMN IF NOT EXISTS configuration jsonb NOT NULL DEFAULT '{}'::jsonb;
+
 CREATE TABLE IF NOT EXISTS "inventory_events" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "product_id" uuid NOT NULL REFERENCES products(id),
@@ -164,6 +167,21 @@ CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS "custom_order_requests" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "reference" text NOT NULL UNIQUE,
+  "name" text NOT NULL,
+  "company" text,
+  "email" text NOT NULL,
+  "phone" text NOT NULL,
+  "order_type" text NOT NULL,
+  "estimated_quantity" integer NOT NULL CHECK (estimated_quantity > 0),
+  "artwork_url" text,
+  "message" text NOT NULL,
+  "status" text NOT NULL DEFAULT 'new',
+  "created_at" timestamptz NOT NULL DEFAULT now()
+);
+
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),
@@ -171,6 +189,18 @@ VALUES
   ('sandalwood-refreshing-towel', 'Sandalwood Refreshing Towel', 'Sandalwood', 'A warm, grounded scent in TITUN''s signature black-and-gold wrap—made for considered hospitality and evening rituals.', 'Individual towels', '1 individually wrapped towel', 180000, 18, 6, true),
   ('titun-discovery-gift-box', 'TITUN Discovery Gift Box', 'Green tea, lemongrass and sandalwood', 'A presentation-ready collection of TITUN''s signature refreshing towels for gifting and elevated hospitality.', 'Boxes and multipacks', 'Curated gift box', 1450000, 9, 5, false)
 ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured, images)
+VALUES
+  ('green-tea-refreshing-wipes', 'Green Tea Refreshing Wipes', 'Fresh · Clean · Restorative', 'Individually wrapped Green Tea wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/green-tea-wipes.jpg"]'::jsonb),
+  ('lemongrass-refreshing-wipes', 'Lemongrass Refreshing Wipes', 'Bright · Fresh · Invigorating', 'Individually wrapped Lemongrass wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/lemongrass-wipes.jpg"]'::jsonb),
+  ('sandalwood-refreshing-wipes', 'Sandalwood Refreshing Wipes', 'Warm · Refined · Grounding', 'Individually wrapped Sandalwood wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/sandalwood-wipes.jpg"]'::jsonb)
+ON CONFLICT (slug) DO UPDATE SET
+  price = EXCLUDED.price,
+  category = EXCLUDED.category,
+  pack_size = EXCLUDED.pack_size,
+  images = EXCLUDED.images,
+  updated_at = now();
 
 UPDATE products SET images = CASE slug
   WHEN 'green-tea-refreshing-towel' THEN '["/images/titun/green-tea-towel.jpg"]'::jsonb

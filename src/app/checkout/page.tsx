@@ -54,6 +54,7 @@ export default function CheckoutPage() {
           items: items.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,
+            configuration: item.configuration,
           })),
           discountCode: form.get("discountCode") || undefined,
           paymentProvider: form.get("paymentProvider"),
@@ -241,6 +242,11 @@ export default function CheckoutPage() {
                 <p className="mt-1 text-xs text-ink/70">
                   {getLinePricing(item.product, item.quantity).label}
                 </p>
+                {item.configuration?.giftBoxScents?.length ? (
+                  <p className="mt-1 text-xs leading-relaxed text-ink/70">
+                    {item.configuration.giftBoxScents.join(", ")}
+                  </p>
+                ) : null}
               </div>
               <p className="text-sm font-bold">
                 {formatMoney(

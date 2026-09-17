@@ -9,7 +9,7 @@ import { useCart } from "./cart-provider";
 import {
   getAdjacentPackQuantity,
   getLinePricing,
-  isRefreshingTowel,
+  hasPackOptions,
 } from "@/lib/product-pricing";
 
 export function CartDrawer() {
@@ -72,6 +72,11 @@ export function CartDrawer() {
                     <p className="text-xs text-ink/70">
                       {getLinePricing(item.product, item.quantity).label}
                     </p>
+                    {item.configuration?.giftBoxScents?.length ? (
+                      <p className="mt-1 text-xs leading-relaxed text-ink/70">
+                        {item.configuration.giftBoxScents.join(", ")}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center border border-ink/25">
@@ -81,7 +86,7 @@ export function CartDrawer() {
                         onClick={() =>
                           updateQuantity(
                             item.product.id,
-                            isRefreshingTowel(item.product)
+                            hasPackOptions(item.product)
                               ? getAdjacentPackQuantity(
                                   item.product,
                                   item.quantity,
@@ -102,7 +107,7 @@ export function CartDrawer() {
                         onClick={() =>
                           updateQuantity(
                             item.product.id,
-                            isRefreshingTowel(item.product)
+                            hasPackOptions(item.product)
                               ? getAdjacentPackQuantity(
                                   item.product,
                                   item.quantity,

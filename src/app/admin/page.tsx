@@ -2,7 +2,7 @@ import { desc, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { clearAdminSession, isAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { orders, products } from "@/lib/db/schema";
+import { customOrderRequests, orders, products } from "@/lib/db/schema";
 import { ProductManager } from "@/components/admin/product-manager";
 import { formatMoney } from "@/lib/money";
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   if (!(await isAdmin())) redirect("/admin/login");
   const db = getDb();
-  const [catalog, recentOrders, sales] = await Promise.all([
+  const [catalog, recentOrders, sales, customRequests] = await Promise.all([
     db.select().from(products).orderBy(desc(products.updatedAt)),
     db.select().from(orders).orderBy(desc(orders.createdAt)).limit(8),
     db
@@ -19,6 +19,7 @@ export default async function AdminPage() {
         paidOrders: sql<number>`COUNT(*) FILTER (WHERE ${orders.status} IN ('paid','fulfilled'))`,
       })
       .from(orders),
+    db.select().from(customOrderRequests).orderBy(desc(customOrderRequests.createdAt)).limit(8),
   ]);
   const lowStock = catalog.filter(
     (product) =>
@@ -87,6 +88,29 @@ export default async function AdminPage() {
         </section>
       )}
       <ProductManager initialProducts={catalog} />
+      <section className="mt-16">
+        <h2 className="font-display text-4xl">Custom order requests</h2>
+        {customRequests.length ? (
+          <div className="mt-5 grid gap-3">
+            {customRequests.map((request) => (
+              <article key={request.id} className="grid gap-4 border border-ink/20 p-5 md:grid-cols-[1fr_1fr_auto]">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/60">{request.reference}</p>
+                  <h3 className="mt-2 font-display text-2xl">{request.orderType}</h3>
+                  <p className="mt-1 text-sm text-ink/70">{request.estimatedQuantity.toLocaleString("en-NG")} units</p>
+                </div>
+                <div className="text-sm leading-relaxed">
+                  <p className="font-semibold">{request.name}{request.company ? ` · ${request.company}` : ""}</p>
+                  <a href={`mailto:${request.email}`}>{request.email}</a><br />
+                  <a href={`tel:${request.phone}`}>{request.phone}</a>
+                </div>
+                {request.artworkUrl ? <a className="inline-flex min-h-11 items-center border border-ink px-4 text-sm font-semibold" href={request.artworkUrl} target="_blank" rel="noreferrer">View artwork</a> : <span className="text-xs text-ink/60">No artwork</span>}
+                <p className="leading-relaxed text-ink/70 md:col-span-3">{request.message}</p>
+              </article>
+            ))}
+          </div>
+        ) : <p className="mt-4 text-sm text-ink/65">No custom requests yet.</p>}
+      </section>
       <section className="mt-16">
         <h2 className="font-display text-4xl">Recent orders</h2>
         <div className="mt-5 overflow-x-auto">
