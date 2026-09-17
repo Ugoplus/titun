@@ -35,7 +35,7 @@ const sections: Array<{
   },
   {
     name: "Scent stories",
-    description: "The words customers see after selecting a scent image.",
+    description: "The words customers see on each refreshing-towel product page.",
     fields: [
       { key: "scentGreenTeaTagline", label: "Green Tea tagline" },
       { key: "scentGreenTeaCopy", label: "Green Tea description", multiline: true },

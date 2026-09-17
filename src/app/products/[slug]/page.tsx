@@ -7,6 +7,25 @@ import { getProductBySlug } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
 import { getPackOptions, isRefreshingTowel } from "@/lib/product-pricing";
 import { absoluteUrl } from "@/lib/site";
+import { getHomepageCopy, type HomepageCopy } from "@/lib/site-content";
+
+const scentStoryKeys = {
+  "green-tea-refreshing-towel": {
+    tagline: "scentGreenTeaTagline",
+    description: "scentGreenTeaCopy",
+  },
+  "lemongrass-refreshing-towel": {
+    tagline: "scentLemongrassTagline",
+    description: "scentLemongrassCopy",
+  },
+  "sandalwood-refreshing-towel": {
+    tagline: "scentSandalwoodTagline",
+    description: "scentSandalwoodCopy",
+  },
+} as const satisfies Record<string, {
+  tagline: keyof HomepageCopy;
+  description: keyof HomepageCopy;
+}>;
 
 export async function generateMetadata({
   params,
@@ -39,12 +58,22 @@ export default async function ProductPage({
   params,
 }: PageProps<"/products/[slug]">) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, homepageCopy] = await Promise.all([
+    getProductBySlug(slug),
+    getHomepageCopy(),
+  ]);
   if (!product) notFound();
   const available = product.stockOnHand - product.stockReserved;
   const packOptions = getPackOptions(product);
   const isTowel = isRefreshingTowel(product);
   const inStock = available >= packOptions[0].quantity;
+  const scentStoryKey = scentStoryKeys[slug as keyof typeof scentStoryKeys];
+  const scentStory = scentStoryKey
+    ? {
+        tagline: homepageCopy[scentStoryKey.tagline],
+        description: homepageCopy[scentStoryKey.description],
+      }
+    : null;
 
   return (
     <div className="grid min-h-[75svh] lg:grid-cols-[1.1fr_.9fr]">
@@ -112,6 +141,18 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
+      {scentStory && (
+        <section className="border-t border-ink/15 bg-cream px-5 py-14 md:px-8 md:py-20 lg:col-span-2">
+          <div className="mx-auto grid max-w-[1200px] gap-6 md:grid-cols-[.8fr_1.2fr] md:gap-16">
+            <h2 className="max-w-[18ch] text-balance font-display text-4xl leading-[.98] tracking-[-.025em] md:text-5xl">
+              {scentStory.tagline}
+            </h2>
+            <p className="max-w-[62ch] self-end text-base leading-relaxed text-ink/70 md:text-lg">
+              {scentStory.description}
+            </p>
+          </div>
+        </section>
+      )}
       {isTowel && (
         <section className="border-t border-ink/15 bg-white px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
           <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[.8fr_1.2fr]">
