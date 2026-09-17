@@ -7,6 +7,7 @@ import { HomeHeroSlideshow } from "@/components/home-hero-slideshow";
 import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/site";
+import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -18,28 +19,28 @@ const productDetails = [
 ] as const;
 
 const applications = [
-  { title: "Dining and hospitality", copy: "A considered detail for restaurants, hotels and private occasions.", image: "/images/titun/hero-lounge.jpg" },
-  { title: "Wellness and care", copy: "A clean pause for spas, salons, studios and personal routines.", image: "/images/titun/ritual-spa.jpg" },
-  { title: "Travel and movement", copy: "Individually wrapped refreshment for journeys, fitness and busy days.", image: "/images/titun/movement-kit.jpg" },
+  { title: "Dining and hospitality", copy: "A considered detail for restaurants, hotels and private occasions.", assetKey: "home.application.dining" },
+  { title: "Wellness and care", copy: "A clean pause for spas, salons, studios and personal routines.", assetKey: "home.application.wellness" },
+  { title: "Travel and movement", copy: "Individually wrapped refreshment for journeys, fitness and busy days.", assetKey: "home.application.travel" },
 ] as const;
 
 const collections = [
   {
     title: "Refreshing towels",
     copy: "Explore Green Tea, Lemongrass and Sandalwood in 25, 50 or 100-piece packs.",
-    image: "/images/titun/green-tea-towel.jpg",
+    assetKey: "home.collection.towels",
     href: "/shop?category=Refreshing%20towels",
   },
   {
     title: "Refreshing wet wipes",
     copy: "A light, individually wrapped refresh for dining, travel and movement.",
-    image: "/images/titun/lemongrass-wipes.jpg",
+    assetKey: "home.collection.wipes",
     href: "/shop#wipes",
   },
   {
     title: "Gift boxes and multipacks",
     copy: "Considered presentation for gifting, hosting and elevated occasions.",
-    image: "/images/titun/gift-box.jpg",
+    assetKey: "home.collection.gift",
     href: "/products/titun-discovery-gift-box",
   },
 ] as const;
@@ -47,23 +48,24 @@ const collections = [
 const scentStories = [
   {
     name: "Green Tea",
-    image: "/images/titun/scent-green-tea.jpg",
+    assetKey: "home.scent.green-tea",
     href: "/products/green-tea-refreshing-towel",
   },
   {
     name: "Lemongrass",
-    image: "/images/titun/scent-lemongrass.jpg",
+    assetKey: "home.scent.lemongrass",
     href: "/products/lemongrass-refreshing-towel",
   },
   {
     name: "Sandalwood",
-    image: "/images/titun/scent-sandalwood.jpg",
+    assetKey: "home.scent.sandalwood",
     href: "/products/sandalwood-refreshing-towel",
   },
 ] as const;
 
 export default async function Home() {
   const products = await getProducts();
+  const siteImages = await getSiteAssetMap();
   const towels = products.filter((product) => product.category === "Refreshing towels");
   const wipes = products.filter((product) => product.category === "Refreshing wet wipes");
 
@@ -71,7 +73,7 @@ export default async function Home() {
     <>
       <StructuredData data={{ "@context": "https://schema.org", "@type": "OnlineStore", name: "TITUN", url: absoluteUrl("/"), description: "Premium refreshing towels and wipes for hospitality, travel, wellness and everyday rituals.", image: absoluteUrl("/images/titun/green-tea-towel.jpg"), currenciesAccepted: "NGN" }} />
 
-      <HomeHeroSlideshow />
+      <HomeHeroSlideshow images={[siteImages["home.hero.one"], siteImages["home.hero.two"], siteImages["home.hero.three"]]} />
 
       <section className="border-b border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1440px]">
@@ -87,7 +89,7 @@ export default async function Home() {
             {collections.map((collection) => (
               <Link key={collection.title} href={collection.href} className="group relative min-h-[30rem] overflow-hidden bg-ink text-white">
                 <Image
-                  src={collection.image}
+                  src={siteImages[collection.assetKey as SiteAssetKey]}
                   alt=""
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -127,7 +129,7 @@ export default async function Home() {
                 <Link key={scent.name} href={scent.href} className="group block overflow-hidden bg-ink">
                   <div className="relative aspect-[944/1080] overflow-hidden">
                     <Image
-                      src={scent.image}
+                      src={siteImages[scent.assetKey as SiteAssetKey]}
                       alt={`${scent.name} scent story for TITUN refreshing towels`}
                       fill
                       sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 33vw"
@@ -151,7 +153,7 @@ export default async function Home() {
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
             {applications.map((application) => (
               <article key={application.title}>
-                <div className="relative aspect-[4/3] overflow-hidden bg-oat"><Image src={application.image} alt={`${application.title} with TITUN refreshing towels`} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" /></div>
+                <div className="relative aspect-[4/3] overflow-hidden bg-oat"><Image src={siteImages[application.assetKey as SiteAssetKey]} alt={`${application.title} with TITUN refreshing towels`} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" /></div>
                 <h3 className="mt-5 font-display text-3xl">{application.title}</h3>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink/65">{application.copy}</p>
               </article>
@@ -203,7 +205,7 @@ export default async function Home() {
 
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-[#efefed] lg:grid-cols-[1.05fr_.95fr]">
-          <div className="relative min-h-[28rem] lg:min-h-[38rem]"><Image src="/images/titun/wipes-lifestyle.jpg" alt="A guest using a TITUN wipe during a hospitality experience" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" /></div>
+          <div className="relative min-h-[28rem] lg:min-h-[38rem]"><Image src={siteImages["home.corporate"]} alt="A guest using a TITUN wipe during a hospitality experience" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" /></div>
           <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-16">
             <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Your welcome, your scale.</h2>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">Hotels, restaurants, airlines, wellness spaces, event teams and private hosts can build a TITUN order around product, scent, quantity and occasion.</p>

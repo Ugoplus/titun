@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { getUpcomingEvents } from "@/lib/community";
 import { formatMoney } from "@/lib/money";
+import { getSiteAssetMap } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CommunityPage() {
-  const events = await getUpcomingEvents();
+  const [events, siteImages] = await Promise.all([getUpcomingEvents(), getSiteAssetMap()]);
   return (
     <div>
       <section className="grid min-h-[72svh] bg-ink text-cream lg:grid-cols-[1.1fr_.9fr]">
@@ -35,7 +36,7 @@ export default async function CommunityPage() {
         </div>
         <div className="relative min-h-[48svh] lg:min-h-full">
           <Image
-            src="/images/titun/hero-lounge.jpg"
+            src={siteImages["community.hero"]}
             alt="A calm lounge prepared for a TITUN community gathering"
             fill
             priority

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { inventoryEvents, products } from "@/lib/db/schema";
@@ -54,6 +55,9 @@ export async function PATCH(
       }
       return changed;
     });
+    revalidatePath("/");
+    revalidatePath("/shop");
+    revalidatePath(`/products/${updated.slug}`);
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json(

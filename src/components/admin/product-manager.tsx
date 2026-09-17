@@ -21,6 +21,7 @@ export function ProductManager({
   const [isUploading, setIsUploading] = useState(false);
   const [savingProductId, setSavingProductId] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [replacementImages, setReplacementImages] = useState<Record<string, string>>({});
   const field =
     "h-11 w-full border-b border-ink/35 bg-transparent text-base outline-none focus:border-ink";
 
@@ -100,6 +101,7 @@ export function ProductManager({
         body: JSON.stringify({
           stockOnHand: Number(form.get("stock")),
           price: Math.round(Number(form.get("price")) * 100),
+          ...(replacementImages[product.id] ? { images: [replacementImages[product.id]] } : {}),
         }),
       });
       const payload = await response.json();
@@ -108,6 +110,11 @@ export function ProductManager({
         current.map((item) => (item.id === product.id ? payload : item)),
       );
       toast.success(`${product.name} updated`);
+      setReplacementImages((current) => {
+        const next = { ...current };
+        delete next[product.id];
+        return next;
+      });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Product could not be updated",
@@ -292,7 +299,7 @@ export function ProductManager({
                 </p>
               </div>
               <form
-                className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[100px_100px_auto]"
+                className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[100px_100px_auto_auto]"
                 onSubmit={(event) => handleProductUpdate(event, product)}
               >
                 <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">
@@ -322,6 +329,33 @@ export function ProductManager({
                 >
                   {savingProductId === product.id ? "Updating…" : "Update"}
                 </button>
+                <label className="col-span-2 inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 border border-ink px-3 text-xs font-bold sm:col-span-1">
+                  <ImageSquare /> {replacementImages[product.id] ? "Image ready" : "Replace image"}
+                  <input
+                    type="file"
+                    className="sr-only"
+                    accept="image/jpeg,image/png,image/webp,image/avif"
+                    disabled={isUploading}
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      setIsUploading(true);
+                      try {
+                        const body = new FormData();
+                        body.set("file", file);
+                        const response = await fetch("/api/admin/uploads", { method: "POST", body });
+                        const payload = await response.json();
+                        if (!response.ok) throw new Error(payload.error);
+                        setReplacementImages((current) => ({ ...current, [product.id]: payload.url }));
+                        toast.success("Image ready — click Update to save");
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : "Image could not be uploaded");
+                      } finally {
+                        setIsUploading(false);
+                      }
+                    }}
+                  />
+                </label>
               </form>
             </article>
           );

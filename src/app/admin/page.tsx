@@ -4,13 +4,15 @@ import { clearAdminSession, isAdmin } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { orders, products } from "@/lib/db/schema";
 import { ProductManager } from "@/components/admin/product-manager";
+import { SiteImageManager } from "@/components/admin/site-image-manager";
 import { formatMoney } from "@/lib/money";
+import { getSiteAssetRecords } from "@/lib/site-assets";
 
 export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   if (!(await isAdmin())) redirect("/admin/login");
   const db = getDb();
-  const [catalog, recentOrders, sales] = await Promise.all([
+  const [catalog, recentOrders, sales, websiteImages] = await Promise.all([
     db.select().from(products).orderBy(desc(products.updatedAt)),
     db.select().from(orders).orderBy(desc(orders.createdAt)).limit(8),
     db
@@ -19,6 +21,7 @@ export default async function AdminPage() {
         paidOrders: sql<number>`COUNT(*) FILTER (WHERE ${orders.status} IN ('paid','fulfilled'))`,
       })
       .from(orders),
+    getSiteAssetRecords(),
   ]);
   const lowStock = catalog.filter(
     (product) =>
@@ -87,6 +90,7 @@ export default async function AdminPage() {
         </section>
       )}
       <ProductManager initialProducts={catalog} />
+      <SiteImageManager initialAssets={websiteImages} />
       <section className="mt-16">
         <h2 className="font-display text-4xl">Recent orders</h2>
         <div className="mt-5 overflow-x-auto">

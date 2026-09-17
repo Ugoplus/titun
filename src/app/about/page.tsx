@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ContentPage } from "@/components/content-page";
+import { getSiteAssetMap } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "About TITUN",
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const siteImages = await getSiteAssetMap();
   return (
     <ContentPage
       title="A quieter way to care."
@@ -18,7 +20,7 @@ export default function AboutPage() {
     >
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         <div className="relative min-h-[60svh]">
-          <Image src="/images/titun/hero-lounge.jpg" alt="TITUN refreshing towel presented during a dining experience" fill className="object-cover" />
+          <Image src={siteImages["about.hero"]} alt="TITUN refreshing towel presented during a dining experience" fill className="object-cover" />
         </div>
         <div className="flex flex-col justify-center">
           <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em]">Renewal is a gesture.</h2>

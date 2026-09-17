@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
-const slides = [
+const slideContent = [
   {
     image: "/images/titun/hero-lounge.jpg",
     alt: "TITUN refreshing towels presented in a quiet hospitality setting",
@@ -26,14 +26,14 @@ const slides = [
   },
 ] as const;
 
-export function HomeHeroSlideshow() {
+export function HomeHeroSlideshow({ images }: { images: [string, string, string] }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     if (paused) return;
     const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length);
+      setActiveSlide((current) => (current + 1) % slideContent.length);
     }, 6500);
     return () => window.clearInterval(timer);
   }, [paused]);
@@ -50,16 +50,16 @@ export function HomeHeroSlideshow() {
         if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
       }}
     >
-      {slides.map((slide, index) => (
+      {slideContent.map((slide, index) => (
         <div
-          key={slide.image}
+          key={`${index}-${images[index]}`}
           aria-hidden={activeSlide !== index}
           className={`absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none ${
             activeSlide === index ? "opacity-100" : "opacity-0"
           }`}
         >
           <Image
-            src={slide.image}
+            src={images[index]}
             alt={activeSlide === index ? slide.alt : ""}
             fill
             priority={index === 0}
@@ -73,10 +73,10 @@ export function HomeHeroSlideshow() {
       <div className="relative z-10 flex min-h-[39rem] items-center justify-center px-5 py-24 text-center text-white md:min-h-[46rem] md:px-8">
         <div className="max-w-4xl" aria-live="polite" aria-atomic="true">
           <h1 className="text-balance font-display text-[clamp(3.75rem,8vw,6rem)] leading-[.88] tracking-[-.035em]">
-            {slides[activeSlide].title}
+            {slideContent[activeSlide].title}
           </h1>
           <p className="mx-auto mt-6 max-w-[52ch] text-base leading-relaxed text-white/90 md:text-lg">
-            {slides[activeSlide].copy}
+            {slideContent[activeSlide].copy}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link

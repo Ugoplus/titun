@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { CorporateEnquiryForm } from "@/components/corporate-enquiry-form";
+import { getSiteAssetMap } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "Corporate and Hospitality Orders",
@@ -14,6 +15,7 @@ export default async function CorporatePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const query = await searchParams;
+  const siteImages = await getSiteAssetMap();
   const defaultProduct = typeof query.product === "string" ? query.product : "";
   return (
     <div className="bg-white">
@@ -24,7 +26,7 @@ export default async function CorporatePage({
           <a href="#enquiry" className="mt-8 w-fit bg-ink px-6 py-4 text-sm font-semibold text-white">Enquire about corporate orders</a>
         </div>
         <div className="relative min-h-[50svh]">
-          <Image src="/images/titun/wipes-lifestyle.jpg" alt="A guest using a TITUN wipe in an elegant hospitality setting" fill priority className="object-cover" />
+          <Image src={siteImages["corporate.hero"]} alt="A guest using a TITUN wipe in an elegant hospitality setting" fill priority className="object-cover" />
         </div>
       </section>
       <section className="px-5 py-20 md:px-8 md:py-28">

@@ -266,6 +266,15 @@ export const newsletterSubscribers = pgTable(
   ],
 );
 
+export const siteAssets = pgTable("site_assets", {
+  key: text("key").primaryKey(),
+  label: text("label").notNull(),
+  url: text("url").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const corporateEnquiries = pgTable("corporate_enquiries", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),

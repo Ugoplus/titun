@@ -153,6 +153,13 @@ CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
   "subscribed_at" timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS "site_assets" (
+  "key" text PRIMARY KEY,
+  "label" text NOT NULL,
+  "url" text NOT NULL,
+  "updated_at" timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" text NOT NULL,
