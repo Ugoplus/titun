@@ -3,23 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const slideContent = [
   {
-    image: "/images/titun/hero-lounge.jpg",
-    alt: "TITUN refreshing towels presented in a quiet hospitality setting",
+    type: "video",
+    src: "/videos/titun-renewal.m4v",
+    poster: "/videos/titun-renewal-poster.jpg",
+    duration: 12000,
     title: "The Art of Renewal",
     copy: "Scented refreshing towels for moments of welcome, movement and everyday care.",
   },
   {
-    image: "/images/titun/wipes-lifestyle.jpg",
+    type: "image",
+    imageIndex: 1,
+    duration: 6500,
     alt: "A guest enjoying a TITUN refreshing wipe",
     title: "A thoughtful welcome",
     copy: "A simple gesture, made memorable through scent, softness and considered presentation.",
   },
   {
-    image: "/images/titun/movement-kit.jpg",
+    type: "image",
+    imageIndex: 2,
+    duration: 6500,
     alt: "TITUN refreshing towels prepared for travel and movement",
     title: "Refresh wherever life moves",
     copy: "Individually sealed and ready for travel, dining, wellness and the everyday in between.",
@@ -29,7 +35,8 @@ const slideContent = [
 export function HomeHeroSlideshow({ images }: { images: [string, string, string] }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [interactionPaused, setInteractionPaused] = useState(false);
-  const [autoplayEnabled, setAutoplayEnabled] = useState(true);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -42,11 +49,22 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
 
   useEffect(() => {
     if (!autoplayEnabled || interactionPaused) return;
-    const timer = window.setInterval(() => {
+    const timer = window.setTimeout(() => {
       setActiveSlide((current) => (current + 1) % slideContent.length);
-    }, 6500);
-    return () => window.clearInterval(timer);
-  }, [autoplayEnabled, interactionPaused]);
+    }, slideContent[activeSlide].duration);
+    return () => window.clearTimeout(timer);
+  }, [activeSlide, autoplayEnabled, interactionPaused]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (activeSlide === 0 && autoplayEnabled) {
+      void video.play().catch(() => undefined);
+      return;
+    }
+    video.pause();
+    if (activeSlide !== 0) video.currentTime = 0;
+  }, [activeSlide, autoplayEnabled]);
 
   return (
     <section
@@ -62,20 +80,34 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
     >
       {slideContent.map((slide, index) => (
         <div
-          key={`${index}-${images[index]}`}
+          key={slide.title}
           aria-hidden={activeSlide !== index}
           className={`absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none ${
             activeSlide === index ? "opacity-100" : "opacity-0"
           }`}
         >
-          <Image
-            src={images[index]}
-            alt={activeSlide === index ? slide.alt : ""}
-            fill
-            priority={index === 0}
-            sizes="100vw"
-            className="object-cover object-center"
-          />
+          {slide.type === "video" ? (
+            <video
+              ref={videoRef}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={slide.poster}
+              className="h-full w-full object-cover object-center"
+              aria-hidden="true"
+            >
+              <source src={slide.src} type="video/mp4" />
+            </video>
+          ) : (
+            <Image
+              src={images[slide.imageIndex]}
+              alt={activeSlide === index ? slide.alt : ""}
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          )}
           <div className="absolute inset-0 bg-ink/55" />
         </div>
       ))}
