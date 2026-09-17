@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 const slides = [
@@ -37,10 +37,6 @@ export function HomeHeroSlideshow() {
     }, 6500);
     return () => window.clearInterval(timer);
   }, [paused]);
-
-  const showSlide = (index: number) => {
-    setActiveSlide((index + slides.length) % slides.length);
-  };
 
   return (
     <section
@@ -96,45 +92,6 @@ export function HomeHeroSlideshow() {
               Corporate orders
             </Link>
           </div>
-        </div>
-      </div>
-
-      <div className="absolute inset-x-5 bottom-5 z-20 flex items-center justify-between md:inset-x-8 md:bottom-7">
-        <div className="flex gap-2" aria-label="Choose a slide">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.title}
-              type="button"
-              onClick={() => showSlide(index)}
-              aria-label={`Show slide ${index + 1}: ${slide.title}`}
-              aria-current={activeSlide === index ? "true" : undefined}
-              className={`h-11 w-11 border transition-colors ${
-                activeSlide === index
-                  ? "border-white bg-white text-ink"
-                  : "border-white/60 text-white hover:border-white"
-              }`}
-            >
-              <span className="text-xs font-bold tabular-nums">{index + 1}</span>
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => showSlide(activeSlide - 1)}
-            className="grid h-11 w-11 place-content-center border border-white/60 text-white transition-colors hover:border-white hover:bg-white hover:text-ink"
-            aria-label="Show previous slide"
-          >
-            <ArrowLeft aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => showSlide(activeSlide + 1)}
-            className="grid h-11 w-11 place-content-center border border-white/60 text-white transition-colors hover:border-white hover:bg-white hover:text-ink"
-            aria-label="Show next slide"
-          >
-            <ArrowRight aria-hidden="true" />
-          </button>
         </div>
       </div>
     </section>
