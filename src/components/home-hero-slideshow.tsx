@@ -10,14 +10,14 @@ const slideContent = [
     type: "video",
     src: "/videos/titun-renewal.m4v",
     poster: "/videos/titun-renewal-poster.jpg",
-    duration: 12000,
+    duration: 7000,
     title: "The Art of Renewal",
     copy: "Scented refreshing towels for moments of welcome, movement and everyday care.",
   },
   {
     type: "image",
     imageIndex: 1,
-    duration: 6500,
+    duration: 4500,
     alt: "A guest enjoying a TITUN refreshing wipe",
     title: "A thoughtful welcome",
     copy: "A simple gesture, made memorable through scent, softness and considered presentation.",
@@ -25,7 +25,7 @@ const slideContent = [
   {
     type: "image",
     imageIndex: 2,
-    duration: 6500,
+    duration: 4500,
     alt: "TITUN refreshing towels prepared for travel and movement",
     title: "Refresh wherever life moves",
     copy: "Individually sealed and ready for travel, dining, wellness and the everyday in between.",
@@ -82,7 +82,7 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
         <div
           key={slide.title}
           aria-hidden={activeSlide !== index}
-          className={`absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none ${
+          className={`absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
             activeSlide === index ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -114,10 +114,10 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
 
       <div className="relative z-10 flex min-h-[39rem] items-center justify-center px-5 py-24 text-center text-white md:min-h-[46rem] md:px-8">
         <div className="max-w-4xl">
-          <h1 className="text-balance font-display text-[clamp(3.75rem,8vw,6rem)] leading-[.88] tracking-[-.035em]">
+          <h1 className="text-balance font-display text-[clamp(3.25rem,6.5vw,5rem)] leading-[.9] tracking-[-.03em]">
             {slideContent[activeSlide].title}
           </h1>
-          <p className="mx-auto mt-6 max-w-[52ch] text-base leading-relaxed text-white/90 md:text-lg">
+          <p className="mx-auto mt-5 max-w-[52ch] text-sm leading-relaxed text-white/90 md:text-base">
             {slideContent[activeSlide].copy}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
