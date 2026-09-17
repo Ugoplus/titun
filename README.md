@@ -22,13 +22,27 @@ Money is stored in the smallest currency unit: `₦1,800` is stored as `180000` 
 
 Without `DATABASE_URL`, public pages use a read-only sample catalogue so the design can be previewed. Checkout and admin operations intentionally require a database.
 
-Generate the admin password hash:
+Generate the first administrator password hash:
 
 ```bash
 node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 12))" 'choose-a-strong-password'
 ```
 
 Generate secrets with `openssl rand -base64 48`. Never commit `.env`.
+
+## Admin security
+
+Admin identities, roles, one-time challenges and security activity are stored in PostgreSQL. The `ADMIN_EMAIL` and `ADMIN_PASSWORD_HASH` environment variables bootstrap the first Administrator during migration; subsequent team access is managed at `/admin/team`.
+
+- Every sign-in uses a password followed by a six-digit, single-use email code when HTTPS and SMTP are ready.
+- Verification and reset codes expire after 10 minutes and allow at most five attempts. Invitation codes expire after 24 hours.
+- Password recovery always returns a generic response and requires the emailed code before accepting a new 12–128 character passphrase.
+- Roles are deny-by-default. Order fulfilment can update delivery progress without receiving totals, discounts, currency, payment-provider details or payment references.
+- Only the Administrator role can view financials, create roles, invite users, review security activity or revoke access.
+- Revoking access or changing a role increments the user’s session version, invalidating existing sessions immediately.
+- Every admin page, route handler and Server Action rechecks the database-backed identity and required permission.
+
+Email security deliberately remains disabled if either `NEXT_PUBLIC_SITE_URL` is not HTTPS or `SMTP_HOST` is blank. This prevents enabling recovery and invitations over an incomplete transport setup. Email codes improve the current password-only flow, but a future passkey or authenticator-app option would provide stronger phishing resistance.
 
 ## Payments
 
@@ -58,7 +72,7 @@ Create and review events at `/admin/events`. After a successful event payment, t
 
 ## Email
 
-Use any SMTP provider by filling in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`. A paid order emails the customer and `ORDER_NOTIFICATION_EMAIL`. The first time a product falls at or below its threshold, `LOW_STOCK_EMAIL` receives an alert. Restocking above the threshold arms that alert again.
+Use any authenticated SMTP provider by filling in `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `EMAIL_FROM`. Verify the SMTP connection before enabling team access. A paid order emails the customer and `ORDER_NOTIFICATION_EMAIL`. The first time a product falls at or below its threshold, `LOW_STOCK_EMAIL` receives an alert. Restocking above the threshold arms that alert again.
 
 ## Ubuntu VPS deployment
 
@@ -84,4 +98,4 @@ npm run lint
 npm run build
 ```
 
-The shop dashboard is at `/admin`, and community administration is at `/admin/events`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.
+The shop dashboard is at `/admin`, order fulfilment is at `/admin/orders`, community administration is at `/admin/events`, and roles and revocation are at `/admin/team`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.
