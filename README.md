@@ -8,7 +8,8 @@ A mobile-first storefront, community events area and operations dashboard for TI
 - PostgreSQL with Drizzle ORM
 - Paystack and Stripe hosted checkout
 - SMTP email via Nodemailer
-- Local persistent image storage on the VPS
+- Local persistent image and video storage on the VPS
+- FFmpeg normalization for browser-compatible slideshow video
 - Tailwind CSS 3
 
 Money is stored in the smallest currency unit: `₦1,800` is stored as `180000` kobo. The browser never decides the charge amount; every price and discount is recalculated from PostgreSQL.
@@ -78,7 +79,7 @@ Use any authenticated SMTP provider by filling in `SMTP_HOST`, `SMTP_PORT`, `SMT
 
 The supplied files assume Ubuntu, Nginx, PostgreSQL and systemd—no container layer is required.
 
-1. Install Node.js 24, PostgreSQL, Nginx and Certbot.
+1. Install Node.js 24, PostgreSQL, Nginx, FFmpeg and Certbot.
 2. Create a locked-down `titun` Linux user, `/opt/titun`, and `/var/lib/titun/uploads` owned by that user.
 3. Copy the project to `/opt/titun`, create `/opt/titun/.env`, then run `npm ci`, `npm run db:migrate`, and `npm run build`.
 4. Copy `.next/static` into `.next/standalone/.next/static` and `public` into `.next/standalone/public` if deploying only the standalone folder. The supplied service starts the project-root standalone build.
@@ -98,4 +99,4 @@ npm run lint
 npm run build
 ```
 
-The shop dashboard is at `/admin`, order fulfilment is at `/admin/orders`, community administration is at `/admin/events`, and roles and revocation are at `/admin/team`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.
+The shop dashboard is at `/admin`, website content is at `/admin/content`, order fulfilment is at `/admin/orders`, community administration is at `/admin/events`, and roles and revocation are at `/admin/team`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.

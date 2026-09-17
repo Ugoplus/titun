@@ -37,9 +37,9 @@ export function SiteImageManager({ initialAssets }: { initialAssets: Asset[] }) 
   };
 
   return (
-    <section className="mt-16">
+    <section id="other-website-images" className="mt-16 scroll-mt-6">
       <h2 className="font-display text-5xl">Other website images</h2>
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">Replace collection, scent, application and page imagery here. These image changes publish immediately.</p>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65"><strong className="font-semibold text-ink">Publishes immediately.</strong> Replace collection, scent, application and page imagery here.</p>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {assets.map((asset) => (
           <article key={asset.key} className="border border-ink/20 bg-white p-3">
@@ -48,8 +48,8 @@ export function SiteImageManager({ initialAssets }: { initialAssets: Asset[] }) 
             </div>
             <div className="mt-3 flex items-center justify-between gap-3">
               <p className="text-sm font-semibold">{asset.label}</p>
-              <label className="inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 border border-ink px-3 text-xs font-bold">
-                <ImageSquare /> {uploadingKey === asset.key ? "Uploading…" : "Replace"}
+              <label className="inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 border border-ink px-3 text-xs font-bold focus-within:outline focus-within:outline-2 focus-within:outline-offset-2">
+                <ImageSquare /> {uploadingKey === asset.key ? "Publishing…" : "Replace and publish"}
                 <input type="file" className="sr-only" accept="image/jpeg,image/png,image/webp,image/avif" disabled={uploadingKey !== null} onChange={(event) => handleReplace(asset.key, event.target.files?.[0])} />
               </label>
             </div>

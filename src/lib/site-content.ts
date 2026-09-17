@@ -29,7 +29,7 @@ export function defaultHomepageHeroSlides(
     {
       id: "renewal-film",
       mediaType: "video",
-      mediaUrl: "/videos/titun-renewal.m4v",
+      mediaUrl: "/videos/titun-renewal.mp4",
       posterUrl: "/videos/titun-renewal-poster.jpg",
       durationMs: 7000,
       alt: "",

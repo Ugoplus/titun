@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { AdminIdentity } from "@/lib/auth";
 import { hasAdminPermission } from "@/lib/admin-permissions";
 
 export function AdminNavigation({ identity }: { identity: AdminIdentity }) {
+  const pathname = usePathname();
   const links = [
     { href: "/admin", label: "Dashboard", permission: "dashboard:view" as const },
     { href: "/admin/orders", label: "Orders", permission: "orders:view" as const },
@@ -14,9 +18,9 @@ export function AdminNavigation({ identity }: { identity: AdminIdentity }) {
   );
 
   return (
-    <nav aria-label="Admin sections" className="filter-scroll flex gap-2 overflow-x-auto border-b border-ink/20 pb-4">
+    <nav aria-label="Admin sections" className="flex gap-2 overflow-x-auto border-b border-ink/20 pb-3">
       {links.map((link) => (
-        <Link key={link.href} href={link.href} className="inline-flex min-h-11 shrink-0 items-center border border-ink/25 px-4 text-sm font-semibold hover:border-ink">
+        <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`inline-flex min-h-11 shrink-0 items-center border px-4 text-sm font-semibold ${pathname === link.href ? "border-ink bg-ink text-white" : "border-ink/25 hover:border-ink"}`}>
           {link.label}
         </Link>
       ))}

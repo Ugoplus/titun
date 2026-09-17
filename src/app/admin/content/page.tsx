@@ -31,6 +31,15 @@ export default async function AdminContentPage() {
         </p>
       </div>
 
+      <nav aria-label="Website content sections" className="flex flex-wrap gap-2 border-b border-ink/20 py-5">
+        <a href="#homepage-slideshow" className="inline-flex min-h-11 items-center border border-ink bg-ink px-4 text-sm font-semibold text-white">
+          Homepage slideshow
+        </a>
+        <a href="#other-website-images" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
+          Other website images
+        </a>
+      </nav>
+
       <HomepageContentManager initialSlides={slides} />
       <SiteImageManager initialAssets={otherAssets} />
     </main>

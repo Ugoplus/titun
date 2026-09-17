@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { NextResponse } from "next/server";
 import { protectAdminRequest } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+const runFile = promisify(execFile);
 const allowedTypes = new Map([
   ["image/jpeg", "jpg"],
   ["image/png", "png"],
@@ -42,14 +45,63 @@ export async function POST(request: Request) {
   const uploadDirectory =
     process.env.UPLOAD_DIR ?? path.join(process.cwd(), "data", "uploads");
   await mkdir(uploadDirectory, { recursive: true });
-  const filename = `${randomUUID()}.${extension}`;
+  const uploadId = randomUUID();
+  const filename = isVideo
+    ? `${uploadId}-source.${extension}`
+    : `${uploadId}.${extension}`;
+  const sourcePath = path.join(/* turbopackIgnore: true */ uploadDirectory, filename);
   await writeFile(
-    path.join(/* turbopackIgnore: true */ uploadDirectory, filename),
+    sourcePath,
     Buffer.from(await file.arrayBuffer()),
     { flag: "wx" },
   );
+  if (isVideo) {
+    const outputFilename = `${uploadId}.mp4`;
+    const outputPath = path.join(/* turbopackIgnore: true */ uploadDirectory, outputFilename);
+    try {
+      await runFile(
+        "ffmpeg",
+        [
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          sourcePath,
+          "-map_metadata",
+          "-1",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-crf",
+          "23",
+          "-pix_fmt",
+          "yuv420p",
+          "-c:a",
+          "aac",
+          "-b:a",
+          "128k",
+          "-movflags",
+          "+faststart",
+          outputPath,
+        ],
+        { timeout: 4 * 60 * 1000 },
+      );
+      await unlink(sourcePath);
+      return NextResponse.json(
+        { url: `/uploads/${outputFilename}`, mediaType: "video" },
+        { status: 201 },
+      );
+    } catch {
+      await Promise.allSettled([unlink(sourcePath), unlink(outputPath)]);
+      return NextResponse.json(
+        { error: "This video could not be prepared. Try a shorter MP4 or MOV file." },
+        { status: 400 },
+      );
+    }
+  }
   return NextResponse.json(
-    { url: `/uploads/${filename}`, mediaType: isVideo ? "video" : "image" },
+    { url: `/uploads/${filename}`, mediaType: "image" },
     { status: 201 },
   );
 }
