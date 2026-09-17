@@ -16,7 +16,7 @@ TITUN sells premium refreshing towels and wet wipes and presents them as a consi
 
 ## Positioning
 
-TITUN is not positioned as a cleaning-product store. It is a contemporary interpretation of the Oshibori ritual for modern hospitality, dining, travel, wellness, events and everyday life.
+TITUN is not positioned as a cleaning-product store. It turns the refreshing towel into a modern gesture of care for hospitality, dining, travel, wellness, events and everyday life.
 
 ## Operating Context
 
@@ -34,7 +34,7 @@ Customers discover TITUN primarily through mobile and social channels, learn the
 
 ## Brand Commitments
 
-TITUN uses the line “The Art of Renewal.” The experience must feel luxurious, calm, premium, hospitable, modern and intentional. The approved visual direction is white-led with restrained gold, warm brown and black; layouts are spacious, editorial and image-led. Oshibori Concept is structural inspiration only and must not be copied.
+TITUN uses the line “The Art of Renewal.” The experience must feel luxurious, calm, premium, hospitable, modern and intentional. The approved visual direction is white-led with restrained gold, warm brown and black; layouts are product-first, spacious and image-led. Competitor names and language must never appear in customer-facing TITUN content.
 
 ## Evidence on Hand
 

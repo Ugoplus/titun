@@ -1,6 +1,6 @@
 ---
 name: TITUN
-description: A quiet editorial system for premium refreshment and modern hospitality.
+description: A product-first retail system for premium refreshment and modern hospitality.
 colors:
   ritual-ink: "#181511"
   porcelain: "#f8f6f1"
@@ -21,6 +21,11 @@ typography:
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.625
+  title:
+    fontFamily: "Newsreader, Georgia, serif"
+    fontSize: "2rem"
+    fontWeight: 400
+    lineHeight: 1
   label:
     fontFamily: "Manrope, Arial, sans-serif"
     fontSize: "0.75rem"
@@ -61,13 +66,13 @@ components:
 
 **Creative North Star: “The Quiet Ritual”**
 
-TITUN’s visual world treats refreshment as a small ceremony. Generous white space, editorial serif type and real product photography create composure; restrained gold and walnut accents bring warmth without turning the store ornamental.
+TITUN’s visual world makes the product legible before it becomes expressive. Clean retail structure, editorial serif type and real product photography create composure; restrained gold and walnut accents bring warmth without turning the store ornamental.
 
-The system is calm, image-led and intentionally flat. Product packaging and hospitality photography provide the material richness while the interface stays precise and quiet.
+The system is calm, product-first and intentionally flat. Packaging appears immediately, the collection follows without delay, and hospitality photography provides context after the buying path is clear.
 
 **Key Characteristics:**
 
-- Spacious editorial compositions with a clear reading order
+- Compact product-first compositions with a clear reading order
 - Warm white grounds, dark ink and sparing metallic-gold accents
 - Real product imagery at useful scale
 - Square-edged controls and fine divider lines
@@ -115,7 +120,7 @@ The palette moves between porcelain-white fields and deep warm neutrals, with go
 
 ## Layout
 
-The storefront uses full-bleed editorial sections inside containers capped around 1440px. Desktop compositions commonly divide into two unequal columns; product sets use three columns. Horizontal padding begins at 1.25rem on phones, rises to 2rem on tablets and may become viewport-relative in feature sections. Major section spacing is approximately 5–7rem and compresses naturally on mobile. At phone widths, reading order becomes linear while intentional three-item scent strips remain compact and contained.
+The storefront uses a compact split product hero followed immediately by the shoppable collection, inside containers capped around 1440px. Desktop compositions commonly divide into two unequal columns; product sets use three columns and become horizontal scroll tracks on phones. Horizontal padding begins at 1.25rem on phones and rises to 2rem on tablets. Major section spacing is approximately 4–6rem and compresses naturally on mobile.
 
 ## Elevation & Depth
 
@@ -157,7 +162,7 @@ Commerce surfaces, cards, buttons and fields use square corners and fine borders
 
 ### Navigation
 
-Desktop navigation uses compact Manrope labels with measured spacing around a centered TITUN wordmark. Mobile preserves the wordmark and prioritizes search and basket actions in 44px targets.
+Desktop navigation uses a utility row around a centered TITUN wordmark and a second, compact product-navigation row. Mobile preserves the wordmark and prioritizes search and basket actions in 44px targets.
 
 ### Pack Selector
 

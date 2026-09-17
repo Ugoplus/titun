@@ -35,6 +35,7 @@ yarn-error.log*
 
 # local design-review artifacts
 /.impeccable/review/
+/.impeccable/reference/
 /.impeccable/config.local.json
 
 # vercel

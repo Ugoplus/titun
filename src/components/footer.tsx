@@ -15,8 +15,8 @@ const columns = [
     title: "Discover",
     links: [
       ["About TITUN", "/about"],
-      ["The Oshibori ritual", "/oshibori"],
       ["Corporate and hospitality", "/corporate"],
+      ["Community events", "/community"],
       ["Contact", "/contact"],
     ],
   },

@@ -27,23 +27,23 @@ export function ProductCard({
   const startingPrice = packOptions[0].total;
   const Heading = headingLevel;
   return (
-    <article className="group">
+    <article className="group bg-white">
       <Link href={`/products/${product.slug}`}>
         <ProductVisual
           images={product.images}
           name={product.name}
           index={index}
-          className="aspect-[4/5]"
+          className="aspect-square"
           priority={priority}
         />
       </Link>
-      <div className="grid grid-cols-[1fr_auto] gap-4 border-t border-ink/15 py-4">
+      <div className="grid grid-cols-[1fr_auto] gap-4 border border-ink/15 p-4">
         <Link href={`/products/${product.slug}`}>
-          <Heading className="font-display text-2xl leading-none">
+          <Heading className="font-display text-xl leading-tight">
             {product.name}
           </Heading>
-          <p className="mt-2 text-xs text-ink/70">
-            {product.scent} · {product.packSize}
+          <p className="mt-2 text-xs leading-relaxed text-ink/65">
+            {product.scent}
           </p>
           <p className="mt-3 text-sm font-bold tabular-nums">
             {packOptions.length > 1 ? "From " : ""}
@@ -53,7 +53,7 @@ export function ProductCard({
         <button
           disabled={available < 1}
           onClick={() => addItem(product, defaultQuantity)}
-          className="flex h-11 w-11 items-center justify-center border border-ink transition-colors hover:bg-citron disabled:cursor-not-allowed disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center bg-ink text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-30"
           aria-label={`Add ${product.name} ${defaultQuantity}-piece pack to basket`}
         >
           <Plus />

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   applicationName: "TITUN",
   keywords: [
     "refreshing towels",
-    "oshibori towels",
+    "scented refreshing towels",
     "premium wet wipes",
     "hospitality towels Nigeria",
     "TITUN",

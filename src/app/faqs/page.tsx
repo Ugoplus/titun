@@ -3,12 +3,12 @@ import { ContentPage } from "@/components/content-page";
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions",
-  description: "Answers about TITUN refreshing towels, Oshibori, pack sizes, storage and corporate supply.",
+  description: "Answers about TITUN refreshing towels, pack sizes, storage and corporate supply.",
   alternates: { canonical: "/faqs" },
 };
 
 const questions = [
-  ["What is an Oshibori?", "An Oshibori is a refreshing towel traditionally offered as a gesture of welcome and hospitality."],
+  ["What is a refreshing towel?", "A refreshing towel is an individually sealed, scented towel offered for a clean, considered moment of care."],
   ["How are TITUN towels packaged?", "Each refreshing towel is individually sealed to preserve presentation and freshness."],
   ["Which pack sizes are available?", "Refreshing towels are available in packs of 25, 50 and 100 pieces."],
   ["Can TITUN supply businesses and events?", "Yes. Use the Corporate and Hospitality enquiry form to share your product, quantity and occasion."],

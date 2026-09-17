@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-17T14:40:00+01:00",
+  "generatedAt": "2026-09-17T15:36:00+01:00",
   "title": "Design System: TITUN",
   "extensions": {
     "colorMeta": {
@@ -12,6 +12,7 @@
     "typographyMeta": {
       "display": { "displayName": "Editorial Display", "purpose": "Expressive hero and section statements." },
       "body": { "displayName": "Commerce Body", "purpose": "Product information, forms and supporting copy." },
+      "title": { "displayName": "Editorial Title", "purpose": "Product names, navigation wordmarks and compact headings." },
       "label": { "displayName": "Utility Label", "purpose": "Navigation and compact interface labels." }
     },
     "shadows": [
@@ -59,7 +60,7 @@
       "kind": "card",
       "description": "An image-first product tile with only decision-critical text.",
       "html": "<article class=\"ds-card\"><div class=\"ds-card-image\">Product photography</div><h3>Green Tea Refreshing Towel</h3><p>From ₦50,000</p></article>",
-      "css": ".ds-card{max-width:360px;border:0;border-radius:0;background:#fff;color:#181511;font-family:Manrope,Arial,sans-serif}.ds-card-image{aspect-ratio:4/5;display:grid;place-items:center;background:#f3efe8;color:rgba(24,21,17,.55)}.ds-card h3{margin:12px 0 4px;font:400 24px/1 Newsreader,Georgia,serif}.ds-card p{margin:0;font-size:12px;font-weight:700}.ds-card:focus-within{outline:2px solid #181511;outline-offset:3px}"
+      "css": ".ds-card{max-width:360px;border:0;border-radius:0;background:#fff;color:#181511;font-family:Manrope,Arial,sans-serif}.ds-card-image{aspect-ratio:1;display:grid;place-items:center;background:#f3efe8;color:rgba(24,21,17,.55)}.ds-card h3{margin:12px 0 4px;font:400 20px/1.2 Newsreader,Georgia,serif}.ds-card p{margin:0;font-size:12px;font-weight:700}.ds-card:focus-within{outline:2px solid #181511;outline-offset:3px}"
     },
     {
       "name": "Selected Pack",
@@ -71,8 +72,8 @@
   ],
   "narrative": {
     "northStar": "The Quiet Ritual",
-    "overview": "TITUN’s visual world treats refreshment as a small ceremony. Generous white space, editorial serif type and real product photography create composure; restrained gold and walnut accents bring warmth without turning the store ornamental. The system is calm, image-led and intentionally flat. Product packaging and hospitality photography provide the material richness while the interface stays precise and quiet.",
-    "keyCharacteristics": ["Spacious editorial compositions with a clear reading order", "Warm white grounds, dark ink and sparing metallic-gold accents", "Real product imagery at useful scale", "Square-edged controls and fine divider lines", "Mobile layouts that remain calm, legible and easy to shop"],
+    "overview": "TITUN’s visual world makes the product legible before it becomes expressive. Clean retail structure, editorial serif type and real product photography create composure; restrained gold and walnut accents bring warmth without turning the store ornamental. The system is calm, product-first and intentionally flat. Packaging appears immediately, the collection follows without delay, and hospitality photography provides context after the buying path is clear.",
+    "keyCharacteristics": ["Compact product-first compositions with a clear reading order", "Warm white grounds, dark ink and sparing metallic-gold accents", "Real product imagery at useful scale", "Square-edged controls and fine divider lines", "Mobile layouts that remain calm, legible and easy to shop"],
     "rules": [
       { "name": "The Gold Restraint Rule", "body": "Gold should identify a meaningful detail—selection, value or ritual—not coat whole interfaces.", "section": "colors" },
       { "name": "The Two-Voice Rule", "body": "Use Newsreader for expressive hierarchy and Manrope for every action, datum and explanation.", "section": "typography" },

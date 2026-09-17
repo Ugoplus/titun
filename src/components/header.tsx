@@ -13,11 +13,11 @@ import { useCart } from "./cart-provider";
 import { CartDrawer } from "./cart-drawer";
 
 const navigation = [
-  ["Home", "/"],
-  ["Shop", "/shop"],
-  ["About TITUN", "/about"],
-  ["Oshibori", "/oshibori"],
-  ["Corporate and Hospitality", "/corporate"],
+  ["Refreshing towels", "/shop?category=Refreshing%20towels"],
+  ["Wet wipes", "/shop#wipes"],
+  ["Corporate orders", "/corporate"],
+  ["Community", "/community"],
+  ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
 
@@ -33,8 +33,8 @@ export function Header() {
       >
         10% off your first order · Shop TITUN
       </Link>
-      <header className="sticky top-0 z-40 border-b border-ink/15 bg-cream/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-[76px] max-w-[1500px] items-center justify-between px-4 md:px-8">
+      <header className="sticky top-0 z-40 border-b border-ink/15 bg-white/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 md:px-8">
           <button
             onClick={() => setIsMenuOpen((open) => !open)}
             className="flex h-11 w-11 items-center justify-center lg:hidden"
@@ -44,24 +44,20 @@ export function Header() {
           >
             {isMenuOpen ? <X /> : <List />}
           </button>
-          <nav
-            aria-label="Primary navigation"
-            className="hidden items-center gap-5 text-[11px] font-bold uppercase tracking-[.07em] xl:gap-7 lg:flex"
+          <Link
+            href="/corporate"
+            className="hidden min-h-11 items-center border border-ink px-4 text-xs font-semibold lg:inline-flex"
           >
-            {navigation.map(([label, href]) => (
-              <Link key={href} href={href} className="py-4 hover:text-walnut">
-                {label}
-              </Link>
-            ))}
-          </nav>
+            Corporate enquiries
+          </Link>
           <Link
             href="/"
-            className="absolute left-1/2 -translate-x-1/2 font-display text-[2rem] font-medium tracking-[-.03em] lg:static lg:ml-auto lg:translate-x-0"
+            className="absolute left-1/2 -translate-x-1/2 font-display text-[2rem] font-medium tracking-[-.03em]"
             aria-label="TITUN home"
           >
             TITUN
           </Link>
-          <div className="flex items-center gap-1 lg:ml-5">
+          <div className="flex items-center gap-1">
             <Link
               href="/shop#product-search"
               aria-label="Search products"
@@ -88,11 +84,21 @@ export function Header() {
             </button>
           </div>
         </div>
+        <nav
+          aria-label="Primary navigation"
+          className="hidden min-h-11 items-center justify-center gap-8 border-t border-ink/10 px-8 text-xs font-semibold lg:flex"
+        >
+          {navigation.map(([label, href]) => (
+            <Link key={href} href={href} className="py-3 hover:text-walnut">
+              {label}
+            </Link>
+          ))}
+        </nav>
         {isMenuOpen && (
           <nav
             id="mobile-navigation"
             aria-label="Mobile navigation"
-            className="grid border-t border-ink/15 bg-cream px-5 py-6 font-display text-2xl lg:hidden"
+            className="grid border-t border-ink/15 bg-white px-5 py-6 font-display text-2xl lg:hidden"
           >
             {navigation.map(([label, href]) => (
               <Link
@@ -104,13 +110,6 @@ export function Header() {
                 {label}
               </Link>
             ))}
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              className="py-3"
-              href="/community"
-            >
-              Community events
-            </Link>
           </nav>
         )}
       </header>

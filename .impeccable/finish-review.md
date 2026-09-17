@@ -2,23 +2,25 @@ disposition: ship
 
 ## persistence
 
-pass — PRODUCT.md and the brief-pinned direction contract exist; this is a code-led build with valid 1440px desktop and 390px mobile captures.
+pass — PRODUCT.md, DESIGN.md and the updated product-first surface contract exist; valid 1440px desktop and 390px mobile captures show the rebuilt homepage.
 
 ## fidelity
 
 | Element | Verdict | Evidence |
 | --- | --- | --- |
-| Split first viewport | match | Editorial statement and actions precede the larger hospitality photograph. |
-| Homepage story | match | Towels and wipes lead into ritual, benefits, applications, shop, corporate and story. |
-| TYPE | match | Newsreader carries expressive hierarchy; Manrope carries commerce and utility. |
-| MATERIAL | match | Supplied product and hospitality photography remains visible and materially dominant. |
-| GROUND | match | White and warm porcelain fields follow the approved white-led world. |
-| Mobile reflow | acceptable adaptation | The same reading order is linear at 390px while the scent strip remains contained. |
-| Pack selector | match | Three explicit tiers expose total, per-piece value and restrained best-value emphasis. |
+| Compact commerce header | match | Utility row, centered wordmark and dedicated product-navigation row follow the reference hierarchy. |
+| Product-first hero | acceptable adaptation | TITUN’s own product photograph replaces the reference’s cut-out product while preserving the split commercial topology. |
+| Collection immediately after hero | match | Three scents appear in a compact shoppable grid and mobile product rail. |
+| Education and applications | match | Product explanation, factual proof rows and three photographic use settings follow the reference’s pacing using TITUN content. |
+| Corporate conversion | match | The late-page customization pattern becomes an honest corporate quote path. |
+| TYPE | acceptable adaptation | TITUN retains its approved Newsreader and Manrope pairing while adopting the reference’s tighter retail scale. |
+| MATERIAL | match | Supplied TITUN product and hospitality photography carries every major region. |
+| GROUND | match | White, warm gray and restrained gold reproduce the reference’s light retail field within TITUN’s palette. |
+| Commercial claims | acceptable adaptation | Unsupported certifications, testimonials and client logos are intentionally absent under PRODUCT.md’s truth constraint. |
 
 ## ceiling
 
-reached — the build uses its native devices: full-bleed photography, alternating editorial fields, restrained rules, two-voice typography and minimal motion.
+reached — isolated product photography, compact navigation, immediate catalogue access, factual comparison rows and a restrained conversion close are all used.
 
 ## material_fixes
 
@@ -26,4 +28,4 @@ none
 
 ## keep
 
-Keep the split hero, photographic scale and restraint of the pack-value treatment intact.
+Keep the product visible in the first viewport and the shoppable scent collection immediately beneath it.

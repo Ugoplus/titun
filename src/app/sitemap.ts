@@ -9,7 +9,6 @@ const publicPages = [
   "",
   "/shop",
   "/about",
-  "/oshibori",
   "/corporate",
   "/community",
   "/contact",
