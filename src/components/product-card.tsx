@@ -40,9 +40,9 @@ export function ProductCard({
           priority={priority}
         />
       </Link>
-      <div className="grid grid-cols-[1fr_auto] gap-4 border border-ink/15 p-4">
-        <Link href={`/products/${product.slug}`}>
-          <Heading className="font-display text-xl leading-tight">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border border-ink/15 p-4">
+        <Link href={`/products/${product.slug}`} className="min-w-0">
+          <Heading className="truncate whitespace-nowrap font-display text-[clamp(.9375rem,1.4vw,1.125rem)] leading-snug">
             {product.name}
           </Heading>
           <p className="mt-2 text-xs leading-relaxed text-ink/65">

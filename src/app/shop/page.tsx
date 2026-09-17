@@ -107,18 +107,18 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
 
       <section id="wipes" className="mt-24 scroll-mt-28 border-t border-ink/20 pt-14">
         <div className="grid gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-end">
-          <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">Refreshing wet wipes</h2>
+          <h2 className="whitespace-nowrap font-display text-[clamp(2.25rem,4vw,3rem)] leading-none tracking-[-.03em]">Refreshing wet wipes</h2>
           <div className="max-w-xl lg:justify-self-end">
             <p className="text-base leading-relaxed text-ink/65">A separate 40 GSM spunlace nonwoven format for dining, travel and movement. ₦500 per wipe with a 50-piece minimum order.</p>
             <Link href="/corporate?product=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Request branded wipes <ArrowRight /></Link>
           </div>
         </div>
-        <div className="mt-9 grid gap-4 sm:grid-cols-3">
+        <div className="mt-9 grid gap-4 md:grid-cols-3">
           {wipes.map((product) => (
             <Link key={product.id} href={`/products/${product.slug}`} className="border border-ink/15 bg-white">
-              <div className="relative aspect-square"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill className="object-cover" /></div>
+              <div className="relative aspect-square"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill sizes="(max-width: 767px) 100vw, 33vw" className="object-cover" /></div>
               <div className="border-t border-ink/15 p-4">
-                <p className="font-display text-2xl">{product.name}</p>
+                <p className="whitespace-nowrap font-display text-base leading-snug lg:text-lg">{product.name}</p>
                 <p className="mt-2 text-sm font-semibold">₦500 each · minimum 50</p>
               </div>
             </Link>

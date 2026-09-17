@@ -81,7 +81,7 @@ export default async function ProductPage({
           <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
             {product.category}
           </p>
-          <h1 className="mt-4 font-display text-[clamp(4rem,7vw,6rem)] leading-[.82] tracking-[-.04em]">
+          <h1 className="mt-4 whitespace-nowrap font-display text-[clamp(1.625rem,6vw,2.625rem)] leading-none tracking-[-.03em]">
             {product.name}
           </h1>
           <p className="mt-6 text-sm font-bold">{product.scent}</p>
