@@ -5,6 +5,7 @@ import { siteContent } from "@/lib/db/schema";
 import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
 
 export const homepageHeroKey = "home.hero.slides";
+export const homepageCopyKey = "home.copy";
 
 const localMediaPath = /^\/(?:uploads|images|videos)\/[a-zA-Z0-9_./-]+$/;
 
@@ -21,6 +22,43 @@ export const homepageHeroSlideSchema = z.object({
 
 export const homepageHeroSlidesSchema = z.array(homepageHeroSlideSchema).min(1).max(6);
 export type HomepageHeroSlide = z.infer<typeof homepageHeroSlideSchema>;
+
+const shortHeading = z.string().trim().min(1, "Add a heading").max(90, "Keep headings under 90 characters");
+const shortCopy = z.string().trim().min(1, "Add a short description").max(320, "Keep descriptions under 320 characters");
+
+export const homepageCopySchema = z.object({
+  collectionHeading: shortHeading,
+  towelsHeading: shortHeading,
+  scentsHeading: shortHeading,
+  applicationsHeading: shortHeading,
+  applicationsCopy: shortCopy,
+  whyHeading: shortHeading,
+  whyCopy: shortCopy,
+  wipesHeading: shortHeading,
+  wipesCopy: shortCopy,
+  corporateHeading: shortHeading,
+  corporateCopy: shortCopy,
+  storyHeading: shortHeading,
+  storyCopy: shortCopy,
+});
+
+export type HomepageCopy = z.infer<typeof homepageCopySchema>;
+
+export const defaultHomepageCopy: HomepageCopy = {
+  collectionHeading: "Shop the collection",
+  towelsHeading: "Our refreshing towels",
+  scentsHeading: "Discover the scents",
+  applicationsHeading: "A small detail with a lasting effect.",
+  applicationsCopy: "TITUN turns a practical moment of refreshment into a thoughtful gesture—easy to offer, pleasant to receive and ready when needed.",
+  whyHeading: "Why choose TITUN?",
+  whyCopy: "Clear product details, purposeful presentation and flexible pack choices make TITUN easy to bring into personal and professional settings.",
+  wipesHeading: "Refreshing wet wipes",
+  wipesCopy: "A lighter 40 GSM spunlace nonwoven format for dining, travel and movement.",
+  corporateHeading: "Your welcome, your scale.",
+  corporateCopy: "Hotels, restaurants, airlines, wellness spaces, event teams and private hosts can build a TITUN order around product, scent, quantity and occasion.",
+  storyHeading: "Care can be quiet and still be remembered.",
+  storyCopy: "TITUN began with a belief that small moments of consideration can change how an experience feels.",
+};
 
 export function defaultHomepageHeroSlides(
   images: Record<SiteAssetKey, string>,
@@ -74,4 +112,16 @@ export async function getHomepageHeroSlides(
   if (!record) return defaults;
   const parsed = homepageHeroSlidesSchema.safeParse(record.content);
   return parsed.success ? parsed.data : defaults;
+}
+
+export async function getHomepageCopy(): Promise<HomepageCopy> {
+  if (!isDatabaseConfigured()) return defaultHomepageCopy;
+  const [record] = await getDb()
+    .select({ content: siteContent.content })
+    .from(siteContent)
+    .where(eq(siteContent.key, homepageCopyKey))
+    .limit(1);
+  if (!record) return defaultHomepageCopy;
+  const parsed = homepageCopySchema.safeParse(record.content);
+  return parsed.success ? parsed.data : defaultHomepageCopy;
 }

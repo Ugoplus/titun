@@ -7,8 +7,9 @@ import { HomeHeroSlideshow } from "@/components/home-hero-slideshow";
 import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/site";
+import { formatMoney } from "@/lib/money";
 import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
-import { getHomepageHeroSlides } from "@/lib/site-content";
+import { getHomepageCopy, getHomepageHeroSlides } from "@/lib/site-content";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -65,9 +66,10 @@ const scentStories = [
 ] as const;
 
 export default async function Home() {
-  const [products, siteImages] = await Promise.all([
+  const [products, siteImages, homepageCopy] = await Promise.all([
     getProducts(),
     getSiteAssetMap(),
+    getHomepageCopy(),
   ]);
   const heroSlides = await getHomepageHeroSlides(siteImages);
   const towels = products.filter((product) => product.category === "Refreshing towels");
@@ -83,7 +85,7 @@ export default async function Home() {
         <div className="mx-auto max-w-[1440px]">
           <div className="flex flex-col gap-4 border-b border-ink/20 pb-7 md:flex-row md:items-end md:justify-between">
             <h2 className="max-w-2xl text-balance font-display text-5xl leading-[.94] tracking-[-.03em] md:text-6xl">
-              Shop the collection
+              {homepageCopy.collectionHeading}
             </h2>
             <Link href="/shop" className="inline-flex w-fit items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">
               View all products <ArrowRight aria-hidden="true" />
@@ -116,7 +118,7 @@ export default async function Home() {
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <div className="text-center">
-            <h2 className="font-display text-5xl tracking-[-.03em] md:text-6xl">Our refreshing towels</h2>
+            <h2 className="font-display text-5xl tracking-[-.03em] md:text-6xl">{homepageCopy.towelsHeading}</h2>
             <div className="mt-7 flex flex-wrap justify-center gap-2 text-sm font-semibold">
               <Link href="/shop?category=Refreshing%20towels" className="min-h-11 border border-ink bg-ink px-5 py-3 text-white">Shop all towels</Link>
               <Link href="/shop#wipes" className="min-h-11 border border-ink/25 px-5 py-3">Shop wet wipes</Link>
@@ -126,7 +128,7 @@ export default async function Home() {
             {towels.map((product, index) => <ProductCard key={product.id} product={product} index={index} priority={index === 0} />)}
           </div>
           <div className="mt-16 border-t border-ink/20 pt-10 md:mt-24 md:pt-14">
-            <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Discover the scents</h3>
+            <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">{homepageCopy.scentsHeading}</h3>
             <div className="filter-scroll mt-8 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
               {scentStories.map((scent) => (
                 <Link key={scent.name} href={scent.href} className="group block snap-start overflow-hidden bg-ink">
@@ -150,8 +152,8 @@ export default async function Home() {
       <section className="border-y border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1320px]">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em] md:text-6xl">A small detail with a lasting effect.</h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink/65">TITUN turns a practical moment of refreshment into a thoughtful gesture—easy to offer, pleasant to receive and ready when needed.</p>
+            <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em] md:text-6xl">{homepageCopy.applicationsHeading}</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink/65">{homepageCopy.applicationsCopy}</p>
           </div>
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
             {applications.map((application) => (
@@ -168,8 +170,8 @@ export default async function Home() {
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
           <div>
-            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Why choose TITUN?</h2>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-ink/65">Clear product details, purposeful presentation and flexible pack choices make TITUN easy to bring into personal and professional settings.</p>
+            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.whyHeading}</h2>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-ink/65">{homepageCopy.whyCopy}</p>
             <Link href="/shop" className="mt-7 inline-flex items-center gap-3 bg-gold px-6 py-4 text-sm font-semibold text-ink">Explore the collection <ArrowRight /></Link>
           </div>
           <div className="border-t border-ink/20">
@@ -186,9 +188,9 @@ export default async function Home() {
       <section id="wipes" className="border-y border-ink/15 bg-linen px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <div className="grid gap-6 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
-            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Refreshing wet wipes</h2>
+            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.wipesHeading}</h2>
             <div className="max-w-2xl lg:justify-self-end">
-              <p className="text-base leading-relaxed text-ink/65">A lighter 40 GSM spunlace nonwoven format for dining, travel and movement. ₦500 per wipe, available from 50 pieces.</p>
+              <p className="text-base leading-relaxed text-ink/65">{homepageCopy.wipesCopy} {formatMoney(wipes[0]?.price ?? 50000)} per wipe, available from 50 pieces.</p>
               <Link href="/shop?category=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Shop wet wipes <ArrowRight /></Link>
             </div>
           </div>
@@ -210,8 +212,8 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-linen lg:grid-cols-[1.05fr_.95fr]">
           <div className="relative min-h-[28rem] lg:min-h-[38rem]"><Image src={siteImages["home.corporate"]} alt="A guest using a TITUN wipe during a hospitality experience" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" /></div>
           <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-16">
-            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Your welcome, your scale.</h2>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">Hotels, restaurants, airlines, wellness spaces, event teams and private hosts can build a TITUN order around product, scent, quantity and occasion.</p>
+            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.corporateHeading}</h2>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">{homepageCopy.corporateCopy}</p>
             <Link href="/corporate" className="mt-7 inline-flex w-fit items-center gap-3 bg-ink px-6 py-4 text-sm font-semibold text-white">Request a corporate quote <ArrowRight /></Link>
           </div>
         </div>
@@ -225,8 +227,8 @@ export default async function Home() {
 
       <section className="bg-cream px-5 py-20 text-center md:px-8 md:py-28">
         <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Care can be quiet and still be remembered.</h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ink/65">TITUN began with a belief that small moments of consideration can change how an experience feels.</p>
+          <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.storyHeading}</h2>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ink/65">{homepageCopy.storyCopy}</p>
           <Link href="/about" className="mt-7 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Read the TITUN story <ArrowRight /></Link>
         </div>
       </section>

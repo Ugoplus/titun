@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { homepageHeroSlidesSchema } from "./site-content";
+import {
+  defaultHomepageCopy,
+  homepageCopySchema,
+  homepageHeroSlidesSchema,
+} from "./site-content";
 
 const slide = {
   id: "welcome",
@@ -22,6 +26,16 @@ describe("homepage content", () => {
       homepageHeroSlidesSchema.parse([
         { ...slide, mediaUrl: "https://example.com/video.mp4", durationMs: 500 },
       ]),
+    ).toThrow();
+  });
+
+  it("accepts the complete homepage copy model", () => {
+    expect(homepageCopySchema.parse(defaultHomepageCopy)).toEqual(defaultHomepageCopy);
+  });
+
+  it("rejects missing homepage headings", () => {
+    expect(() =>
+      homepageCopySchema.parse({ ...defaultHomepageCopy, storyHeading: "" }),
     ).toThrow();
   });
 });
