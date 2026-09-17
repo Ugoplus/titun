@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   List,
   MagnifyingGlass,
@@ -35,7 +36,7 @@ export function Header() {
         10% off your first order · Shop TITUN
       </Link>
       <header className="sticky top-0 z-40 border-b border-ink/15 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 md:px-8">
+        <div className="mx-auto flex h-[5.25rem] max-w-[1440px] items-center justify-between px-4 md:px-8 lg:h-[5.75rem]">
           <button
             onClick={() => setIsMenuOpen((open) => !open)}
             className="flex h-11 w-11 items-center justify-center lg:hidden"
@@ -53,10 +54,17 @@ export function Header() {
           </Link>
           <Link
             href="/"
-            className="absolute left-1/2 -translate-x-1/2 font-display text-[2rem] font-medium tracking-[-.03em]"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center justify-center focus-visible:outline-offset-4"
             aria-label="TITUN home"
           >
-            TITUN
+            <Image
+              src="/brand/titun-logo-black.png"
+              alt=""
+              width={720}
+              height={662}
+              priority
+              className="h-auto w-[4.5rem] md:w-[5rem]"
+            />
           </Link>
           <div className="flex items-center gap-1">
             <Link

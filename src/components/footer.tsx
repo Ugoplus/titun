@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { NewsletterForm } from "./newsletter-form";
 import { contactDetails } from "@/lib/contact";
 
@@ -38,7 +39,19 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px]">
         <div className="grid gap-12 border-b border-white/20 pb-14 lg:grid-cols-[1.15fr_1.85fr] lg:gap-20">
           <div>
-            <p className="font-display text-5xl tracking-[-.03em]">TITUN</p>
+            <Link
+              href="/"
+              aria-label="TITUN home"
+              className="inline-flex focus-visible:outline-offset-4"
+            >
+              <Image
+                src="/brand/titun-logo-gold.png"
+                alt=""
+                width={720}
+                height={662}
+                className="h-auto w-40 md:w-44"
+              />
+            </Link>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
               Premium refreshment essentials designed to elevate the moments
               that matter.
