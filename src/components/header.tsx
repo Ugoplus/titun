@@ -16,7 +16,7 @@ const navigation = [
   ["Refreshing towels", "/shop?category=Refreshing%20towels"],
   ["Wet wipes", "/shop#wipes"],
   ["Corporate orders", "/corporate"],
-  ["Build a gift box", "/custom-orders"],
+  ["Gift boxes", "/products/titun-discovery-gift-box"],
   ["Community", "/community"],
   ["About", "/about"],
   ["Contact", "/contact"],

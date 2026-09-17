@@ -110,7 +110,7 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
           <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">Refreshing wet wipes</h2>
           <div className="max-w-xl lg:justify-self-end">
             <p className="text-base leading-relaxed text-ink/65">A separate 40 GSM spunlace nonwoven format for dining, travel and movement. ₦500 per wipe with a 50-piece minimum order.</p>
-            <Link href="/custom-orders" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Request branded wipes <ArrowRight /></Link>
+            <Link href="/corporate?product=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Request branded wipes <ArrowRight /></Link>
           </div>
         </div>
         <div className="mt-9 grid gap-4 sm:grid-cols-3">

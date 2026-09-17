@@ -40,7 +40,7 @@ const collections = [
     title: "Gift boxes and multipacks",
     copy: "Considered presentation for gifting, hosting and elevated occasions.",
     image: "/images/titun/gift-box.jpg",
-    href: "/shop?category=Boxes%20and%20multipacks",
+    href: "/products/titun-discovery-gift-box",
   },
 ] as const;
 
