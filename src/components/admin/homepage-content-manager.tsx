@@ -13,7 +13,7 @@ import {
   UploadSimple,
   VideoCamera,
 } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { HomepageHeroSlide } from "@/lib/site-content";
 
@@ -33,6 +33,12 @@ function mediaTypeForUrl(url: string) {
 function VideoPreview({ slide }: { slide: HomepageHeroSlide }) {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && video.readyState >= HTMLMediaElement.HAVE_METADATA) setReady(true);
+  }, []);
 
   return (
     <div className="relative h-full w-full bg-ink">
@@ -47,11 +53,13 @@ function VideoPreview({ slide }: { slide: HomepageHeroSlide }) {
         />
       )}
       <video
+        ref={videoRef}
         controls={ready}
         muted
         playsInline
         preload="metadata"
         poster={slide.posterUrl || undefined}
+        onLoadedMetadata={() => setReady(true)}
         onCanPlay={() => setReady(true)}
         onError={() => setFailed(true)}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
