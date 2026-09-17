@@ -8,6 +8,7 @@ import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/site";
 import { formatMoney } from "@/lib/money";
+import { getPackOptions } from "@/lib/product-pricing";
 import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
 import { getHomepageCopy, getHomepageHeroSlides } from "@/lib/site-content";
 
@@ -20,28 +21,28 @@ const productDetails = [
   ["Ready for many settings", "Dining, travel, wellness, events and everyday care."],
 ] as const;
 
-const applications = [
-  { title: "Dining and hospitality", copy: "A considered detail for restaurants, hotels and private occasions.", assetKey: "home.application.dining" },
-  { title: "Wellness and care", copy: "A clean pause for spas, salons, studios and personal routines.", assetKey: "home.application.wellness" },
-  { title: "Travel and movement", copy: "Individually wrapped refreshment for journeys, fitness and busy days.", assetKey: "home.application.travel" },
+const applicationDefinitions = [
+  { titleKey: "applicationDiningTitle", copyKey: "applicationDiningCopy", assetKey: "home.application.dining" },
+  { titleKey: "applicationWellnessTitle", copyKey: "applicationWellnessCopy", assetKey: "home.application.wellness" },
+  { titleKey: "applicationTravelTitle", copyKey: "applicationTravelCopy", assetKey: "home.application.travel" },
 ] as const;
 
-const collections = [
+const collectionDefinitions = [
   {
-    title: "Refreshing towels",
-    copy: "Explore Green Tea, Lemongrass and Sandalwood in 25, 50 or 100-piece packs.",
+    titleKey: "collectionTowelsTitle",
+    copyKey: "collectionTowelsCopy",
     assetKey: "home.collection.towels",
     href: "/shop?category=Refreshing%20towels",
   },
   {
-    title: "Refreshing wet wipes",
-    copy: "A light, individually wrapped refresh for dining, travel and movement.",
+    titleKey: "collectionWipesTitle",
+    copyKey: "collectionWipesCopy",
     assetKey: "home.collection.wipes",
     href: "/shop#wipes",
   },
   {
-    title: "Gift boxes and multipacks",
-    copy: "Considered presentation for gifting, hosting and elevated occasions.",
+    titleKey: "collectionGiftTitle",
+    copyKey: "collectionGiftCopy",
     assetKey: "home.collection.gift",
     href: "/products/titun-discovery-gift-box",
   },
@@ -74,6 +75,13 @@ export default async function Home() {
   const heroSlides = await getHomepageHeroSlides(siteImages);
   const towels = products.filter((product) => product.category === "Refreshing towels");
   const wipes = products.filter((product) => product.category === "Refreshing wet wipes");
+  const wipeMinimums = wipes.map((product) => getPackOptions(product)[0]);
+  const minimumWipeQuantity = wipeMinimums.length > 0
+    ? Math.min(...wipeMinimums.map((option) => option.quantity))
+    : null;
+  const lowestWipeUnitPrice = wipeMinimums.length > 0
+    ? Math.min(...wipeMinimums.map((option) => Math.round(option.total / option.quantity)))
+    : null;
 
   return (
     <>
@@ -92,8 +100,8 @@ export default async function Home() {
             </Link>
           </div>
           <div className="mt-7 grid gap-4 md:grid-cols-3">
-            {collections.map((collection) => (
-              <Link key={collection.title} href={collection.href} className="group relative min-h-96 overflow-hidden bg-ink text-white md:min-h-[30rem]">
+            {collectionDefinitions.map((collection) => (
+              <Link key={collection.titleKey} href={collection.href} className="group relative min-h-96 overflow-hidden bg-ink text-white md:min-h-[30rem]">
                 <Image
                   src={siteImages[collection.assetKey as SiteAssetKey]}
                   alt=""
@@ -103,8 +111,8 @@ export default async function Home() {
                 />
                 <div className="absolute inset-0 bg-ink/55 transition-colors group-hover:bg-ink/65 group-focus-visible:bg-ink/65" />
                 <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
-                  <h3 className="max-w-[13ch] font-display text-4xl leading-[.95] tracking-[-.025em]">{collection.title}</h3>
-                  <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-white/90">{collection.copy}</p>
+                  <h3 className="max-w-[13ch] font-display text-4xl leading-[.95] tracking-[-.025em]">{homepageCopy[collection.titleKey]}</h3>
+                  <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-white/90">{homepageCopy[collection.copyKey]}</p>
                   <span className="mt-5 inline-flex min-h-11 items-center gap-3 border-b border-white pb-1 text-sm font-semibold">
                     Explore <ArrowRight aria-hidden="true" />
                   </span>
@@ -156,11 +164,11 @@ export default async function Home() {
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink/65">{homepageCopy.applicationsCopy}</p>
           </div>
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
-            {applications.map((application) => (
-              <article key={application.title}>
-                <div className="relative aspect-[4/3] overflow-hidden bg-oat"><Image src={siteImages[application.assetKey as SiteAssetKey]} alt={`${application.title} with TITUN refreshing towels`} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" /></div>
-                <h3 className="mt-5 font-display text-3xl">{application.title}</h3>
-                <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink/65">{application.copy}</p>
+            {applicationDefinitions.map((application) => (
+              <article key={application.titleKey}>
+                <div className="relative aspect-[4/3] overflow-hidden bg-oat"><Image src={siteImages[application.assetKey as SiteAssetKey]} alt={`${homepageCopy[application.titleKey]} with TITUN refreshing towels`} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" /></div>
+                <h3 className="mt-5 font-display text-3xl">{homepageCopy[application.titleKey]}</h3>
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink/65">{homepageCopy[application.copyKey]}</p>
               </article>
             ))}
           </div>
@@ -185,28 +193,29 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="wipes" className="border-y border-ink/15 bg-linen px-5 py-16 md:px-8 md:py-24">
+      {wipes.length > 0 && minimumWipeQuantity !== null && lowestWipeUnitPrice !== null && <section id="wipes" className="border-y border-ink/15 bg-linen px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1440px]">
           <div className="grid gap-6 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
             <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.wipesHeading}</h2>
             <div className="max-w-2xl lg:justify-self-end">
-              <p className="text-base leading-relaxed text-ink/65">{homepageCopy.wipesCopy} {formatMoney(wipes[0]?.price ?? 50000)} per wipe, available from 50 pieces.</p>
+              <p className="text-base leading-relaxed text-ink/65">{homepageCopy.wipesCopy} From {formatMoney(lowestWipeUnitPrice)} per wipe, available from {minimumWipeQuantity} pieces.</p>
               <Link href="/shop?category=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Shop wet wipes <ArrowRight /></Link>
             </div>
           </div>
           <div className="filter-scroll mt-10 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 lg:gap-4">
-            {wipes.map((product) => (
-              <Link key={product.id} href={`/products/${product.slug}`} className="group snap-start bg-white">
+            {wipes.map((product) => {
+              const minimumPack = getPackOptions(product)[0];
+              return <Link key={product.id} href={`/products/${product.slug}`} className="group snap-start bg-white">
                 <div className="relative aspect-square overflow-hidden"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill sizes="(max-width: 640px) 82vw, (max-width: 1024px) 50vw, 30vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none" /></div>
                 <div className="border border-ink/15 p-3 md:p-4">
                   <p className="text-sm font-semibold">{product.name}</p>
-                  <p className="mt-1 text-sm text-ink/65">From ₦25,000 · 50 wipes</p>
+                  <p className="mt-1 text-sm text-ink/65">{formatMoney(minimumPack.total, product.currency)} · {minimumPack.label}</p>
                 </div>
-              </Link>
-            ))}
+              </Link>;
+            })}
           </div>
         </div>
-      </section>
+      </section>}
 
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-linen lg:grid-cols-[1.05fr_.95fr]">

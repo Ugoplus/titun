@@ -14,11 +14,23 @@ const sections: Array<{
 }> = [
   {
     name: "Shopping sections",
-    description: "Headings customers see while browsing the homepage collection.",
+    description: "Headings and introductions customers see while browsing the homepage collection.",
     fields: [
       { key: "collectionHeading", label: "Collection heading" },
       { key: "towelsHeading", label: "Refreshing towels heading" },
       { key: "scentsHeading", label: "Scent images heading" },
+    ],
+  },
+  {
+    name: "Collection tiles",
+    description: "The names and short descriptions shown over the three large collection images.",
+    fields: [
+      { key: "collectionTowelsTitle", label: "Towels title" },
+      { key: "collectionTowelsCopy", label: "Towels description", multiline: true },
+      { key: "collectionWipesTitle", label: "Wet wipes title" },
+      { key: "collectionWipesCopy", label: "Wet wipes description", multiline: true },
+      { key: "collectionGiftTitle", label: "Gift box title" },
+      { key: "collectionGiftCopy", label: "Gift box description", multiline: true },
     ],
   },
   {
@@ -35,6 +47,18 @@ const sections: Array<{
     fields: [
       { key: "whyHeading", label: "Heading" },
       { key: "whyCopy", label: "Description", multiline: true },
+    ],
+  },
+  {
+    name: "Use cases",
+    description: "The titles and descriptions beneath the dining, wellness and travel images.",
+    fields: [
+      { key: "applicationDiningTitle", label: "Dining title" },
+      { key: "applicationDiningCopy", label: "Dining description", multiline: true },
+      { key: "applicationWellnessTitle", label: "Wellness title" },
+      { key: "applicationWellnessCopy", label: "Wellness description", multiline: true },
+      { key: "applicationTravelTitle", label: "Travel title" },
+      { key: "applicationTravelCopy", label: "Travel description", multiline: true },
     ],
   },
   {
@@ -101,8 +125,22 @@ export function HomepageCopyManager({ initialContent }: { initialContent: Homepa
       <div className="border-b border-ink/20 pb-7">
         <h2 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Homepage text</h2>
         <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-ink/70">
-          Edit the homepage’s brand and section copy here. Product names, prices, pack sizes and stock remain in the catalogue manager.
+          Edit homepage headings, introductions, collection tiles and use-case copy here. Product facts, prices, pack sizes, stock and button labels remain controlled by the catalogue and website system.
         </p>
+      </div>
+
+      <div className="sticky top-0 z-20 -mx-5 flex items-center justify-between gap-3 border-b border-ink/20 bg-cream px-5 py-3 md:hidden">
+        <p className="text-xs font-semibold text-ink/70" role="status">
+          {dirty ? "Unpublished changes" : "Text is published"}
+        </p>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setContent(savedContent)} disabled={!dirty || saving} className="min-h-11 border border-ink/30 px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40">
+            Discard
+          </button>
+          <button type="button" onClick={() => void publish()} disabled={!dirty || saving} className="min-h-11 bg-ink px-4 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
+            {saving ? "Publishing…" : "Publish"}
+          </button>
+        </div>
       </div>
 
       <div className="divide-y divide-ink/20">

@@ -28,10 +28,22 @@ const shortCopy = z.string().trim().min(1, "Add a short description").max(320, "
 
 export const homepageCopySchema = z.object({
   collectionHeading: shortHeading,
+  collectionTowelsTitle: shortHeading,
+  collectionTowelsCopy: shortCopy,
+  collectionWipesTitle: shortHeading,
+  collectionWipesCopy: shortCopy,
+  collectionGiftTitle: shortHeading,
+  collectionGiftCopy: shortCopy,
   towelsHeading: shortHeading,
   scentsHeading: shortHeading,
   applicationsHeading: shortHeading,
   applicationsCopy: shortCopy,
+  applicationDiningTitle: shortHeading,
+  applicationDiningCopy: shortCopy,
+  applicationWellnessTitle: shortHeading,
+  applicationWellnessCopy: shortCopy,
+  applicationTravelTitle: shortHeading,
+  applicationTravelCopy: shortCopy,
   whyHeading: shortHeading,
   whyCopy: shortCopy,
   wipesHeading: shortHeading,
@@ -46,10 +58,22 @@ export type HomepageCopy = z.infer<typeof homepageCopySchema>;
 
 export const defaultHomepageCopy: HomepageCopy = {
   collectionHeading: "Shop the collection",
+  collectionTowelsTitle: "Refreshing towels",
+  collectionTowelsCopy: "Explore Green Tea, Lemongrass and Sandalwood in 25, 50 or 100-piece packs.",
+  collectionWipesTitle: "Refreshing wet wipes",
+  collectionWipesCopy: "A light, individually wrapped refresh for dining, travel and movement.",
+  collectionGiftTitle: "Gift boxes and multipacks",
+  collectionGiftCopy: "Considered presentation for gifting, hosting and elevated occasions.",
   towelsHeading: "Our refreshing towels",
   scentsHeading: "Discover the scents",
   applicationsHeading: "A small detail with a lasting effect.",
   applicationsCopy: "TITUN turns a practical moment of refreshment into a thoughtful gesture—easy to offer, pleasant to receive and ready when needed.",
+  applicationDiningTitle: "Dining and hospitality",
+  applicationDiningCopy: "A considered detail for restaurants, hotels and private occasions.",
+  applicationWellnessTitle: "Wellness and care",
+  applicationWellnessCopy: "A clean pause for spas, salons, studios and personal routines.",
+  applicationTravelTitle: "Travel and movement",
+  applicationTravelCopy: "Individually wrapped refreshment for journeys, fitness and busy days.",
   whyHeading: "Why choose TITUN?",
   whyCopy: "Clear product details, purposeful presentation and flexible pack choices make TITUN easy to bring into personal and professional settings.",
   wipesHeading: "Refreshing wet wipes",
@@ -122,6 +146,9 @@ export async function getHomepageCopy(): Promise<HomepageCopy> {
     .where(eq(siteContent.key, homepageCopyKey))
     .limit(1);
   if (!record) return defaultHomepageCopy;
-  const parsed = homepageCopySchema.safeParse(record.content);
+  const stored = record.content && typeof record.content === "object"
+    ? record.content as Partial<HomepageCopy>
+    : {};
+  const parsed = homepageCopySchema.safeParse({ ...defaultHomepageCopy, ...stored });
   return parsed.success ? parsed.data : defaultHomepageCopy;
 }
