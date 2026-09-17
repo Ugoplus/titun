@@ -54,7 +54,7 @@ export function SitePrompts() {
           labelledBy="welcome-offer-title"
           onClose={dismissWelcome}
           backdropClassName="p-4 md:p-8"
-          panelClassName="relative my-auto max-h-[calc(100svh-2rem)] w-full max-w-[58rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] md:max-h-[calc(100svh-4rem)]"
+          panelClassName="relative m-auto max-h-[calc(100svh-2rem)] w-full max-w-[58rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] md:max-h-[calc(100svh-4rem)]"
         >
           <button
             onClick={dismissWelcome}

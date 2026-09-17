@@ -16,7 +16,7 @@ export function DialogShell({
   labelledBy,
   onClose,
   backdropClassName = "p-3 md:p-8",
-  panelClassName = "my-auto w-full max-w-3xl bg-cream p-5 md:p-8",
+  panelClassName = "m-auto w-full max-w-3xl bg-cream p-5 md:p-8",
 }: {
   children: ReactNode;
   labelledBy: string;
