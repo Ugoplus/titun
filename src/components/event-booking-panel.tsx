@@ -7,6 +7,10 @@ import type { Product } from "@/lib/db/schema";
 import { useCart } from "@/components/cart-provider";
 import { ProductVisual } from "@/components/product-visual";
 import { formatMoney } from "@/lib/money";
+import {
+  getDefaultPurchaseQuantity,
+  getPackOptions,
+} from "@/lib/product-pricing";
 
 export function EventBookingPanel({
   ticket,
@@ -26,12 +30,18 @@ export function EventBookingPanel({
   );
   const total =
     ticket.price * ticketQuantity +
-    selectedProducts.reduce((sum, product) => sum + product.price, 0);
+    selectedProducts.reduce(
+      (sum, product) => sum + getPackOptions(product)[0].total,
+      0,
+    );
 
   const continueToCheckout = () => {
     addItems([
       { product: ticket, quantity: ticketQuantity },
-      ...selectedProducts.map((product) => ({ product, quantity: 1 })),
+      ...selectedProducts.map((product) => ({
+        product,
+        quantity: getDefaultPurchaseQuantity(product),
+      })),
     ]);
     router.push("/checkout");
   };
@@ -89,7 +99,8 @@ export function EventBookingPanel({
             {recommendations.map((product, index) => {
               const isSelected = selected.includes(product.id);
               const productAvailable =
-                product.stockOnHand - product.stockReserved > 0;
+                product.stockOnHand - product.stockReserved >=
+                getDefaultPurchaseQuantity(product);
               return (
                 <button
                   key={product.id}
@@ -116,7 +127,7 @@ export function EventBookingPanel({
                       {product.name}
                     </span>
                     <span className="mt-1 block text-xs text-ink/70">
-                      {product.scent} · {formatMoney(product.price)}
+                      {product.scent} · From {formatMoney(getPackOptions(product)[0].total)}
                     </span>
                   </span>
                   <span

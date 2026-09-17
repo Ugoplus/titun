@@ -26,6 +26,6 @@ describe("calculateOrder", () => {
   it("rejects invalid quantities", () => {
     expect(() =>
       calculateOrder([{ productId: "a", unitPrice: 1000, quantity: 0 }]),
-    ).toThrow("Quantity must be between 1 and 20");
+    ).toThrow("Quantity must be between 1 and 100");
   });
 });

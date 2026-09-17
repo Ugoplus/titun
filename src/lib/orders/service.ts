@@ -14,6 +14,7 @@ import {
 import { calculateOrder } from "./pricing";
 import { sendLowStockAlert, sendOrderConfirmation } from "@/lib/email";
 import type { PaymentProvider } from "@/lib/payments";
+import { getLinePricing } from "@/lib/product-pricing";
 
 export type CheckoutInput = {
   customer: {
@@ -40,11 +41,15 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     if (catalog.length !== requestedIds.length) throw new Error("One or more products are unavailable");
 
     const quantityById = new Map(input.items.map((item) => [item.productId, item.quantity]));
-    const pricedItems = catalog.map((product) => ({
-      productId: product.id,
-      unitPrice: product.price,
-      quantity: quantityById.get(product.id) ?? 0,
-    }));
+    const pricedItems = catalog.map((product) => {
+      const quantity = quantityById.get(product.id) ?? 0;
+      const pricing = getLinePricing(product, quantity);
+      return {
+        productId: product.id,
+        unitPrice: pricing.unitPrice,
+        quantity,
+      };
+    });
 
     let appliedDiscount: { type: "percentage" | "fixed"; value: number } | null = null;
     let discountCode: string | null = null;
@@ -90,16 +95,17 @@ export const createPendingOrder = async (input: CheckoutInput) => {
 
     await tx.insert(orderItems).values(catalog.map((product) => {
       const quantity = quantityById.get(product.id) ?? 0;
+      const pricing = getLinePricing(product, quantity);
       return {
         orderId: order.id,
         productId: product.id,
         productName: product.name,
         scent: product.scent,
-        packSize: product.packSize,
+        packSize: pricing.label,
         image: product.images[0],
-        unitPrice: product.price,
+        unitPrice: pricing.unitPrice,
         quantity,
-        lineTotal: product.price * quantity,
+        lineTotal: pricing.total,
       };
     }));
 

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ProductCard } from "@/components/product-card";
 import { getProducts } from "@/lib/catalog";
 
@@ -30,11 +32,11 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
           <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
             TITUN collection
           </p>
-          <h1 className="mt-2 font-display text-[clamp(4rem,8vw,8rem)] leading-none tracking-[-.04em]">
+          <h1 className="mt-2 font-display text-[clamp(4rem,8vw,6rem)] leading-none tracking-[-.04em]">
             Shop refresh.
           </h1>
         </div>
-        <form className="flex border-b border-ink">
+        <form id="product-search" className="flex scroll-mt-32 border-b border-ink">
           <input
             aria-label="Search products"
             name="q"
@@ -96,6 +98,28 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
           </Link>
         </div>
       )}
+
+      <section id="wipes" className="mt-24 scroll-mt-28 border-t border-ink/20 pt-14">
+        <div className="grid gap-8 lg:grid-cols-[.75fr_1.25fr] lg:items-end">
+          <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">Refreshing wet wipes</h2>
+          <div className="max-w-xl lg:justify-self-end">
+            <p className="text-base leading-relaxed text-ink/65">A separate 40 GSM spunlace nonwoven format for dining, travel and movement. Retail pack pricing is being finalised.</p>
+            <Link href="/corporate?product=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Enquire about wipes <ArrowRight /></Link>
+          </div>
+        </div>
+        <div className="mt-9 grid gap-4 sm:grid-cols-3">
+          {[
+            ["Green Tea", "/images/titun/green-tea-wipes.jpg"],
+            ["Sandalwood", "/images/titun/sandalwood-wipes.jpg"],
+            ["Lemongrass", "/images/titun/lemongrass-wipes.jpg"],
+          ].map(([name, image]) => (
+            <figure key={name} className="border border-ink/15 bg-white">
+              <div className="relative aspect-square"><Image src={image} alt={`${name} TITUN wet wipe`} fill className="object-cover" /></div>
+              <figcaption className="border-t border-ink/15 p-4 font-display text-2xl">{name}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

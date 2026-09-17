@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS "discounts" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
+INSERT INTO discounts (code, type, value, active)
+VALUES ('WELCOME10', 'percentage', 10, true)
+ON CONFLICT (code) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS "orders" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "reference" text NOT NULL UNIQUE,
@@ -139,6 +143,27 @@ CREATE TABLE IF NOT EXISTS "rate_limit_events" (
 CREATE INDEX IF NOT EXISTS rate_limit_bucket_occurred_idx ON rate_limit_events(bucket, occurred_at);
 CREATE INDEX IF NOT EXISTS rate_limit_occurred_idx ON rate_limit_events(occurred_at);
 
+CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "email" text NOT NULL UNIQUE,
+  "source" text NOT NULL DEFAULT 'website',
+  "subscribed_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "name" text NOT NULL,
+  "company" text NOT NULL,
+  "industry" text NOT NULL,
+  "email" text NOT NULL,
+  "phone" text NOT NULL,
+  "estimated_quantity" integer NOT NULL CHECK (estimated_quantity > 0),
+  "product_required" text NOT NULL,
+  "message" text NOT NULL,
+  "status" text NOT NULL DEFAULT 'new',
+  "created_at" timestamptz NOT NULL DEFAULT now()
+);
+
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),
@@ -153,3 +178,26 @@ UPDATE products SET images = CASE slug
   WHEN 'sandalwood-refreshing-towel' THEN '["/images/titun/sandalwood-towel.jpg"]'::jsonb
   WHEN 'titun-discovery-gift-box' THEN '["/images/titun/gift-box.jpg"]'::jsonb
   ELSE images END;
+
+UPDATE products
+SET category = 'Refreshing towels',
+    pack_size = '25, 50 or 100 individually wrapped towels',
+    scent = CASE slug
+      WHEN 'green-tea-refreshing-towel' THEN 'Fresh · Clean · Restorative'
+      WHEN 'lemongrass-refreshing-towel' THEN 'Bright · Fresh · Invigorating'
+      WHEN 'sandalwood-refreshing-towel' THEN 'Warm · Refined · Grounding'
+      ELSE scent
+    END,
+    stock_on_hand = CASE
+      WHEN stock_on_hand IN (72, 34, 18) THEN 500
+      ELSE stock_on_hand
+    END,
+    low_stock_threshold = CASE
+      WHEN low_stock_threshold IN (12, 8, 6) THEN 50
+      ELSE low_stock_threshold
+    END
+WHERE slug IN (
+  'green-tea-refreshing-towel',
+  'lemongrass-refreshing-towel',
+  'sandalwood-refreshing-towel'
+);

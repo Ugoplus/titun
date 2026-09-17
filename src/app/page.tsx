@@ -4,169 +4,175 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { getFeaturedProducts } from "@/lib/catalog";
 import { ProductCard } from "@/components/product-card";
 
-const categories = [
-  {
-    name: "Individual towels",
-    copy: "A fresh start, wherever you are.",
-    tone: "bg-citron",
-  },
-  {
-    name: "Boxes and multipacks",
-    copy: "Keep the ritual close at hand.",
-    tone: "bg-lavender",
-  },
-  {
-    name: "Scent collections",
-    copy: "Choose the mood you want to carry.",
-    tone: "bg-mint",
-  },
-  {
-    name: "Corporate and bulk",
-    copy: "Hospitality, made memorable.",
-    tone: "bg-peach",
-  },
+const benefits = [
+  ["Premium presentation", "A considered detail before the experience begins."],
+  ["Fragrance-led", "Three distinctive scents set the tone for the moment."],
+  ["Convenient", "Individually sealed and ready wherever care is needed."],
+  ["Versatile", "Created for dining, travel, wellness, events and daily life."],
+  ["Thoughtful hospitality", "A simple gesture that makes welcome tangible."],
 ];
+
+const applications = [
+  "Hotels",
+  "Restaurants",
+  "Travel and airlines",
+  "Spas and wellness",
+  "Fitness and sports",
+  "Corporate events",
+  "Private events",
+  "Luxury retail",
+];
+
+const wipeScents = [
+  ["Green Tea", "/images/titun/green-tea-wipes.jpg"],
+  ["Sandalwood", "/images/titun/sandalwood-wipes.jpg"],
+  ["Lemongrass", "/images/titun/lemongrass-wipes.jpg"],
+] as const;
 
 export default async function Home() {
   const featured = await getFeaturedProducts();
+
   return (
     <>
-      <section className="grid min-h-[calc(100svh-104px)] bg-ink text-cream lg:grid-cols-[.88fr_1.12fr]">
-        <div className="reveal flex flex-col justify-between gap-16 px-5 py-12 md:px-10 md:py-16 lg:px-14">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-gold">
-            The art of renewal
+      <section className="grid min-h-[calc(100svh-108px)] border-b border-ink/15 bg-white lg:grid-cols-[.82fr_1.18fr]">
+        <div className="reveal flex flex-col justify-center px-5 py-16 md:px-10 lg:px-[6vw]">
+          <h1 className="max-w-3xl font-display text-[clamp(4rem,8vw,6rem)] leading-[.82] tracking-[-.035em]">
+            The Art of Renewal
+          </h1>
+          <p className="mt-8 max-w-lg text-base leading-relaxed text-ink/70 md:text-lg">
+            Premium refreshment essentials designed to elevate the moments that
+            matter.
           </p>
-          <div>
-            <h1 className="max-w-xl font-display text-[clamp(4.1rem,9vw,9.5rem)] leading-[.76] tracking-[-.04em]">
-              Carry
-              <br />
-              <em className="font-normal text-gold">freshness.</em>
-            </h1>
-            <p className="mt-9 max-w-md text-base leading-relaxed text-cream/75">
-              Premium, individually wrapped towels made for movement, travel,
-              hospitality and the heat of everyday life.
-            </p>
+          <div className="mt-9 flex flex-wrap gap-3">
             <Link
               href="/shop"
-              className="mt-8 inline-flex min-h-12 items-center gap-5 border-b border-cream pb-2 text-sm font-bold"
+              className="inline-flex min-h-12 items-center gap-5 bg-ink px-6 text-sm font-semibold text-white"
             >
-              Shop the collection <ArrowRight />
+              Shop TITUN <ArrowRight />
+            </Link>
+            <Link
+              href="/about"
+              className="inline-flex min-h-12 items-center gap-5 border border-ink px-6 text-sm font-semibold"
+            >
+              Discover TITUN
             </Link>
           </div>
-          <p className="text-[11px] uppercase tracking-[.09em] text-cream/70">
-            Designed to turn a practical moment into a considered ritual.
-          </p>
         </div>
-        <div className="relative min-h-[58svh] overflow-hidden">
+        <div className="relative min-h-[56svh] overflow-hidden lg:min-h-full">
           <Image
             src="/images/titun/hero-lounge.jpg"
             alt="TITUN refreshing towels presented during an elegant restaurant experience"
             fill
             priority
-            sizes="(max-width: 1024px) 100vw, 56vw"
+            sizes="(max-width: 1024px) 100vw, 60vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent" />
-          <div className="absolute bottom-7 left-6 rounded-full bg-cream px-5 py-3 text-xs font-bold uppercase tracking-[.08em] text-ink">
-            Open · unfold · reset
+          <div className="absolute bottom-6 left-5 bg-white px-4 py-3 text-[11px] font-bold uppercase tracking-[.08em] text-ink">
+            Open · Unfold · Renew
           </div>
         </div>
       </section>
 
-      <section className="px-5 py-20 md:px-8 md:py-28">
+      <section className="bg-white px-5 py-20 md:px-8 md:py-28">
         <div className="mx-auto max-w-[1440px]">
-          <div className="mb-10 flex items-end justify-between gap-5">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
-                Find your fresh
-              </p>
-              <h2 className="mt-3 max-w-2xl font-display text-[clamp(3rem,6vw,6rem)] leading-[.9] tracking-[-.04em]">
-                A ritual for every rhythm.
-              </h2>
-            </div>
-            <Link href="/shop" className="hidden text-sm font-bold md:block">
-              Shop all →
-            </Link>
+          <div className="grid gap-6 border-b border-ink/20 pb-10 lg:grid-cols-[1.15fr_.85fr] lg:items-end">
+            <h2 className="max-w-4xl font-display text-[clamp(3.4rem,7vw,6rem)] leading-[.88] tracking-[-.035em]">
+              Towels for the ritual. Wipes for the rhythm.
+            </h2>
+            <p className="max-w-xl text-base leading-relaxed text-ink/65 lg:justify-self-end">
+              Meet three fragrance-led refreshing towels and a related
+              cleansing-wipe collection—each individually presented for a
+              clean, considered pause.
+            </p>
           </div>
-          <div className="grid border-l border-t border-ink/20 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category, index) => (
-              <Link
-                key={category.name}
-                href={`/shop?category=${encodeURIComponent(category.name)}`}
-                className={`group relative flex aspect-[3/2] flex-col justify-between overflow-hidden border-b border-r border-ink/20 p-5 sm:aspect-[4/5] ${category.tone}`}
-              >
-                <span className="text-xs font-bold tabular-nums">
-                  0{index + 1}
-                </span>
-                <div>
-                  <h3 className="max-w-[9ch] font-display text-4xl leading-[.92] tracking-[-.04em]">
-                    {category.name}
-                  </h3>
-                  <p className="mt-4 max-w-[22ch] text-sm text-ink/70">
-                    {category.copy}
-                  </p>
-                </div>
-                <ArrowRight className="transition-transform group-hover:translate-x-2" />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-sand px-5 py-20 md:px-8 md:py-28">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="mb-10 flex items-end justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
-                Most reached for
-              </p>
-              <h2 className="mt-2 font-display text-5xl tracking-[-.04em] md:text-7xl">
-                The essentials
-              </h2>
-            </div>
-            <Link href="/shop" className="text-sm font-bold">
-              View all →
-            </Link>
-          </div>
-          <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((product, index) => (
+          <div className="mt-10 grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.slice(0, 3).map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
+          <div id="wipes" className="mt-20 grid bg-linen lg:grid-cols-[.9fr_1.1fr]">
+            <div className="flex flex-col justify-center p-6 md:p-12 lg:p-16">
+              <h3 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">
+                Refreshing wet wipes, considered separately.
+              </h3>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">
+                Made from 40 GSM spunlace nonwoven fabric, TITUN wet wipes offer
+                a lighter format for dining, travel and movement. Retail pricing
+                is being finalised; corporate enquiries are open now.
+              </p>
+              <Link
+                href="/corporate?product=Refreshing%20wet%20wipes"
+                className="mt-8 inline-flex w-fit items-center gap-4 border-b border-ink pb-2 text-sm font-semibold"
+              >
+                Enquire about wipes <ArrowRight />
+              </Link>
+            </div>
+            <div className="grid grid-cols-3">
+              {wipeScents.map(([name, image]) => (
+                <figure key={name} className="border-l border-ink/10">
+                  <div className="relative aspect-[3/4] md:min-h-64">
+                    <Image src={image} alt={`${name} TITUN wet wipe`} fill className="object-cover" />
+                  </div>
+                  <figcaption className="border-t border-ink/10 p-3 text-xs font-semibold">
+                    {name}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="grid bg-linen lg:grid-cols-2">
-        <div className="relative min-h-[55svh]">
+      <section className="grid border-y border-ink/15 bg-cream lg:grid-cols-2">
+        <div className="relative min-h-[56svh]">
           <Image
             src="/images/titun/movement-kit.jpg"
-            alt="TITUN refreshing towels packed in a sports bag"
+            alt="TITUN refreshing towels packed for movement and travel"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
         </div>
-        <div className="flex flex-col justify-center px-5 py-20 md:px-14">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
-            Made to move
-          </p>
-          <h2 className="mt-5 max-w-lg font-display text-6xl leading-[.88] tracking-[-.04em]">
-            Freshness belongs in the bag.
+        <div className="flex flex-col justify-center px-5 py-20 md:px-14 lg:px-[8vw]">
+          <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">
+            Renewal, made tangible.
           </h2>
-          <p className="mt-7 max-w-md text-sm leading-relaxed text-ink/70">
-            From early training to long flights, TITUN brings a quiet touch of
-            care to the moments between destinations.
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-ink/65">
+            TITUN creates premium refreshment essentials for moments of welcome,
+            movement and return. Every individually wrapped towel turns a
+            practical gesture into a quiet expression of care.
           </p>
           <Link
-            href="/shop"
-            className="mt-8 inline-flex w-fit items-center gap-5 border-b border-ink pb-2 text-sm font-bold"
+            href="/about"
+            className="mt-8 inline-flex w-fit items-center gap-4 border-b border-ink pb-2 text-sm font-semibold"
           >
-            Explore individual towels <ArrowRight />
+            About TITUN <ArrowRight />
           </Link>
         </div>
       </section>
 
-      <section id="ritual" className="grid bg-ink text-cream lg:grid-cols-2">
+      <section id="ritual" className="grid bg-ink text-white lg:grid-cols-2">
+        <div className="flex flex-col justify-center px-5 py-20 md:px-14 lg:px-[8vw]">
+          <h2 className="max-w-xl font-display text-6xl leading-[.9] tracking-[-.03em] md:text-7xl">
+            More than a towel. A gesture of hospitality.
+          </h2>
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-white/70">
+            An Oshibori is a refreshing towel traditionally offered as a
+            gesture of welcome. TITUN brings that thoughtful ritual into modern
+            dining, travel, wellness, events and everyday life.
+          </p>
+          <div className="mt-10 grid grid-cols-3 border-y border-white/20 py-5 font-display text-2xl text-gold">
+            <span>Refresh</span>
+            <span>Welcome</span>
+            <span>Elevate</span>
+          </div>
+          <Link
+            href="/oshibori"
+            className="mt-8 inline-flex w-fit items-center gap-4 border-b border-white pb-2 text-sm font-semibold"
+          >
+            Discover the ritual <ArrowRight />
+          </Link>
+        </div>
         <div className="relative min-h-[62svh]">
           <Image
             src="/images/titun/ritual-spa.jpg"
@@ -175,39 +181,105 @@ export default async function Home() {
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
-          <p className="absolute bottom-6 left-5 max-w-[12ch] font-display text-5xl leading-[.92] tracking-[-.04em] text-white drop-shadow-md">
-            Cool on skin. Quiet in mind.
-          </p>
         </div>
-        <div className="flex flex-col justify-center px-5 py-20 md:px-14">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-gold">
-            The TITUN ritual
-          </p>
-          <h2 className="mt-6 max-w-lg font-display text-5xl leading-[.95] tracking-[-.04em] md:text-7xl">
-            A pause you can carry.
+      </section>
+
+      <section className="bg-white px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1440px]">
+          <h2 className="max-w-4xl font-display text-6xl leading-[.9] tracking-[-.03em] md:text-7xl">
+            Why TITUN belongs in the experience.
           </h2>
-          <ol className="mt-12 grid border-t border-cream/20">
-            {[
-              ["01", "Open", "Tear the individually sealed packet."],
-              ["02", "Unfold", "Let the soft towel release its scent."],
-              [
-                "03",
-                "Reset",
-                "Refresh hands, face and neck—then return renewed.",
-              ],
-            ].map(([number, title, copy]) => (
-              <li
-                key={number}
-                className="grid grid-cols-[48px_1fr] gap-4 border-b border-cream/20 py-6"
-              >
-                <span className="text-xs text-gold">{number}</span>
-                <div>
-                  <h3 className="font-display text-2xl">{title}</h3>
-                  <p className="mt-2 text-sm text-cream/70">{copy}</p>
-                </div>
-              </li>
+          <div className="mt-12 grid border-l border-t border-ink/20 sm:grid-cols-2 lg:grid-cols-5">
+            {benefits.map(([title, copy]) => (
+              <article key={title} className="border-b border-r border-ink/20 p-6 lg:min-h-64">
+                <h3 className="font-display text-3xl leading-[.95]">{title}</h3>
+                <p className="mt-5 text-sm leading-relaxed text-ink/60">{copy}</p>
+              </article>
             ))}
-          </ol>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-walnut px-5 py-20 text-white md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
+            <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em] md:text-7xl">
+              Wherever welcome matters.
+            </h2>
+            <p className="max-w-xl text-base leading-relaxed text-white/70 lg:justify-self-end">
+              From the first touchpoint to the final detail, TITUN helps teams
+              create a more considered guest experience.
+            </p>
+          </div>
+          <div className="mt-12 grid border-l border-t border-white/25 sm:grid-cols-2 lg:grid-cols-4">
+            {applications.map((application) => (
+              <div key={application} className="border-b border-r border-white/25 p-5 font-display text-2xl">
+                {application}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-cream px-5 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-ink/20 pb-8">
+            <h2 className="font-display text-6xl tracking-[-.03em] md:text-7xl">Shop TITUN</h2>
+            <Link href="/shop" className="inline-flex items-center gap-3 text-sm font-semibold">
+              View the full collection <ArrowRight />
+            </Link>
+          </div>
+          <div className="mt-9 grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.slice(0, 3).map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid border-y border-ink/15 bg-white lg:grid-cols-[1.05fr_.95fr]">
+        <div className="relative min-h-[58svh]">
+          <Image
+            src="/images/titun/wipes-lifestyle.jpg"
+            alt="A guest using a TITUN wipe during an elegant dining experience"
+            fill
+            sizes="(max-width: 1024px) 100vw, 54vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="flex flex-col justify-center px-5 py-20 md:px-14 lg:px-[7vw]">
+          <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">
+            Hospitality at your scale.
+          </h2>
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-ink/65">
+            Hotels, restaurants, airlines, wellness spaces and event teams can
+            build a tailored TITUN order around product, quantity and occasion.
+          </p>
+          <Link
+            href="/corporate"
+            className="mt-8 inline-flex w-fit items-center gap-4 bg-ink px-6 py-4 text-sm font-semibold text-white"
+          >
+            Enquire about corporate orders <ArrowRight />
+          </Link>
+        </div>
+      </section>
+
+      <section className="bg-linen px-5 py-24 md:px-8 md:py-36">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em] md:text-8xl">
+            Care can be quiet and still be remembered.
+          </h2>
+          <p className="mt-8 max-w-2xl text-base leading-relaxed text-ink/65">
+            TITUN began with a belief that small moments of consideration can
+            change how an experience feels. Renewal is not excess; it is the
+            thoughtful pause that helps us return to what matters.
+          </p>
+          <Link
+            href="/about"
+            className="mt-8 inline-flex items-center gap-4 border-b border-ink pb-2 text-sm font-semibold"
+          >
+            Read our story <ArrowRight />
+          </Link>
         </div>
       </section>
     </>

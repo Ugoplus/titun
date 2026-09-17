@@ -13,8 +13,8 @@ html {
 }
 body {
   margin: 0;
-  background: #f4f0e7;
-  color: #17251e;
+  background: #f8f6f1;
+  color: #181511;
   font-feature-settings:
     "kern" 1,
     "liga" 1;
@@ -92,25 +92,25 @@ a {
   animation: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 ::selection {
-  background: #d8ff3e;
-  color: #17251e;
+  background: #b39143;
+  color: #ffffff;
 }
 
 :where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline: 2px solid #17251e;
+  outline: 2px solid #181511;
   outline-offset: 3px;
 }
 
 footer :where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline-color: #d8ff3e;
+  outline-color: #d8b85f;
 }
 
 .bg-ink :where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline-color: #d8ff3e;
+  outline-color: #d8b85f;
 }
 
 :where(input, textarea) {
-  caret-color: #214f3d;
+  caret-color: #4c3025;
 }
 
 ::placeholder {

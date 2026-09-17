@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getProducts } from "@/lib/catalog";
 import { getAdminIdentity } from "@/lib/auth";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { getDefaultPurchaseQuantity } from "@/lib/product-pricing";
 
 export async function GET(request: Request) {
   const identity = await getAdminIdentity();
@@ -24,7 +25,8 @@ export async function GET(request: Request) {
     .filter(
       (product) =>
         !exclude.has(product.id) &&
-        product.stockOnHand - product.stockReserved > 0,
+        product.stockOnHand - product.stockReserved >=
+          getDefaultPurchaseQuantity(product),
     )
     .sort((a, b) => Number(b.featured) - Number(a.featured))
     .slice(0, 2);

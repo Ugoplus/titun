@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-17T14:40:00+01:00",
+  "title": "Design System: TITUN",
+  "extensions": {
+    "colorMeta": {
+      "ritual-ink": { "role": "primary", "displayName": "Ritual Ink", "canonical": "#181511", "tonalRamp": ["#181511", "#302b24", "#4a4339", "#675e52", "#867b6e", "#a89e92", "#cdc6bd", "#f4f1ec"] },
+      "porcelain": { "role": "neutral", "displayName": "Porcelain", "canonical": "#f8f6f1", "tonalRamp": ["#24211d", "#403c36", "#5e5951", "#7e7870", "#9f9991", "#c1bcb4", "#e0dcd5", "#f8f6f1"] },
+      "walnut": { "role": "secondary", "displayName": "Warm Walnut", "canonical": "#4c3025", "tonalRamp": ["#251710", "#3a241b", "#513329", "#6a4639", "#855e50", "#a47b6d", "#c7a79d", "#efe0da"] },
+      "restrained-gold": { "role": "tertiary", "displayName": "Restrained Gold", "canonical": "#b39143", "tonalRamp": ["#2c230f", "#493918", "#675023", "#856a31", "#a58840", "#c3a85d", "#ddc98f", "#f5ead0"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Editorial Display", "purpose": "Expressive hero and section statements." },
+      "body": { "displayName": "Commerce Body", "purpose": "Product information, forms and supporting copy." },
+      "label": { "displayName": "Utility Label", "purpose": "Navigation and compact interface labels." }
+    },
+    "shadows": [
+      { "name": "floating-utility", "value": "0 10px 32px rgba(24,21,17,.24)", "purpose": "Detached utility actions only." },
+      { "name": "modal-ambient", "value": "0 18px 60px rgba(24,21,17,.18)", "purpose": "Welcome and consent overlays." }
+    ],
+    "motion": [
+      { "name": "reveal", "value": "700ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Single entrance for the first editorial statement." },
+      { "name": "reduced", "value": "80ms", "purpose": "Maximum state-transition duration when reduced motion is requested." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The decisive purchase or enquiry action.",
+      "html": "<button class=\"ds-btn-primary\">Shop TITUN</button>",
+      "css": ".ds-btn-primary{min-height:56px;padding:14px 24px;border:0;border-radius:0;background:#181511;color:#fff;font:600 14px Manrope,Arial,sans-serif;transition:background-color 160ms ease}.ds-btn-primary:hover{background:#4c3025}.ds-btn-primary:focus-visible{outline:2px solid #181511;outline-offset:3px}.ds-btn-primary:active{opacity:.88}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A quieter paired action.",
+      "html": "<button class=\"ds-btn-secondary\">Discover TITUN</button>",
+      "css": ".ds-btn-secondary{min-height:48px;padding:12px 24px;border:1px solid #181511;border-radius:0;background:#fff;color:#181511;font:600 14px Manrope,Arial,sans-serif;transition:background-color 160ms ease}.ds-btn-secondary:hover{background:#f3efe8}.ds-btn-secondary:focus-visible{outline:2px solid #181511;outline-offset:3px}.ds-btn-secondary:active{background:#eee9df}"
+    },
+    {
+      "name": "Underlined Field",
+      "kind": "input",
+      "refersTo": "field-underlined",
+      "description": "A low-noise form control for contact and newsletter flows.",
+      "html": "<input class=\"ds-field\" aria-label=\"Email address\" placeholder=\"Email address\">",
+      "css": ".ds-field{height:48px;width:100%;padding:0 4px;border:0;border-bottom:1px solid rgba(24,21,17,.35);border-radius:0;background:transparent;color:#181511;font:400 16px Manrope,Arial,sans-serif}.ds-field:hover{border-bottom-color:#b39143}.ds-field:focus-visible{outline:2px solid #181511;outline-offset:3px;border-bottom-color:#181511}"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "description": "An image-first product tile with only decision-critical text.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-image\">Product photography</div><h3>Green Tea Refreshing Towel</h3><p>From ₦50,000</p></article>",
+      "css": ".ds-card{max-width:360px;border:0;border-radius:0;background:#fff;color:#181511;font-family:Manrope,Arial,sans-serif}.ds-card-image{aspect-ratio:4/5;display:grid;place-items:center;background:#f3efe8;color:rgba(24,21,17,.55)}.ds-card h3{margin:12px 0 4px;font:400 24px/1 Newsreader,Georgia,serif}.ds-card p{margin:0;font-size:12px;font-weight:700}.ds-card:focus-within{outline:2px solid #181511;outline-offset:3px}"
+    },
+    {
+      "name": "Selected Pack",
+      "kind": "custom",
+      "description": "The active state in the three-tier pack selector.",
+      "html": "<button class=\"ds-pack\"><span class=\"ds-pack-count\">100</span><strong>₦180,000</strong><small>BEST VALUE · SAVE ₦20,000</small></button>",
+      "css": ".ds-pack{min-height:128px;display:flex;flex-direction:column;justify-content:space-between;padding:16px;border:1px solid #181511;border-radius:0;background:#181511;color:#fff;text-align:left}.ds-pack-count{font:400 28px/1 Newsreader,Georgia,serif}.ds-pack strong{font:600 14px Manrope,Arial,sans-serif}.ds-pack small{margin-top:8px;color:#b39143;font:700 10px Manrope,Arial,sans-serif;letter-spacing:.08em}.ds-pack:hover{border-color:#b39143}.ds-pack:focus-visible{outline:2px solid #b39143;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Ritual",
+    "overview": "TITUN’s visual world treats refreshment as a small ceremony. Generous white space, editorial serif type and real product photography create composure; restrained gold and walnut accents bring warmth without turning the store ornamental. The system is calm, image-led and intentionally flat. Product packaging and hospitality photography provide the material richness while the interface stays precise and quiet.",
+    "keyCharacteristics": ["Spacious editorial compositions with a clear reading order", "Warm white grounds, dark ink and sparing metallic-gold accents", "Real product imagery at useful scale", "Square-edged controls and fine divider lines", "Mobile layouts that remain calm, legible and easy to shop"],
+    "rules": [
+      { "name": "The Gold Restraint Rule", "body": "Gold should identify a meaningful detail—selection, value or ritual—not coat whole interfaces.", "section": "colors" },
+      { "name": "The Two-Voice Rule", "body": "Use Newsreader for expressive hierarchy and Manrope for every action, datum and explanation.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "A surface earns a shadow only when it genuinely floats above the shopping journey.", "section": "elevation" }
+    ],
+    "dos": ["Do let supplied product and hospitality photography carry the visual weight.", "Do preserve generous pauses between the ritual story, product proof and purchase action.", "Do keep interactive targets at least 44px and retain visible keyboard focus.", "Do show prices, pack sizes and stock states as operational truth, never as decorative copy."],
+    "donts": ["Don't crowd the page with badges, promotional color or competing calls to action.", "Don't use gradients or simulated luxury effects in place of real photography and restrained materials.", "Don't invent claims, testimonials, contact details or product specifications.", "Don't introduce rounded cards into the square editorial system."]
+  }
+}

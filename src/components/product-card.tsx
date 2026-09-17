@@ -5,6 +5,10 @@ import type { Product } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { useCart } from "./cart-provider";
 import { ProductVisual } from "./product-visual";
+import {
+  getDefaultPurchaseQuantity,
+  getPackOptions,
+} from "@/lib/product-pricing";
 export function ProductCard({
   product,
   index = 0,
@@ -18,6 +22,9 @@ export function ProductCard({
 }) {
   const { addItem } = useCart();
   const available = product.stockOnHand - product.stockReserved;
+  const defaultQuantity = getDefaultPurchaseQuantity(product);
+  const packOptions = getPackOptions(product);
+  const startingPrice = packOptions[0].total;
   const Heading = headingLevel;
   return (
     <article className="group">
@@ -38,15 +45,16 @@ export function ProductCard({
           <p className="mt-2 text-xs text-ink/70">
             {product.scent} · {product.packSize}
           </p>
-          <p className="mt-3 text-sm font-bold">
-            {formatMoney(product.price, product.currency)}
+          <p className="mt-3 text-sm font-bold tabular-nums">
+            {packOptions.length > 1 ? "From " : ""}
+            {formatMoney(startingPrice, product.currency)}
           </p>
         </Link>
         <button
           disabled={available < 1}
-          onClick={() => addItem(product)}
+          onClick={() => addItem(product, defaultQuantity)}
           className="flex h-11 w-11 items-center justify-center border border-ink transition-colors hover:bg-citron disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label={`Add ${product.name} to basket`}
+          aria-label={`Add ${product.name} ${defaultQuantity}-piece pack to basket`}
         >
           <Plus />
         </button>

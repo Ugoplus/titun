@@ -247,6 +247,37 @@ export const rateLimitEvents = pgTable(
   ],
 );
 
+export const newsletterSubscribers = pgTable(
+  "newsletter_subscribers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    source: text("source").notNull().default("website"),
+    subscribedAt: timestamp("subscribed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("newsletter_subscribers_email_unique").on(table.email),
+  ],
+);
+
+export const corporateEnquiries = pgTable("corporate_enquiries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  company: text("company").notNull(),
+  industry: text("industry").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  estimatedQuantity: integer("estimated_quantity").notNull(),
+  productRequired: text("product_required").notNull(),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Event = typeof events.$inferSelect;

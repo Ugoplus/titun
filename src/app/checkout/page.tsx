@@ -8,13 +8,18 @@ import { useCart } from "@/components/cart-provider";
 import { ProductVisual } from "@/components/product-visual";
 import { formatMoney } from "@/lib/money";
 import type { Product } from "@/lib/db/schema";
+import {
+  getDefaultPurchaseQuantity,
+  getLinePricing,
+  getPackOptions,
+} from "@/lib/product-pricing";
 
 export default function CheckoutPage() {
   const { items, addItems } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + getLinePricing(item.product, item.quantity).total,
     0,
   );
   const fieldClass =
@@ -234,11 +239,13 @@ export default function CheckoutPage() {
               <div>
                 <p className="font-bold">{item.product.name}</p>
                 <p className="mt-1 text-xs text-ink/70">
-                  {item.product.packSize} · Qty {item.quantity}
+                  {getLinePricing(item.product, item.quantity).label}
                 </p>
               </div>
               <p className="text-sm font-bold">
-                {formatMoney(item.product.price * item.quantity)}
+                {formatMoney(
+                  getLinePricing(item.product, item.quantity).total,
+                )}
               </p>
             </div>
           ))}
@@ -280,12 +287,19 @@ export default function CheckoutPage() {
                       {product.name}
                     </p>
                     <p className="mt-1 text-xs text-ink/70">
-                      {formatMoney(product.price)}
+                      From {formatMoney(getPackOptions(product)[0].total)}
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => addItems([{ product, quantity: 1 }])}
+                    onClick={() =>
+                      addItems([
+                        {
+                          product,
+                          quantity: getDefaultPurchaseQuantity(product),
+                        },
+                      ])
+                    }
                     className="min-h-11 border border-ink px-3 py-2 text-xs font-bold"
                   >
                     Add

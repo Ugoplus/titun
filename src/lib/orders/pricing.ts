@@ -11,8 +11,8 @@ export type Discount = {
 
 export const calculateOrder = (items: PricedItem[], discount?: Discount | null) => {
   for (const item of items) {
-    if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20) {
-      throw new Error("Quantity must be between 1 and 20");
+    if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 100) {
+      throw new Error("Quantity must be between 1 and 100");
     }
   }
 

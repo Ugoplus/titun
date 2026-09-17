@@ -11,7 +11,7 @@ export const checkoutSchema = z.object({
   }),
   items: z.array(z.object({
     productId: z.uuid(),
-    quantity: z.int().min(1).max(20),
+    quantity: z.int().min(1).max(100),
   })).min(1).max(20),
   discountCode: z.string().trim().max(40).optional(),
   paymentProvider: z.enum(["paystack", "stripe"]),
@@ -44,4 +44,20 @@ export const eventSchema = z.object({
   lowStockThreshold: z.int().min(0),
   recommendedProductIds: z.array(z.uuid()).max(8).default([]),
   published: z.boolean().default(false),
+});
+
+export const newsletterSchema = z.object({
+  email: z.email().max(254).transform((value) => value.trim().toLowerCase()),
+  source: z.enum(["welcome", "footer"]).default("footer"),
+});
+
+export const corporateEnquirySchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  company: z.string().trim().min(2).max(140),
+  industry: z.string().trim().min(2).max(100),
+  email: z.email().max(254).transform((value) => value.trim().toLowerCase()),
+  phone: z.string().trim().min(7).max(30),
+  estimatedQuantity: z.int().min(1).max(1_000_000),
+  productRequired: z.string().trim().min(2).max(120),
+  message: z.string().trim().min(10).max(1500),
 });

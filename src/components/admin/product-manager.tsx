@@ -8,6 +8,7 @@ import type { Product } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { ProductVisual } from "@/components/product-visual";
 import { DialogShell } from "@/components/dialog-shell";
+import { isRefreshingTowel } from "@/lib/product-pricing";
 
 export function ProductManager({
   initialProducts,
@@ -181,7 +182,8 @@ export function ProductManager({
               <label className="grid gap-1 text-xs font-bold">
                 Category
                 <select name="category" className={field}>
-                  <option>Individual towels</option>
+                  <option>Refreshing towels</option>
+                  <option>Refreshing wet wipes</option>
                   <option>Boxes and multipacks</option>
                   <option>Scent collections</option>
                   <option>Corporate and bulk</option>
@@ -201,6 +203,9 @@ export function ProductManager({
                   type="number"
                   className={field}
                 />
+                <span className="font-normal text-ink/60">
+                  For refreshing towels, enter the best-value price per piece.
+                </span>
               </label>
               <label className="grid gap-1 text-xs font-bold">
                 Opening stock
@@ -291,7 +296,7 @@ export function ProductManager({
                 onSubmit={(event) => handleProductUpdate(event, product)}
               >
                 <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">
-                  Price (₦)
+                  {isRefreshingTowel(product) ? "Best-value unit (₦)" : "Price (₦)"}
                   <input
                     name="price"
                     type="number"

@@ -6,11 +6,16 @@ import { formatMoney } from "@/lib/money";
 import { DialogShell } from "./dialog-shell";
 import { ProductVisual } from "./product-visual";
 import { useCart } from "./cart-provider";
+import {
+  getAdjacentPackQuantity,
+  getLinePricing,
+  isRefreshingTowel,
+} from "@/lib/product-pricing";
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem } = useCart();
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum + getLinePricing(item.product, item.quantity).total,
     0,
   );
   if (!isOpen) return null;
@@ -65,7 +70,7 @@ export function CartDrawer() {
                   <div>
                     <p className="font-display text-xl">{item.product.name}</p>
                     <p className="text-xs text-ink/70">
-                      {item.product.packSize}
+                      {getLinePricing(item.product, item.quantity).label}
                     </p>
                   </div>
                   <div className="flex items-center justify-between">
@@ -74,7 +79,16 @@ export function CartDrawer() {
                         aria-label="Reduce quantity"
                         className="grid h-11 w-11 place-content-center"
                         onClick={() =>
-                          updateQuantity(item.product.id, item.quantity - 1)
+                          updateQuantity(
+                            item.product.id,
+                            isRefreshingTowel(item.product)
+                              ? getAdjacentPackQuantity(
+                                  item.product,
+                                  item.quantity,
+                                  -1,
+                                )
+                              : item.quantity - 1,
+                          )
                         }
                       >
                         <Minus />
@@ -86,7 +100,16 @@ export function CartDrawer() {
                         aria-label="Increase quantity"
                         className="grid h-11 w-11 place-content-center"
                         onClick={() =>
-                          updateQuantity(item.product.id, item.quantity + 1)
+                          updateQuantity(
+                            item.product.id,
+                            isRefreshingTowel(item.product)
+                              ? getAdjacentPackQuantity(
+                                  item.product,
+                                  item.quantity,
+                                  1,
+                                )
+                              : item.quantity + 1,
+                          )
                         }
                       >
                         <Plus />
@@ -101,7 +124,9 @@ export function CartDrawer() {
                     </button>
                   </div>
                   <p className="text-sm font-bold">
-                    {formatMoney(item.product.price * item.quantity)}
+                    {formatMoney(
+                      getLinePricing(item.product, item.quantity).total,
+                    )}
                   </p>
                 </div>
               </div>
