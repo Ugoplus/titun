@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     .limit(1);
   if (!order)
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
-  if (order.status === "paid" || order.status === "fulfilled")
+  if (["paid", "processing", "shipped", "fulfilled"].includes(order.status))
     return NextResponse.json({ status: order.status });
 
   if (order.paymentProvider === "stripe") {

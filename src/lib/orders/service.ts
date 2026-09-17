@@ -141,7 +141,12 @@ export const releasePendingOrder = async (reference: string, status: "failed" | 
         .returning();
       await tx.insert(inventoryEvents).values({ productId: item.productId, orderId: order.id, type: "reservation_release", quantityChange: 0, stockAfter: product.stockOnHand, note: `Released ${item.quantity} reserved units` });
     }
-    await tx.update(orders).set({ status, updatedAt: new Date() }).where(eq(orders.id, order.id));
+    const now = new Date();
+    await tx.update(orders).set({
+      status,
+      ...(status === "failed" ? { failedAt: now } : { cancelledAt: now }),
+      updatedAt: now,
+    }).where(eq(orders.id, order.id));
   });
 };
 
@@ -150,7 +155,7 @@ export const completePaidOrder = async (reference: string, paymentReference: str
   const completed = await db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.reference, reference)).limit(1);
     if (!order) throw new Error("Order not found");
-    if (order.status === "paid" || order.status === "fulfilled") return { order, changed: false, lowStock: [] };
+    if (["paid", "processing", "shipped", "fulfilled"].includes(order.status)) return { order, changed: false, lowStock: [] };
     if (order.status !== "pending") throw new Error("Order cannot be paid in its current state");
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
     const lowStock: { id: string; name: string; stock: number; threshold: number }[] = [];

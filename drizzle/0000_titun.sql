@@ -3,6 +3,9 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN null;
 END $$;
 
+ALTER TYPE order_status ADD VALUE IF NOT EXISTS 'processing';
+ALTER TYPE order_status ADD VALUE IF NOT EXISTS 'shipped';
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS "products" (
@@ -65,6 +68,15 @@ CREATE TABLE IF NOT EXISTS "orders" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS processing_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipped_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfilled_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS failed_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancelled_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS refunded_at timestamptz;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_number text;
 
 CREATE TABLE IF NOT EXISTS "order_items" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),

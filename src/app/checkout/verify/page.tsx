@@ -23,7 +23,7 @@ function VerifyOrder() {
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error();
-        if (payload.status === "paid" || payload.status === "fulfilled") {
+        if (["paid", "processing", "shipped", "fulfilled"].includes(payload.status)) {
           clear();
           setStatus("paid");
           return;

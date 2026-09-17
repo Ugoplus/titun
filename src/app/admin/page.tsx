@@ -17,8 +17,8 @@ export default async function AdminPage() {
     db.select().from(orders).orderBy(desc(orders.createdAt)).limit(8),
     db
       .select({
-        revenue: sql<number>`COALESCE(SUM(${orders.total}) FILTER (WHERE ${orders.status} IN ('paid','fulfilled')), 0)`,
-        paidOrders: sql<number>`COUNT(*) FILTER (WHERE ${orders.status} IN ('paid','fulfilled'))`,
+        revenue: sql<number>`COALESCE(SUM(${orders.total}) FILTER (WHERE ${orders.status} IN ('paid','processing','shipped','fulfilled')), 0)`,
+        paidOrders: sql<number>`COUNT(*) FILTER (WHERE ${orders.status} IN ('paid','processing','shipped','fulfilled'))`,
       })
       .from(orders),
     getSiteAssetRecords(),
@@ -43,11 +43,11 @@ export default async function AdminPage() {
             Shop control.
           </h1>
         </div>
-        <form action={logout}>
+        <div className="flex gap-2"><a href="/admin/orders" className="border border-ink bg-ink px-4 py-3 text-xs font-bold text-white">Manage orders</a><form action={logout}>
           <button className="border border-ink px-4 py-3 text-xs font-bold">
             Sign out
           </button>
-        </form>
+        </form></div>
       </div>
       <section className="grid border-l border-t border-ink/20 sm:grid-cols-3">
         <div className="border-b border-r border-ink/20 p-5">
@@ -92,7 +92,7 @@ export default async function AdminPage() {
       <ProductManager initialProducts={catalog} />
       <SiteImageManager initialAssets={websiteImages} />
       <section className="mt-16">
-        <h2 className="font-display text-4xl">Recent orders</h2>
+        <div className="flex items-end justify-between gap-4"><h2 className="font-display text-4xl">Recent orders</h2><a href="/admin/orders" className="border-b border-ink pb-1 text-sm font-semibold">View all orders</a></div>
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>

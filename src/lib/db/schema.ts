@@ -14,6 +14,8 @@ import {
 export const orderStatus = pgEnum("order_status", [
   "pending",
   "paid",
+  "processing",
+  "shipped",
   "failed",
   "fulfilled",
   "cancelled",
@@ -92,6 +94,14 @@ export const orders = pgTable(
       withTimezone: true,
     }).notNull(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
+    processingAt: timestamp("processing_at", { withTimezone: true }),
+    shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    fulfilledAt: timestamp("fulfilled_at", { withTimezone: true }),
+    failedAt: timestamp("failed_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
+    courier: text("courier"),
+    trackingNumber: text("tracking_number"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
