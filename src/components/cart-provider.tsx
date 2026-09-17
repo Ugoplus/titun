@@ -15,7 +15,7 @@ import {
   hasPackOptions,
 } from "@/lib/product-pricing";
 
-export type CartConfiguration = { giftBoxScents?: string[] };
+export type CartConfiguration = { giftBoxContents?: string[] };
 export type CartItem = {
   product: Product;
   quantity: number;
@@ -47,10 +47,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       try {
         const stored = JSON.parse(
           localStorage.getItem("titun-cart") ?? "[]",
-        ) as CartItem[];
+        ) as Array<CartItem & {
+          configuration?: CartConfiguration & { giftBoxScents?: string[] };
+        }>;
         setItems(
           stored.map((item) => ({
             ...item,
+            configuration: item.configuration?.giftBoxContents
+              ? { giftBoxContents: item.configuration.giftBoxContents }
+              : item.configuration?.giftBoxScents?.length
+                ? { giftBoxContents: item.configuration.giftBoxScents.map((scent) => `${scent} towel`) }
+                : undefined,
             quantity:
               hasPackOptions(item.product) &&
               !getPackOptions(item.product).some((option) => option.quantity === item.quantity)

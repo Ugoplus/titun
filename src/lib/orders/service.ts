@@ -28,7 +28,7 @@ export type CheckoutInput = {
   items: {
     productId: string;
     quantity: number;
-    configuration?: { giftBoxScents?: string[] };
+    configuration?: { giftBoxContents?: string[] };
   }[];
   discountCode?: string;
   paymentProvider: PaymentProvider;
@@ -51,8 +51,8 @@ export const createPendingOrder = async (input: CheckoutInput) => {
       const configuration = configurationById.get(product.id);
       if (
         product.category === "Boxes and multipacks" &&
-        !configuration?.giftBoxScents?.length
-      ) throw new Error("Choose at least one scent for your gift box");
+        !configuration?.giftBoxContents?.length
+      ) throw new Error("Choose at least one product for your gift box");
       const pricing = getLinePricing(product, quantity);
       return {
         productId: product.id,

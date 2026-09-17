@@ -167,21 +167,6 @@ CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS "custom_order_requests" (
-  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "reference" text NOT NULL UNIQUE,
-  "name" text NOT NULL,
-  "company" text,
-  "email" text NOT NULL,
-  "phone" text NOT NULL,
-  "order_type" text NOT NULL,
-  "estimated_quantity" integer NOT NULL CHECK (estimated_quantity > 0),
-  "artwork_url" text,
-  "message" text NOT NULL,
-  "status" text NOT NULL DEFAULT 'new',
-  "created_at" timestamptz NOT NULL DEFAULT now()
-);
-
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),

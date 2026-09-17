@@ -242,9 +242,9 @@ export default function CheckoutPage() {
                 <p className="mt-1 text-xs text-ink/70">
                   {getLinePricing(item.product, item.quantity).label}
                 </p>
-                {item.configuration?.giftBoxScents?.length ? (
+                {item.configuration?.giftBoxContents?.length ? (
                   <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                    {item.configuration.giftBoxScents.join(", ")}
+                    {item.configuration.giftBoxContents.join(", ")}
                   </p>
                 ) : null}
               </div>
