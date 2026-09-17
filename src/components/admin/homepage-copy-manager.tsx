@@ -34,6 +34,18 @@ const sections: Array<{
     ],
   },
   {
+    name: "Scent stories",
+    description: "The words customers see after selecting a scent image.",
+    fields: [
+      { key: "scentGreenTeaTagline", label: "Green Tea tagline" },
+      { key: "scentGreenTeaCopy", label: "Green Tea description", multiline: true },
+      { key: "scentLemongrassTagline", label: "Lemongrass tagline" },
+      { key: "scentLemongrassCopy", label: "Lemongrass description", multiline: true },
+      { key: "scentSandalwoodTagline", label: "Sandalwood tagline" },
+      { key: "scentSandalwoodCopy", label: "Sandalwood description", multiline: true },
+    ],
+  },
+  {
     name: "Product story",
     description: "The introduction above the dining, wellness and travel images.",
     fields: [
