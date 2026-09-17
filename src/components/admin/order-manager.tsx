@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Order } from "@/lib/db/schema";
+import type { AdminOrderView } from "@/lib/admin-order-view";
 import { formatMoney } from "@/lib/money";
 
 const categories = ["all", "pending", "paid", "processing", "shipped", "fulfilled", "failed", "cancelled", "refunded"] as const;
@@ -16,14 +17,22 @@ const formatDate = (value: Date | string | null) => value
   ? new Intl.DateTimeFormat("en-NG", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" }).format(new Date(value))
   : "—";
 
-export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
+export function OrderManager({
+  initialOrders,
+  canManage,
+  canViewFinancials,
+}: {
+  initialOrders: AdminOrderView[];
+  canManage: boolean;
+  canViewFinancials: boolean;
+}) {
   const [records, setRecords] = useState(initialOrders);
   const [filter, setFilter] = useState<(typeof categories)[number]>("all");
   const [savingId, setSavingId] = useState<string | null>(null);
   const visible = filter === "all" ? records : records.filter((order) => order.status === filter);
   const counts = useMemo(() => Object.fromEntries(categories.map((status) => [status, status === "all" ? records.length : records.filter((order) => order.status === status).length])), [records]);
 
-  const handleUpdate = async (order: Order, form: HTMLFormElement) => {
+  const handleUpdate = async (order: AdminOrderView, form: HTMLFormElement) => {
     const data = new FormData(form);
     const status = String(data.get("status"));
     if (!status) return;
@@ -62,18 +71,18 @@ export function OrderManager({ initialOrders }: { initialOrders: Order[] }) {
                 <div><dt className="text-ink/55">Processing</dt><dd className="mt-1 font-semibold">{formatDate(order.processingAt)}</dd></div>
                 <div><dt className="text-ink/55">Shipped</dt><dd className="mt-1 font-semibold">{formatDate(order.shippedAt)}</dd></div>
                 <div><dt className="text-ink/55">Fulfilled</dt><dd className="mt-1 font-semibold">{formatDate(order.fulfilledAt)}</dd></div>
-                <div><dt className="text-ink/55">Payment</dt><dd className="mt-1 font-semibold capitalize">{order.paymentProvider}</dd></div>
+                {canViewFinancials && order.paymentProvider ? <div><dt className="text-ink/55">Payment</dt><dd className="mt-1 font-semibold capitalize">{order.paymentProvider}</dd></div> : null}
                 {order.failedAt ? <div><dt className="text-ink/55">Failed</dt><dd className="mt-1 font-semibold">{formatDate(order.failedAt)}</dd></div> : null}
                 {order.cancelledAt ? <div><dt className="text-ink/55">Cancelled</dt><dd className="mt-1 font-semibold">{formatDate(order.cancelledAt)}</dd></div> : null}
                 {order.refundedAt ? <div><dt className="text-ink/55">Refunded</dt><dd className="mt-1 font-semibold">{formatDate(order.refundedAt)}</dd></div> : null}
               </dl>
-              <div className="lg:text-right"><span className="inline-flex border border-ink/20 px-3 py-2 text-xs font-bold capitalize">{order.status}</span><p className="mt-3 font-display text-3xl tabular-nums">{formatMoney(order.total, order.currency)}</p></div>
+              <div className="lg:text-right"><span className="inline-flex border border-ink/20 px-3 py-2 text-xs font-bold capitalize">{order.status}</span>{canViewFinancials && order.total !== undefined ? <p className="mt-3 font-display text-3xl tabular-nums">{formatMoney(order.total, order.currency)}</p> : null}</div>
             </div>
-            {nextStatus[order.status]?.length ? (
+            {canManage && nextStatus[order.status]?.length ? (
               <form className="mt-5 grid gap-3 border-t border-ink/15 pt-5 sm:grid-cols-[1fr_1fr_1fr_auto]" onSubmit={(event) => { event.preventDefault(); handleUpdate(order, event.currentTarget); }}>
-                <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">Next stage<select required name="status" defaultValue="" className="h-11 border border-ink/25 bg-transparent px-3 text-sm normal-case"><option value="" disabled>Choose status</option>{nextStatus[order.status]?.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
-                <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">Courier<input name="courier" defaultValue={order.courier ?? ""} className="h-11 border border-ink/25 px-3 text-sm normal-case" /></label>
-                <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">Tracking number<input name="trackingNumber" defaultValue={order.trackingNumber ?? ""} className="h-11 border border-ink/25 px-3 text-sm normal-case" /></label>
+                <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">Next stage<select required name="status" defaultValue="" className="h-11 border border-ink/25 bg-transparent px-3 text-sm normal-case"><option value="" disabled>Choose status</option>{nextStatus[order.status]?.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+                <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">Courier<input name="courier" defaultValue={order.courier ?? ""} className="h-11 border border-ink/25 px-3 text-sm normal-case" /></label>
+                <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">Tracking number<input name="trackingNumber" defaultValue={order.trackingNumber ?? ""} className="h-11 border border-ink/25 px-3 text-sm normal-case" /></label>
                 <button disabled={savingId === order.id} className="min-h-11 self-end bg-ink px-5 text-sm font-bold text-white disabled:opacity-50">{savingId === order.id ? "Saving…" : "Update order"}</button>
               </form>
             ) : null}

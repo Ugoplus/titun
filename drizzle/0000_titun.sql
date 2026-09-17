@@ -186,6 +186,64 @@ CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
   "created_at" timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS "admin_roles" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "name" text NOT NULL,
+  "slug" text NOT NULL UNIQUE,
+  "permissions" jsonb NOT NULL DEFAULT '[]'::jsonb,
+  "is_system" boolean NOT NULL DEFAULT false,
+  "created_at" timestamptz NOT NULL DEFAULT now(),
+  "updated_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "admin_users" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "email" text NOT NULL UNIQUE,
+  "name" text NOT NULL,
+  "password_hash" text,
+  "role_id" uuid NOT NULL REFERENCES admin_roles(id),
+  "active" boolean NOT NULL DEFAULT false,
+  "session_version" integer NOT NULL DEFAULT 1,
+  "last_login_at" timestamptz,
+  "created_at" timestamptz NOT NULL DEFAULT now(),
+  "updated_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "admin_auth_challenges" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "user_id" uuid NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE,
+  "type" text NOT NULL CHECK (type IN ('login_2fa', 'password_reset', 'invite')),
+  "code_hash" text NOT NULL,
+  "attempts" integer NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+  "expires_at" timestamptz NOT NULL,
+  "consumed_at" timestamptz,
+  "created_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS admin_auth_challenges_user_type_idx
+  ON admin_auth_challenges(user_id, type, created_at);
+
+CREATE TABLE IF NOT EXISTS "admin_audit_log" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "actor_user_id" uuid REFERENCES admin_users(id) ON DELETE SET NULL,
+  "action" text NOT NULL,
+  "target_type" text,
+  "target_id" text,
+  "metadata" jsonb NOT NULL DEFAULT '{}'::jsonb,
+  "created_at" timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS admin_audit_log_created_idx
+  ON admin_audit_log(created_at DESC);
+
+INSERT INTO admin_roles (name, slug, permissions, is_system)
+VALUES
+  ('Administrator', 'administrator', '[]'::jsonb, true),
+  ('Order fulfilment', 'order-fulfilment', '["dashboard:view","orders:view","orders:manage"]'::jsonb, true),
+  ('Catalogue manager', 'catalogue-manager', '["dashboard:view","products:view","products:manage","site_assets:manage"]'::jsonb, true),
+  ('Community manager', 'community-manager', '["dashboard:view","events:view","events:manage"]'::jsonb, true)
+ON CONFLICT (slug) DO NOTHING;
+
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),

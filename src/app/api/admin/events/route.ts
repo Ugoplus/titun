@@ -11,7 +11,9 @@ import { eventSchema } from "@/lib/validation";
 import { protectAdminRequest } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-events-read");
+  const blocked = await protectAdminRequest(request, "admin-events-read", {
+    permission: "events:view",
+  });
   if (blocked) return blocked;
   const db = getDb();
   const records = await db.select().from(events).orderBy(asc(events.startsAt));
@@ -19,7 +21,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-events-write");
+  const blocked = await protectAdminRequest(request, "admin-events-write", {
+    permission: "events:manage",
+  });
   if (blocked) return blocked;
 
   try {

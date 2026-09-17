@@ -10,7 +10,9 @@ export async function PATCH(
   request: Request,
   { params }: RouteContext<"/api/admin/products/[id]">,
 ) {
-  const blocked = await protectAdminRequest(request, "admin-products-write");
+  const blocked = await protectAdminRequest(request, "admin-products-write", {
+    permission: "products:manage",
+  });
   if (blocked) return blocked;
   try {
     const { id } = await params;

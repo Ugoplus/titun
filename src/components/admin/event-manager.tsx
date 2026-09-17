@@ -17,9 +17,11 @@ export type AdminEventSummary = Event & {
 export function EventManager({
   initialEvents,
   products,
+  canManage,
 }: {
   initialEvents: AdminEventSummary[];
   products: Product[];
+  canManage: boolean;
 }) {
   const [events, setEvents] = useState(initialEvents);
   const [isAdding, setIsAdding] = useState(false);
@@ -114,15 +116,17 @@ export function EventManager({
           </p>
           <h2 className="mt-2 font-display text-5xl">Events</h2>
         </div>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="flex min-h-12 items-center gap-2 bg-ink px-5 text-sm font-bold text-cream"
-        >
-          <Plus /> Create event
-        </button>
+        {canManage && (
+          <button
+            onClick={() => setIsAdding(true)}
+            className="flex min-h-12 items-center gap-2 bg-ink px-5 text-sm font-bold text-cream"
+          >
+            <Plus /> Create event
+          </button>
+        )}
       </div>
 
-      {isAdding && (
+      {canManage && isAdding && (
         <DialogShell
           labelledBy="new-event-title"
           onClose={() => setIsAdding(false)}
@@ -301,7 +305,7 @@ export function EventManager({
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <h3 className="font-display text-2xl">{event.title}</h3>
                 <span
-                  className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${event.published ? "bg-leaf/15 text-leaf" : "bg-ink/10"}`}
+                  className={`rounded-full px-2 py-1 text-xs font-bold uppercase tracking-[.06em] ${event.published ? "bg-leaf/15 text-leaf" : "bg-ink/10"}`}
                 >
                   {event.published ? "Published" : "Draft"}
                 </span>

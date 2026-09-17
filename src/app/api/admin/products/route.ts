@@ -6,7 +6,9 @@ import { productSchema } from "@/lib/validation";
 import { protectAdminRequest } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-products-read");
+  const blocked = await protectAdminRequest(request, "admin-products-read", {
+    permission: "products:view",
+  });
   if (blocked) return blocked;
   return NextResponse.json(
     await getDb().select().from(products).orderBy(desc(products.updatedAt)),
@@ -14,7 +16,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-products-write");
+  const blocked = await protectAdminRequest(request, "admin-products-write", {
+    permission: "products:manage",
+  });
   if (blocked) return blocked;
   try {
     const input = productSchema.parse(await request.json());

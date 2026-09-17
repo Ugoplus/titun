@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { asc, count, desc, eq, ne } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/auth";
+import { AdminNavigation } from "@/components/admin/admin-navigation";
+import { adminCan, getAdminIdentity } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { communityMembers, events, products } from "@/lib/db/schema";
 import {
@@ -12,7 +12,10 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminEventsPage() {
-  if (!(await isAdmin())) redirect("/admin/login");
+  const identity = await getAdminIdentity();
+  if (!identity) redirect("/admin/login");
+  if (!adminCan(identity, "events:view")) redirect("/admin?error=forbidden");
+  const canManage = adminCan(identity, "events:manage");
   const db = getDb();
   const [records, catalog, memberCount, recentMembers] = await Promise.all([
     db
@@ -41,7 +44,8 @@ export default async function AdminEventsPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-5 py-10 md:px-8 md:py-16">
-      <div className="flex flex-wrap items-end justify-between gap-5 border-b border-ink/20 pb-8">
+      <AdminNavigation identity={identity} />
+      <div className="mt-10 flex flex-wrap items-end justify-between gap-5 border-b border-ink/20 pb-8">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
             Community control
@@ -50,12 +54,6 @@ export default async function AdminEventsPage() {
             Gatherings.
           </h1>
         </div>
-        <Link
-          href="/admin"
-          className="border border-ink px-4 py-3 text-xs font-bold"
-        >
-          Back to shop admin
-        </Link>
       </div>
       <section className="grid border-l border-t border-ink/20 sm:grid-cols-3">
         <div className="border-b border-r border-ink/20 p-5">
@@ -81,7 +79,7 @@ export default async function AdminEventsPage() {
           </p>
         </div>
       </section>
-      <EventManager initialEvents={summaries} products={catalog} />
+      <EventManager initialEvents={summaries} products={catalog} canManage={canManage} />
       <section className="mt-16">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">

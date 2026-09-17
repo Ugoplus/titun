@@ -4,11 +4,11 @@ import { orders } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { completePaidOrder } from "@/lib/orders/service";
 import { retrieveStripeSession } from "@/lib/payments";
-import { getAdminIdentity } from "@/lib/auth";
+import { getAdminRateLimitIdentity } from "@/lib/auth";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
-  const identity = await getAdminIdentity();
+  const identity = await getAdminRateLimitIdentity();
   const rateLimit = await consumeRateLimit(request, {
     scope: "order-verification",
     limit: identity ? 1000 : 240,

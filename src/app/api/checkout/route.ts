@@ -6,13 +6,13 @@ import {
   releasePendingOrder,
 } from "@/lib/orders/service";
 import { initializePayment } from "@/lib/payments";
-import { getAdminIdentity } from "@/lib/auth";
+import { getAdminRateLimitIdentity } from "@/lib/auth";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const identity = await getAdminIdentity();
+  const identity = await getAdminRateLimitIdentity();
   const rateLimit = await consumeRateLimit(request, {
     scope: "checkout",
     limit: identity ? 300 : 30,

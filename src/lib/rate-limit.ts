@@ -2,7 +2,8 @@ import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import { and, count, eq, gte, lt, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { getAdminIdentity } from "@/lib/auth";
+import { adminCan, getAdminIdentity } from "@/lib/auth";
+import type { AdminPermission } from "@/lib/admin-permissions";
 import { getDb } from "@/lib/db";
 import { rateLimitEvents } from "@/lib/db/schema";
 
@@ -101,16 +102,33 @@ export function rateLimitResponse(result: RateLimitResult) {
 export async function protectAdminRequest(
   request: Request,
   scope: string,
-  { limit = 1000, windowSeconds = 300 } = {},
+  {
+    limit = 1000,
+    windowSeconds = 300,
+    permission,
+    anyOf,
+  }: {
+    limit?: number;
+    windowSeconds?: number;
+    permission?: AdminPermission;
+    anyOf?: AdminPermission[];
+  } = {},
 ) {
   const identity = await getAdminIdentity();
   if (!identity)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const permitted = permission
+    ? adminCan(identity, permission)
+    : anyOf?.length
+      ? anyOf.some((candidate) => adminCan(identity, candidate))
+      : true;
+  if (!permitted)
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const result = await consumeRateLimit(request.headers, {
     scope,
     limit,
     windowSeconds,
-    identity,
+    identity: identity.id,
   });
   return result.allowed ? null : rateLimitResponse(result);
 }

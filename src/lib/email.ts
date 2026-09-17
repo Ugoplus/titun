@@ -14,9 +14,22 @@ const getTransport = () => {
   });
 };
 
-const sendEmail = async (to: string, subject: string, html: string) => {
+export const isEmailDeliveryConfigured = () =>
+  Boolean(process.env.SMTP_HOST && process.env.EMAIL_FROM);
+
+export const isAdminEmailSecurityReady = () =>
+  isEmailDeliveryConfigured() &&
+  Boolean(process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"));
+
+const sendEmail = async (
+  to: string,
+  subject: string,
+  html: string,
+  required = false,
+) => {
   const transport = getTransport();
   if (!transport) {
+    if (required) throw new Error("Email delivery is not configured");
     console.info(`[email skipped] ${subject} -> ${to}`);
     return;
   }
@@ -87,5 +100,70 @@ export const sendCorporateEnquiryAlert = async (enquiry: {
     recipient,
     `Corporate enquiry · ${enquiry.company}`,
     `<div style="font-family:Arial,sans-serif;color:#181511;max-width:640px;margin:auto"><p style="letter-spacing:.08em;text-transform:uppercase">TITUN</p><h1 style="font-family:Georgia,serif;font-weight:400">New corporate enquiry</h1><table style="border-collapse:collapse;width:100%">${rows}</table><h2 style="font-family:Georgia,serif;font-weight:400">Message</h2><p>${escapeHtml(enquiry.message)}</p></div>`,
+  );
+};
+
+const adminCodeEmail = ({
+  heading,
+  copy,
+  code,
+}: {
+  heading: string;
+  copy: string;
+  code: string;
+}) => `<div style="font-family:Arial,sans-serif;color:#181511;max-width:560px;margin:auto;padding:32px 20px">
+  <p style="letter-spacing:.08em;text-transform:uppercase;font-size:12px">TITUN</p>
+  <h1 style="font-family:Georgia,serif;font-size:38px;line-height:1;font-weight:400">${escapeHtml(heading)}</h1>
+  <p style="font-size:16px;line-height:1.6">${escapeHtml(copy)}</p>
+  <p style="font-size:32px;letter-spacing:.18em;font-weight:700;margin:28px 0">${escapeHtml(code)}</p>
+  <p style="font-size:13px;line-height:1.6;color:#665f55">This code expires in 10 minutes and can only be used once. If you did not request it, you can ignore this email.</p>
+</div>`;
+
+export const sendAdminLoginCode = async (email: string, code: string) =>
+  sendEmail(
+    email,
+    "Your TITUN admin sign-in code",
+    adminCodeEmail({
+      heading: "Confirm your sign-in",
+      copy: "Enter this verification code to finish signing in to TITUN admin.",
+      code,
+    }),
+    true,
+  );
+
+export const sendAdminPasswordResetCode = async (
+  email: string,
+  code: string,
+) =>
+  sendEmail(
+    email,
+    "Reset your TITUN admin password",
+    adminCodeEmail({
+      heading: "Reset your password",
+      copy: "Enter this code on the password reset page, then choose a new passphrase.",
+      code,
+    }),
+    true,
+  );
+
+export const sendAdminInvitation = async (
+  email: string,
+  name: string,
+  code: string,
+) => {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const link = `${siteUrl}/admin/accept-invite`;
+  return sendEmail(
+    email,
+    "You have been invited to TITUN admin",
+    `<div style="font-family:Arial,sans-serif;color:#181511;max-width:560px;margin:auto;padding:32px 20px">
+      <p style="letter-spacing:.08em;text-transform:uppercase;font-size:12px">TITUN</p>
+      <h1 style="font-family:Georgia,serif;font-size:38px;line-height:1;font-weight:400">Your admin invitation</h1>
+      <p style="font-size:16px;line-height:1.6">Hello ${escapeHtml(name)}, you have been invited to help manage TITUN.</p>
+      <p style="font-size:32px;letter-spacing:.18em;font-weight:700;margin:28px 0">${escapeHtml(code)}</p>
+      <p><a href="${escapeHtml(link)}" style="display:inline-block;background:#181511;color:#fff;padding:14px 20px;text-decoration:none">Accept invitation</a></p>
+      <p style="font-size:13px;line-height:1.6;color:#665f55">The invitation code expires in 24 hours and can only be used once.</p>
+    </div>`,
+    true,
   );
 };

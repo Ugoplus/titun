@@ -301,6 +301,97 @@ export const corporateEnquiries = pgTable("corporate_enquiries", {
     .notNull(),
 });
 
+export const adminRoles = pgTable(
+  "admin_roles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    permissions: jsonb("permissions").$type<string[]>().notNull().default([]),
+    isSystem: boolean("is_system").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [uniqueIndex("admin_roles_slug_unique").on(table.slug)],
+);
+
+export const adminUsers = pgTable(
+  "admin_users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    passwordHash: text("password_hash"),
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => adminRoles.id),
+    active: boolean("active").notNull().default(false),
+    sessionVersion: integer("session_version").notNull().default(1),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [uniqueIndex("admin_users_email_unique").on(table.email)],
+);
+
+export const adminAuthChallenges = pgTable(
+  "admin_auth_challenges",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => adminUsers.id, { onDelete: "cascade" }),
+    type: text("type", {
+      enum: ["login_2fa", "password_reset", "invite"],
+    }).notNull(),
+    codeHash: text("code_hash").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("admin_auth_challenges_user_type_idx").on(
+      table.userId,
+      table.type,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const adminAuditLog = pgTable(
+  "admin_audit_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    actorUserId: uuid("actor_user_id").references(() => adminUsers.id, {
+      onDelete: "set null",
+    }),
+    action: text("action").notNull(),
+    targetType: text("target_type"),
+    targetId: text("target_id"),
+    metadata: jsonb("metadata")
+      .$type<Record<string, string | number | boolean | null>>()
+      .notNull()
+      .default({}),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("admin_audit_log_created_idx").on(table.createdAt)],
+);
+
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Event = typeof events.$inferSelect;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type AdminRole = typeof adminRoles.$inferSelect;

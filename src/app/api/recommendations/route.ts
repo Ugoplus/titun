@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getProducts } from "@/lib/catalog";
-import { getAdminIdentity } from "@/lib/auth";
+import { getAdminRateLimitIdentity } from "@/lib/auth";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { getDefaultPurchaseQuantity } from "@/lib/product-pricing";
 
 export async function GET(request: Request) {
-  const identity = await getAdminIdentity();
+  const identity = await getAdminRateLimitIdentity();
   const rateLimit = await consumeRateLimit(request, {
     scope: "recommendations",
     limit: identity ? 1000 : 120,

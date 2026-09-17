@@ -6,7 +6,9 @@ import { protectAdminRequest } from "@/lib/rate-limit";
 import { siteAssetDefaults, siteAssetKeys } from "@/lib/site-assets";
 
 export async function PATCH(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-site-assets-write");
+  const blocked = await protectAdminRequest(request, "admin-site-assets-write", {
+    permission: "site_assets:manage",
+  });
   if (blocked) return blocked;
   try {
     const input = await request.json() as { key?: string; url?: string };

@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   const blocked = await protectAdminRequest(request, "admin-uploads", {
     limit: 100,
     windowSeconds: 3600,
+    anyOf: ["products:manage", "events:manage", "site_assets:manage"],
   });
   if (blocked) return blocked;
   const formData = await request.formData();

@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import Link from "next/link";
 import { ImageSquare, Plus, X } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/db/schema";
@@ -134,12 +133,6 @@ export function ProductManager({
           <h2 className="mt-2 font-display text-5xl">Products and stock</h2>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link
-            href="/admin/events"
-            className="flex min-h-12 items-center border border-ink px-5 text-sm font-bold"
-          >
-            Manage events
-          </Link>
           <button
             onClick={() => setIsAdding(true)}
             className="flex min-h-12 items-center gap-2 bg-ink px-5 text-sm font-bold text-cream"
@@ -302,7 +295,7 @@ export function ProductManager({
                 className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[100px_100px_auto_auto]"
                 onSubmit={(event) => handleProductUpdate(event, product)}
               >
-                <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">
+                <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">
                   {isRefreshingTowel(product) ? "Best-value unit (₦)" : "Price (₦)"}
                   <input
                     name="price"
@@ -313,7 +306,7 @@ export function ProductManager({
                     className="h-10 border border-ink/25 bg-transparent px-2 text-sm"
                   />
                 </label>
-                <label className="grid gap-1 text-[10px] font-bold uppercase tracking-[.06em]">
+                <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">
                   On hand
                   <input
                     name="stock"
