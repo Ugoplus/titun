@@ -3,6 +3,8 @@
 import { WhatsappLogo, X } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { NewsletterForm } from "./newsletter-form";
+import { DialogShell } from "./dialog-shell";
+import Image from "next/image";
 import { contactDetails } from "@/lib/contact";
 
 type Consent = "all" | "essential";
@@ -14,11 +16,14 @@ export function SitePrompts() {
 
   useEffect(() => {
     const consent = localStorage.getItem("titun-cookie-consent");
-    if (!consent) queueMicrotask(() => setShowConsent(true));
+    if (!consent) {
+      queueMicrotask(() => setShowConsent(true));
+      return;
+    }
     const dismissedAt = Number(localStorage.getItem("titun-welcome-dismissed") ?? 0);
     const elapsed = Date.now() - dismissedAt;
     if (elapsed > 30 * 24 * 60 * 60 * 1000) {
-      const timer = window.setTimeout(() => setShowWelcome(true), 9000);
+      const timer = window.setTimeout(() => setShowWelcome(true), 4000);
       return () => window.clearTimeout(timer);
     }
   }, []);
@@ -36,32 +41,57 @@ export function SitePrompts() {
     localStorage.setItem("titun-cookie-consent", consent);
     setShowConsent(false);
     setShowPreferences(false);
+    const dismissedAt = Number(localStorage.getItem("titun-welcome-dismissed") ?? 0);
+    if (Date.now() - dismissedAt > 30 * 24 * 60 * 60 * 1000) {
+      window.setTimeout(() => setShowWelcome(true), 1200);
+    }
   };
 
   return (
     <>
       {showWelcome && (
-        <aside
-          id="welcome-offer"
-          aria-label="First-order offer"
-          className="fixed bottom-4 left-4 z-50 w-[calc(100%-2rem)] max-w-sm border border-ink bg-white p-6 shadow-[0_18px_60px_rgba(24,21,17,.18)]"
+        <DialogShell
+          labelledBy="welcome-offer-title"
+          onClose={dismissWelcome}
+          backdropClassName="p-0"
+          panelClassName="relative min-h-full w-full overflow-hidden bg-cream"
         >
           <button
             onClick={dismissWelcome}
-            className="absolute right-3 top-3 grid h-11 w-11 place-content-center"
+            data-autofocus
+            className="absolute right-4 top-4 z-20 grid h-12 w-12 place-content-center border border-ink/25 bg-cream text-ink transition-colors hover:bg-ink hover:text-white md:right-7 md:top-7"
             aria-label="Close welcome offer"
           >
-            <X />
+            <X size={22} />
           </button>
-          <p className="max-w-[12ch] font-display text-4xl leading-[.95] tracking-[-.03em]">
-            Welcome to TITUN.
-          </p>
-          <p className="mb-5 mt-4 max-w-[34ch] text-sm leading-relaxed text-ink/70">
-            Enjoy 10% off your first order and receive considered notes from
-            TITUN.
-          </p>
-          <NewsletterForm source="welcome" compact onSuccess={rememberWelcomeSignup} />
-        </aside>
+          <div className="grid min-h-screen lg:grid-cols-2">
+            <div className="relative min-h-[38vh] lg:min-h-screen">
+              <Image
+                src="/images/titun/ritual-spa.jpg"
+                alt="TITUN refreshing towels arranged for a calm wellness ritual"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="flex items-center px-5 py-16 md:px-12 lg:px-[7vw]">
+              <div className="w-full max-w-xl">
+                <h2 id="welcome-offer-title" className="text-balance font-display text-[clamp(3.5rem,7vw,6rem)] leading-[.88] tracking-[-.035em]">
+                  A more considered kind of refresh.
+                </h2>
+                <p className="mt-6 max-w-[48ch] text-base leading-relaxed text-ink/70 md:text-lg">
+                  Join the TITUN list for 10% off your first order, new collection notes and invitations from our community.
+                </p>
+                <div className="mt-10 max-w-lg">
+                  <NewsletterForm source="welcome" onSuccess={rememberWelcomeSignup} />
+                </div>
+                <p className="mt-5 max-w-[54ch] text-xs leading-relaxed text-ink/60">
+                  By joining, you agree to receive TITUN emails. You can unsubscribe at any time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogShell>
       )}
 
       {showConsent && (

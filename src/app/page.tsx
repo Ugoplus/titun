@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { ProductCard } from "@/components/product-card";
+import { HomeHeroSlideshow } from "@/components/home-hero-slideshow";
 import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/site";
@@ -28,6 +29,27 @@ const wipeScents = [
   ["Lemongrass", "/images/titun/lemongrass-wipes.jpg"],
 ] as const;
 
+const collections = [
+  {
+    title: "Refreshing towels",
+    copy: "Explore Green Tea, Lemongrass and Sandalwood in 25, 50 or 100-piece packs.",
+    image: "/images/titun/green-tea-towel.jpg",
+    href: "/shop?category=Refreshing%20towels",
+  },
+  {
+    title: "Refreshing wet wipes",
+    copy: "A light, individually wrapped refresh for dining, travel and movement.",
+    image: "/images/titun/lemongrass-wipes.jpg",
+    href: "/shop#wipes",
+  },
+  {
+    title: "Gift boxes and multipacks",
+    copy: "Considered presentation for gifting, hosting and elevated occasions.",
+    image: "/images/titun/gift-box.jpg",
+    href: "/shop?category=Boxes%20and%20multipacks",
+  },
+] as const;
+
 export default async function Home() {
   const products = await getProducts();
   const towels = products.filter((product) => product.category === "Refreshing towels");
@@ -36,21 +58,38 @@ export default async function Home() {
     <>
       <StructuredData data={{ "@context": "https://schema.org", "@type": "OnlineStore", name: "TITUN", url: absoluteUrl("/"), description: "Premium refreshing towels and wipes for hospitality, travel, wellness and everyday rituals.", image: absoluteUrl("/images/titun/green-tea-towel.jpg"), currenciesAccepted: "NGN" }} />
 
-      <section className="border-b border-ink/15 bg-[#efefed]">
-        <div className="mx-auto grid min-h-[36rem] max-w-[1440px] lg:grid-cols-[.9fr_1.1fr]">
-          <div className="reveal flex flex-col justify-center px-5 py-14 md:px-10 lg:px-[6vw] lg:py-20">
-            <h1 className="max-w-2xl font-display text-[clamp(3.75rem,7vw,6rem)] leading-[.86] tracking-[-.035em]">The Art of Renewal</h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-ink/70 md:text-lg">Scented refreshing towels designed to make welcome, movement and everyday care feel more considered.</p>
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-ink/75">
-              <span>Individually sealed</span><span>Three signature scents</span><span>25, 50 or 100 pieces</span>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/shop" className="inline-flex min-h-12 items-center gap-5 bg-ink px-6 text-sm font-semibold text-white">Shop refreshing towels <ArrowRight /></Link>
-              <Link href="/corporate" className="inline-flex min-h-12 items-center border border-ink px-6 text-sm font-semibold">Request a quote</Link>
-            </div>
+      <HomeHeroSlideshow />
+
+      <section className="border-b border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="flex flex-col gap-4 border-b border-ink/20 pb-7 md:flex-row md:items-end md:justify-between">
+            <h2 className="max-w-2xl text-balance font-display text-5xl leading-[.94] tracking-[-.03em] md:text-6xl">
+              Shop the collection
+            </h2>
+            <Link href="/shop" className="inline-flex w-fit items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">
+              View all products <ArrowRight aria-hidden="true" />
+            </Link>
           </div>
-          <div className="relative min-h-[28rem] overflow-hidden lg:min-h-full">
-            <Image src="/images/titun/green-tea-towel.jpg" alt="Green Tea TITUN refreshing towel and its individual packaging" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover object-center" />
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {collections.map((collection) => (
+              <Link key={collection.title} href={collection.href} className="group relative min-h-[30rem] overflow-hidden bg-ink text-white">
+                <Image
+                  src={collection.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+                />
+                <div className="absolute inset-0 bg-ink/55 transition-colors group-hover:bg-ink/65" />
+                <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
+                  <h3 className="max-w-[13ch] font-display text-4xl leading-[.95] tracking-[-.025em]">{collection.title}</h3>
+                  <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-white/90">{collection.copy}</p>
+                  <span className="mt-5 inline-flex min-h-11 items-center gap-3 border-b border-white pb-1 text-sm font-semibold">
+                    Explore <ArrowRight aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

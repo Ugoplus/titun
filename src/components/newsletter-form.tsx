@@ -45,10 +45,20 @@ export function NewsletterForm({
 
   return (
     <form onSubmit={handleSubmit} className={compact ? "" : "max-w-md"}>
-      <div className="flex border-b border-current/40">
-        <label className="sr-only" htmlFor={`newsletter-email-${source}`}>
-          Email address
+      {source === "welcome" && (
+        <label
+          className="mb-3 block text-xs font-bold uppercase tracking-[.08em]"
+          htmlFor={`newsletter-email-${source}`}
+        >
+          Your email address
         </label>
+      )}
+      <div className={source === "welcome" ? "grid gap-3 sm:grid-cols-[1fr_auto]" : "flex border-b border-current/40"}>
+        {source !== "welcome" && (
+          <label className="sr-only" htmlFor={`newsletter-email-${source}`}>
+            Email address
+          </label>
+        )}
         <input
           id={`newsletter-email-${source}`}
           name="email"
@@ -56,14 +66,19 @@ export function NewsletterForm({
           required
           autoComplete="email"
           placeholder="Email address"
-          className="h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-current/55"
+          className={source === "welcome"
+            ? "h-14 min-w-0 border border-ink/35 bg-white px-4 text-base outline-none placeholder:text-ink/55 focus:border-ink"
+            : "h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-current/55"}
         />
         <button
           disabled={status === "loading"}
-          className="flex h-12 w-12 items-center justify-center disabled:opacity-50"
+          className={source === "welcome"
+            ? "inline-flex min-h-14 items-center justify-center gap-4 bg-ink px-6 text-sm font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-wait disabled:opacity-50"
+            : "flex h-12 w-12 items-center justify-center disabled:opacity-50"}
           aria-label="Join the TITUN newsletter"
         >
-          <ArrowRight />
+          {source === "welcome" && (status === "loading" ? "Joining…" : "Get 10% off")}
+          <ArrowRight aria-hidden="true" />
         </button>
       </div>
       {status === "error" && (
