@@ -53,39 +53,39 @@ export function SitePrompts() {
         <DialogShell
           labelledBy="welcome-offer-title"
           onClose={dismissWelcome}
-          backdropClassName="p-0"
-          panelClassName="relative min-h-full w-full overflow-hidden bg-cream"
+          backdropClassName="p-4 md:p-8"
+          panelClassName="relative my-auto max-h-[calc(100svh-2rem)] w-full max-w-[58rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] md:max-h-[calc(100svh-4rem)]"
         >
           <button
             onClick={dismissWelcome}
             data-autofocus
-            className="absolute right-4 top-4 z-20 grid h-12 w-12 place-content-center border border-ink/25 bg-cream text-ink transition-colors hover:bg-ink hover:text-white md:right-7 md:top-7"
+            className="absolute right-3 top-3 z-20 grid h-11 w-11 place-content-center border border-ink/25 bg-white/95 text-ink transition-colors hover:bg-ink hover:text-white md:right-5 md:top-5"
             aria-label="Close welcome offer"
           >
             <X size={22} />
           </button>
-          <div className="grid min-h-screen lg:grid-cols-2">
-            <div className="relative min-h-[38vh] lg:min-h-screen">
+          <div className="grid md:grid-cols-[.82fr_1.18fr]">
+            <div className="relative min-h-48 sm:min-h-56 md:min-h-[34rem]">
               <Image
                 src="/images/titun/ritual-spa.jpg"
                 alt="TITUN refreshing towels arranged for a calm wellness ritual"
                 fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, 42vw"
                 className="object-cover"
               />
             </div>
-            <div className="flex items-center px-5 py-16 md:px-12 lg:px-[7vw]">
-              <div className="w-full max-w-xl">
-                <h2 id="welcome-offer-title" className="text-balance font-display text-[clamp(3.5rem,7vw,6rem)] leading-[.88] tracking-[-.035em]">
+            <div className="flex items-center px-6 py-8 sm:p-9 md:p-10 lg:p-12">
+              <div className="w-full max-w-lg">
+                <h2 id="welcome-offer-title" className="text-balance font-display text-[clamp(2.6rem,5vw,4.25rem)] leading-[.9] tracking-[-.03em]">
                   A more considered kind of refresh.
                 </h2>
-                <p className="mt-6 max-w-[48ch] text-base leading-relaxed text-ink/70 md:text-lg">
+                <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-ink/70 sm:text-base">
                   Join the TITUN list for 10% off your first order, new collection notes and invitations from our community.
                 </p>
-                <div className="mt-10 max-w-lg">
+                <div className="mt-7 max-w-lg">
                   <NewsletterForm source="welcome" onSuccess={rememberWelcomeSignup} />
                 </div>
-                <p className="mt-5 max-w-[54ch] text-xs leading-relaxed text-ink/60">
+                <p className="mt-4 max-w-[54ch] text-xs leading-relaxed text-ink/60">
                   By joining, you agree to receive TITUN emails. You can unsubscribe at any time.
                 </p>
               </div>
