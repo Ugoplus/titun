@@ -8,6 +8,7 @@ import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
 import { absoluteUrl } from "@/lib/site";
 import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
+import { getHomepageHeroSlides } from "@/lib/site-content";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -64,8 +65,11 @@ const scentStories = [
 ] as const;
 
 export default async function Home() {
-  const products = await getProducts();
-  const siteImages = await getSiteAssetMap();
+  const [products, siteImages] = await Promise.all([
+    getProducts(),
+    getSiteAssetMap(),
+  ]);
+  const heroSlides = await getHomepageHeroSlides(siteImages);
   const towels = products.filter((product) => product.category === "Refreshing towels");
   const wipes = products.filter((product) => product.category === "Refreshing wet wipes");
 
@@ -73,7 +77,7 @@ export default async function Home() {
     <>
       <StructuredData data={{ "@context": "https://schema.org", "@type": "OnlineStore", name: "TITUN", url: absoluteUrl("/"), description: "Premium refreshing towels and wipes for hospitality, travel, wellness and everyday rituals.", image: absoluteUrl("/images/titun/green-tea-towel.jpg"), currenciesAccepted: "NGN" }} />
 
-      <HomeHeroSlideshow images={[siteImages["home.hero.one"], siteImages["home.hero.two"], siteImages["home.hero.three"]]} />
+      <HomeHeroSlideshow slides={heroSlides} />
 
       <section className="border-b border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1440px]">

@@ -172,6 +172,13 @@ CREATE TABLE IF NOT EXISTS "site_assets" (
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS "site_content" (
+  "key" text PRIMARY KEY,
+  "label" text NOT NULL,
+  "content" jsonb NOT NULL,
+  "updated_at" timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS "corporate_enquiries" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "name" text NOT NULL,

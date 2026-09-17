@@ -38,8 +38,8 @@ export function SiteImageManager({ initialAssets }: { initialAssets: Asset[] }) 
 
   return (
     <section className="mt-16">
-      <h2 className="font-display text-5xl">Website images</h2>
-      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">Replace homepage and page imagery here. Changes appear immediately after upload.</p>
+      <h2 className="font-display text-5xl">Other website images</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">Replace collection, scent, application and page imagery here. These image changes publish immediately.</p>
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {assets.map((asset) => (
           <article key={asset.key} className="border border-ink/20 bg-white p-3">

@@ -4,39 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
+import type { HomepageHeroSlide } from "@/lib/site-content";
 
-const slideContent = [
-  {
-    type: "video",
-    src: "/videos/titun-renewal.m4v",
-    poster: "/videos/titun-renewal-poster.jpg",
-    duration: 7000,
-    title: "The Art of Renewal",
-    copy: "Scented refreshing towels for moments of welcome, movement and everyday care.",
-  },
-  {
-    type: "image",
-    imageIndex: 1,
-    duration: 4500,
-    alt: "A guest enjoying a TITUN refreshing wipe",
-    title: "A thoughtful welcome",
-    copy: "A simple gesture, made memorable through scent, softness and considered presentation.",
-  },
-  {
-    type: "image",
-    imageIndex: 2,
-    duration: 4500,
-    alt: "TITUN refreshing towels prepared for travel and movement",
-    title: "Refresh wherever life moves",
-    copy: "Individually sealed and ready for travel, dining, wellness and the everyday in between.",
-  },
-] as const;
+function mediaTypeForUrl(url: string) {
+  const extension = url.split(".").pop()?.toLowerCase();
+  if (extension === "webm") return "video/webm";
+  if (extension === "mov") return "video/quicktime";
+  return "video/mp4";
+}
 
-export function HomeHeroSlideshow({ images }: { images: [string, string, string] }) {
+export function HomeHeroSlideshow({ slides }: { slides: HomepageHeroSlide[] }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [interactionPaused, setInteractionPaused] = useState(false);
   const [autoplayEnabled, setAutoplayEnabled] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   useEffect(() => {
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -50,21 +31,23 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
   useEffect(() => {
     if (!autoplayEnabled || interactionPaused) return;
     const timer = window.setTimeout(() => {
-      setActiveSlide((current) => (current + 1) % slideContent.length);
-    }, slideContent[activeSlide].duration);
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, slides[activeSlide]?.durationMs ?? 4500);
     return () => window.clearTimeout(timer);
-  }, [activeSlide, autoplayEnabled, interactionPaused]);
+  }, [activeSlide, autoplayEnabled, interactionPaused, slides]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (activeSlide === 0 && autoplayEnabled) {
-      void video.play().catch(() => undefined);
-      return;
-    }
-    video.pause();
-    if (activeSlide !== 0) video.currentTime = 0;
-  }, [activeSlide, autoplayEnabled]);
+    slides.forEach((slide, index) => {
+      const video = videoRefs.current[slide.id];
+      if (!video) return;
+      if (activeSlide === index && autoplayEnabled) {
+        void video.play().catch(() => undefined);
+      } else {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
+  }, [activeSlide, autoplayEnabled, slides]);
 
   return (
     <section
@@ -78,30 +61,32 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
         if (!event.currentTarget.contains(event.relatedTarget)) setInteractionPaused(false);
       }}
     >
-      {slideContent.map((slide, index) => (
+      {slides.map((slide, index) => (
         <div
-          key={slide.title}
+          key={slide.id}
           aria-hidden={activeSlide !== index}
           className={`absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
             activeSlide === index ? "opacity-100" : "opacity-0"
           }`}
         >
-          {slide.type === "video" ? (
+          {slide.mediaType === "video" ? (
             <video
-              ref={videoRef}
+              ref={(node) => {
+                videoRefs.current[slide.id] = node;
+              }}
               muted
               loop
               playsInline
               preload="metadata"
-              poster={slide.poster}
+              poster={slide.posterUrl || undefined}
               className="h-full w-full object-cover object-center"
               aria-hidden="true"
             >
-              <source src={slide.src} type="video/mp4" />
+              <source src={slide.mediaUrl} type={mediaTypeForUrl(slide.mediaUrl)} />
             </video>
           ) : (
             <Image
-              src={images[slide.imageIndex]}
+              src={slide.mediaUrl}
               alt={activeSlide === index ? slide.alt : ""}
               fill
               sizes="100vw"
@@ -115,10 +100,10 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
       <div className="relative z-10 flex min-h-[39rem] items-center justify-center px-5 py-24 text-center text-white md:min-h-[46rem] md:px-8">
         <div className="max-w-4xl">
           <h1 className="text-balance font-display text-[clamp(3.25rem,6.5vw,5rem)] leading-[.9] tracking-[-.03em]">
-            {slideContent[activeSlide].title}
+            {slides[activeSlide]?.title}
           </h1>
           <p className="mx-auto mt-5 max-w-[52ch] text-sm leading-relaxed text-white/90 md:text-base">
-            {slideContent[activeSlide].copy}
+            {slides[activeSlide]?.copy}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link

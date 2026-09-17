@@ -2,7 +2,6 @@ import { desc, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { ProductManager } from "@/components/admin/product-manager";
-import { SiteImageManager } from "@/components/admin/site-image-manager";
 import { firstAllowedAdminPath } from "@/lib/admin-permissions";
 import {
   adminCan,
@@ -13,7 +12,6 @@ import { getDb } from "@/lib/db";
 import { orders, products } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { isAdminEmailSecurityReady } from "@/lib/email";
-import { getSiteAssetRecords } from "@/lib/site-assets";
 
 export const dynamic = "force-dynamic";
 
@@ -29,9 +27,8 @@ export default async function AdminPage({
   const canManageProducts = adminCan(identity, "products:manage");
   const canViewOrders = adminCan(identity, "orders:view");
   const canViewFinancials = adminCan(identity, "orders:view_financials");
-  const canManageImages = adminCan(identity, "site_assets:manage");
   const db = getDb();
-  const [catalog, recentOrders, sales, websiteImages] = await Promise.all([
+  const [catalog, recentOrders, sales] = await Promise.all([
     canViewProducts
       ? db.select().from(products).orderBy(desc(products.updatedAt))
       : Promise.resolve([]),
@@ -46,7 +43,6 @@ export default async function AdminPage({
           })
           .from(orders)
       : Promise.resolve([]),
-    canManageImages ? getSiteAssetRecords() : Promise.resolve([]),
   ]);
   const lowStock = catalog.filter(
     (product) =>
@@ -129,8 +125,6 @@ export default async function AdminPage({
       )}
 
       {canManageProducts && <ProductManager initialProducts={catalog} />}
-      {canManageImages && <SiteImageManager initialAssets={websiteImages} />}
-
       {canViewOrders && (
         <section className="mt-16">
           <div className="flex items-end justify-between gap-4">

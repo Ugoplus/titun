@@ -26,7 +26,7 @@ export const delegatedPermissions: Array<{
   { permission: "products:manage", label: "Manage catalogue", description: "Create products and update stock, prices and images." },
   { permission: "events:view", label: "View community", description: "See events and community members." },
   { permission: "events:manage", label: "Manage community", description: "Create and publish events." },
-  { permission: "site_assets:manage", label: "Website images", description: "Replace imagery used across the storefront." },
+  { permission: "site_assets:manage", label: "Website content", description: "Edit homepage slides, text, videos and storefront imagery." },
 ];
 
 export function hasAdminPermission(
@@ -44,5 +44,6 @@ export function firstAllowedAdminPath(
   if (hasAdminPermission(roleSlug, permissions, "dashboard:view")) return "/admin";
   if (hasAdminPermission(roleSlug, permissions, "orders:view")) return "/admin/orders";
   if (hasAdminPermission(roleSlug, permissions, "events:view")) return "/admin/events";
+  if (hasAdminPermission(roleSlug, permissions, "site_assets:manage")) return "/admin/content";
   return "/admin/no-access";
 }
