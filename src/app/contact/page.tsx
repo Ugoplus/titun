@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
 import { contactDetails } from "@/lib/contact";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description: "Contact TITUN about products, existing orders and corporate hospitality projects.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (

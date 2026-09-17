@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ContentPage } from "@/components/content-page";
+
+export const metadata: Metadata = {
+  title: "About TITUN",
+  description: "Discover TITUN’s considered approach to premium refreshing towels, hospitality and everyday renewal.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

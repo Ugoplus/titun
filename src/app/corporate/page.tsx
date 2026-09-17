@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { CorporateEnquiryForm } from "@/components/corporate-enquiry-form";
+
+export const metadata: Metadata = {
+  title: "Corporate and Hospitality Orders",
+  description: "Request premium TITUN refreshing towels and wipes for hotels, restaurants, airlines, wellness, teams and private events.",
+  alternates: { canonical: "/corporate" },
+};
 
 export default async function CorporatePage({
   searchParams,

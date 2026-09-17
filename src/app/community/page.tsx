@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Community",
   description:
     "Gather, restore and discover upcoming TITUN community experiences.",
+  alternates: { canonical: "/community" },
 };
 
 export default async function CommunityPage() {

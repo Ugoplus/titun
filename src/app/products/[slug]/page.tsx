@@ -1,9 +1,39 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductVisual } from "@/components/product-visual";
+import { StructuredData } from "@/components/structured-data";
 import { getProductBySlug } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
 import { getPackOptions, isRefreshingTowel } from "@/lib/product-pricing";
+import { absoluteUrl } from "@/lib/site";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/products/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return { title: "Product not found", robots: { index: false } };
+  const image = product.images[0] || "/images/titun/hero-lounge.jpg";
+
+  return {
+    title: product.name,
+    description: product.description,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      description: product.description,
+      images: [{ url: image, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.description,
+      images: [image],
+    },
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -14,9 +44,32 @@ export default async function ProductPage({
   const available = product.stockOnHand - product.stockReserved;
   const packOptions = getPackOptions(product);
   const isTowel = isRefreshingTowel(product);
+  const inStock = available >= packOptions[0].quantity;
 
   return (
     <div className="grid min-h-[75svh] lg:grid-cols-[1.1fr_.9fr]">
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          description: product.description,
+          image: product.images.map((image) => absoluteUrl(image)),
+          sku: product.slug,
+          brand: { "@type": "Brand", name: "TITUN" },
+          offers: packOptions.map((option) => ({
+            "@type": "Offer",
+            name: option.label,
+            url: absoluteUrl(`/products/${product.slug}`),
+            priceCurrency: product.currency,
+            price: (option.total / 100).toFixed(2),
+            availability: available >= option.quantity
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            itemCondition: "https://schema.org/NewCondition",
+          })),
+        }}
+      />
       <ProductVisual
         images={product.images}
         name={product.name}
@@ -43,7 +96,7 @@ export default async function ProductPage({
             <div>
               <dt className="text-xs text-ink/70">Availability</dt>
               <dd className="mt-1 font-bold">
-                {available >= packOptions[0].quantity ? "In stock" : "Sold out"}
+                {inStock ? "In stock" : "Sold out"}
               </dd>
             </div>
           </dl>

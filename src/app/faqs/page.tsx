@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
+
+export const metadata: Metadata = {
+  title: "Frequently Asked Questions",
+  description: "Answers about TITUN refreshing towels, Oshibori, pack sizes, storage and corporate supply.",
+  alternates: { canonical: "/faqs" },
+};
 
 const questions = [
   ["What is an Oshibori?", "An Oshibori is a refreshing towel traditionally offered as a gesture of welcome and hospitality."],

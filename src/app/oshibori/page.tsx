@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ContentPage } from "@/components/content-page";
+
+export const metadata: Metadata = {
+  title: "The Oshibori Ritual",
+  description: "Learn how TITUN brings the thoughtful Oshibori ritual of welcome and refreshment into contemporary hospitality.",
+  alternates: { canonical: "/oshibori" },
+};
 
 export default function OshiboriPage() {
   return (

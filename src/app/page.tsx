@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { getFeaturedProducts } from "@/lib/catalog";
 import { ProductCard } from "@/components/product-card";
+import { StructuredData } from "@/components/structured-data";
+import { absoluteUrl } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const benefits = [
   ["Premium presentation", "A considered detail before the experience begins."],
@@ -34,6 +41,18 @@ export default async function Home() {
 
   return (
     <>
+      <StructuredData
+        data={{
+          "@context": "https://schema.org",
+          "@type": "OnlineStore",
+          name: "TITUN",
+          url: absoluteUrl("/"),
+          description:
+            "Premium refreshing towels and wipes for hospitality, travel, wellness and everyday rituals.",
+          image: absoluteUrl("/images/titun/hero-lounge.jpg"),
+          currenciesAccepted: "NGN",
+        }}
+      />
       <section className="grid min-h-[calc(100svh-108px)] border-b border-ink/15 bg-white lg:grid-cols-[.82fr_1.18fr]">
         <div className="reveal flex flex-col justify-center px-5 py-16 md:px-10 lg:px-[6vw]">
           <h1 className="max-w-3xl font-display text-[clamp(4rem,8vw,6rem)] leading-[.82] tracking-[-.035em]">

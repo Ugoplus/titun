@@ -1,2 +1,4 @@
+import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
+export const metadata: Metadata = { title: "Terms", robots: { index: false, follow: true } };
 export default function TermsPage() { return <ContentPage title="Terms" introduction="These provisional terms describe the intended operation of the TITUN storefront."><div className="max-w-3xl space-y-6 text-base leading-relaxed text-ink/65"><p>Product availability is subject to confirmed inventory. Prices are displayed in Nigerian naira unless stated otherwise. An order is considered paid only after confirmation from the selected payment provider.</p><p>TITUN may contact the customer when delivery information is incomplete or an order needs clarification. Corporate quotations may include separate commercial terms.</p><p>This page is a drafting placeholder and requires legal approval before launch.</p></div></ContentPage>; }

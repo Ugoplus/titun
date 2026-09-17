@@ -5,7 +5,12 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ProductCard } from "@/components/product-card";
 import { getProducts } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "Shop" };
+export const metadata: Metadata = {
+  title: "Shop Premium Refreshing Towels",
+  description:
+    "Shop TITUN refreshing towels in Green Tea, Lemongrass and Sandalwood, available in 25, 50 and 100-piece packs.",
+  alternates: { canonical: "/shop" },
+};
 
 export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
   const query = await searchParams;

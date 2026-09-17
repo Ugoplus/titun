@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
+
+export const metadata: Metadata = {
+  title: "Find an order",
+  robots: { index: false, follow: false, noarchive: true },
+};
 
 export default function AccountPage() {
   return (

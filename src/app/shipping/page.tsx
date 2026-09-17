@@ -1,2 +1,4 @@
+import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
+export const metadata: Metadata = { title: "Shipping", robots: { index: false, follow: true } };
 export default function ShippingPage() { return <ContentPage title="Shipping" introduction="Delivery options and timing are confirmed for each order before fulfilment."><div className="max-w-3xl space-y-6 text-base leading-relaxed text-ink/65"><p>Enter a complete delivery address and reachable phone number during checkout. The TITUN team will send delivery updates to the email address supplied with the order.</p><p>Delivery timing and charges can vary by destination and order size. Final operating terms should be confirmed by TITUN before the public launch.</p></div></ContentPage>; }
