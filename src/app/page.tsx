@@ -87,15 +87,15 @@ export default async function Home() {
           </div>
           <div className="mt-7 grid gap-4 md:grid-cols-3">
             {collections.map((collection) => (
-              <Link key={collection.title} href={collection.href} className="group relative min-h-[30rem] overflow-hidden bg-ink text-white">
+              <Link key={collection.title} href={collection.href} className="group relative min-h-96 overflow-hidden bg-ink text-white md:min-h-[30rem]">
                 <Image
                   src={siteImages[collection.assetKey as SiteAssetKey]}
                   alt=""
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025] group-focus-visible:scale-[1.025] motion-reduce:transition-none"
                 />
-                <div className="absolute inset-0 bg-ink/55 transition-colors group-hover:bg-ink/65" />
+                <div className="absolute inset-0 bg-ink/55 transition-colors group-hover:bg-ink/65 group-focus-visible:bg-ink/65" />
                 <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
                   <h3 className="max-w-[13ch] font-display text-4xl leading-[.95] tracking-[-.025em]">{collection.title}</h3>
                   <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-white/90">{collection.copy}</p>
@@ -114,26 +114,25 @@ export default async function Home() {
           <div className="text-center">
             <h2 className="font-display text-5xl tracking-[-.03em] md:text-6xl">Our refreshing towels</h2>
             <div className="mt-7 flex flex-wrap justify-center gap-2 text-sm font-semibold">
-              <Link href="/shop" className="min-h-11 border border-ink bg-ink px-5 py-3 text-white">All scents</Link>
-              <Link href="/shop?category=Refreshing%20towels" className="min-h-11 border border-ink/25 px-5 py-3">Refreshing towels</Link>
-              <Link href="/shop#wipes" className="min-h-11 border border-ink/25 px-5 py-3">Wet wipes</Link>
+              <Link href="/shop?category=Refreshing%20towels" className="min-h-11 border border-ink bg-ink px-5 py-3 text-white">Shop all towels</Link>
+              <Link href="/shop#wipes" className="min-h-11 border border-ink/25 px-5 py-3">Shop wet wipes</Link>
             </div>
           </div>
-          <div className="filter-scroll mt-10 grid grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-2 sm:overflow-visible xl:grid-cols-3">
+          <div className="filter-scroll mt-10 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-4 overflow-x-auto pb-3 sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-2 sm:overflow-visible xl:grid-cols-3">
             {towels.map((product, index) => <ProductCard key={product.id} product={product} index={index} priority={index === 0} />)}
           </div>
           <div className="mt-16 border-t border-ink/20 pt-10 md:mt-24 md:pt-14">
             <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Discover the scents</h3>
-            <div className="filter-scroll mt-8 grid grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
+            <div className="filter-scroll mt-8 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
               {scentStories.map((scent) => (
-                <Link key={scent.name} href={scent.href} className="group block overflow-hidden bg-ink">
+                <Link key={scent.name} href={scent.href} className="group block snap-start overflow-hidden bg-ink">
                   <div className="relative aspect-[944/1080] overflow-hidden">
                     <Image
                       src={siteImages[scent.assetKey as SiteAssetKey]}
                       alt={`${scent.name} scent story for TITUN refreshing towels`}
                       fill
                       sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 33vw"
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none"
                     />
                   </div>
                   <span className="sr-only">Shop {scent.name} refreshing towels</span>
@@ -189,13 +188,13 @@ export default async function Home() {
               <Link href="/shop?category=Refreshing%20wet%20wipes" className="mt-5 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Shop wet wipes <ArrowRight /></Link>
             </div>
           </div>
-          <div className="mt-10 grid grid-cols-3 gap-2 md:gap-4">
+          <div className="filter-scroll mt-10 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 lg:gap-4">
             {wipes.map((product) => (
-              <Link key={product.id} href={`/products/${product.slug}`} className="bg-white">
-                <div className="relative aspect-square overflow-hidden"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill sizes="(max-width: 768px) 33vw, 30vw" className="object-cover" /></div>
+              <Link key={product.id} href={`/products/${product.slug}`} className="group snap-start bg-white">
+                <div className="relative aspect-square overflow-hidden"><Image src={product.images[0]} alt={`${product.name} product packaging`} fill sizes="(max-width: 640px) 82vw, (max-width: 1024px) 50vw, 30vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none" /></div>
                 <div className="border border-ink/15 p-3 md:p-4">
-                  <p className="text-xs font-semibold md:text-sm">{product.name}</p>
-                  <p className="mt-1 text-xs text-ink/65">From ₦25,000 · 50 wipes</p>
+                  <p className="text-sm font-semibold">{product.name}</p>
+                  <p className="mt-1 text-sm text-ink/65">From ₦25,000 · 50 wipes</p>
                 </div>
               </Link>
             ))}
@@ -204,7 +203,7 @@ export default async function Home() {
       </section>
 
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
-        <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-[#efefed] lg:grid-cols-[1.05fr_.95fr]">
+        <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-linen lg:grid-cols-[1.05fr_.95fr]">
           <div className="relative min-h-[28rem] lg:min-h-[38rem]"><Image src={siteImages["home.corporate"]} alt="A guest using a TITUN wipe during a hospitality experience" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" /></div>
           <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-16">
             <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">Your welcome, your scale.</h2>

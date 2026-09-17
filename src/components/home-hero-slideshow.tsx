@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight, Pause, Play } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 const slideContent = [
@@ -28,26 +28,36 @@ const slideContent = [
 
 export function HomeHeroSlideshow({ images }: { images: [string, string, string] }) {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [interactionPaused, setInteractionPaused] = useState(false);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(true);
 
   useEffect(() => {
-    if (paused) return;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const applyMotionPreference = () => setAutoplayEnabled(!motionPreference.matches);
+
+    applyMotionPreference();
+    motionPreference.addEventListener("change", applyMotionPreference);
+    return () => motionPreference.removeEventListener("change", applyMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    if (!autoplayEnabled || interactionPaused) return;
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % slideContent.length);
     }, 6500);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, [autoplayEnabled, interactionPaused]);
 
   return (
     <section
       aria-roledescription="carousel"
       aria-label="TITUN introduction"
       className="relative isolate min-h-[39rem] overflow-hidden bg-ink md:min-h-[46rem]"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
+      onMouseEnter={() => setInteractionPaused(true)}
+      onMouseLeave={() => setInteractionPaused(false)}
+      onFocusCapture={() => setInteractionPaused(true)}
       onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) setInteractionPaused(false);
       }}
     >
       {slideContent.map((slide, index) => (
@@ -71,7 +81,7 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
       ))}
 
       <div className="relative z-10 flex min-h-[39rem] items-center justify-center px-5 py-24 text-center text-white md:min-h-[46rem] md:px-8">
-        <div className="max-w-4xl" aria-live="polite" aria-atomic="true">
+        <div className="max-w-4xl">
           <h1 className="text-balance font-display text-[clamp(3.75rem,8vw,6rem)] leading-[.88] tracking-[-.035em]">
             {slideContent[activeSlide].title}
           </h1>
@@ -94,6 +104,17 @@ export function HomeHeroSlideshow({ images }: { images: [string, string, string]
           </div>
         </div>
       </div>
+
+      <button
+        type="button"
+        onFocus={() => setInteractionPaused(false)}
+        onClick={() => setAutoplayEnabled((enabled) => !enabled)}
+        className="absolute bottom-5 right-5 z-20 grid h-11 w-11 place-content-center border border-white/60 bg-ink/55 text-white transition-colors hover:bg-white hover:text-ink md:bottom-7 md:right-8"
+        aria-label={autoplayEnabled ? "Pause slideshow" : "Play slideshow"}
+        title={autoplayEnabled ? "Pause slideshow" : "Play slideshow"}
+      >
+        {autoplayEnabled ? <Pause size={18} weight="fill" aria-hidden="true" /> : <Play size={18} weight="fill" aria-hidden="true" />}
+      </button>
     </section>
   );
 }

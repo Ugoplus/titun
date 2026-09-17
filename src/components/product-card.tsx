@@ -30,7 +30,7 @@ export function ProductCard({
   const canAdd = available >= defaultQuantity;
   const Heading = headingLevel;
   return (
-    <article className="group bg-white">
+    <article className="group snap-start bg-white">
       <Link href={`/products/${product.slug}`}>
         <ProductVisual
           images={product.images}
