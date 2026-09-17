@@ -17,6 +17,7 @@ export default async function AboutPage() {
     <ContentPage
       title="A quieter way to care."
       introduction="TITUN creates premium refreshment essentials for the small moments that shape how an experience is remembered."
+      headerAlign="center"
     >
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         <div className="relative min-h-[60svh]">

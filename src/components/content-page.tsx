@@ -3,20 +3,24 @@ import type { ReactNode } from "react";
 export function ContentPage({
   title,
   introduction,
+  headerAlign = "left",
   children,
 }: {
   title: string;
   introduction: string;
+  headerAlign?: "left" | "center";
   children: ReactNode;
 }) {
+  const isCentered = headerAlign === "center";
+
   return (
     <div className="bg-white">
       <header className="border-b border-ink/15 px-5 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-[1200px]">
-          <h1 className="max-w-5xl font-display text-[clamp(4rem,8vw,6rem)] leading-[.86] tracking-[-.035em]">
+        <div className={`mx-auto max-w-[1200px] ${isCentered ? "text-center" : ""}`}>
+          <h1 className={`max-w-5xl font-display text-[clamp(4rem,8vw,6rem)] leading-[.86] tracking-[-.035em] ${isCentered ? "mx-auto" : ""}`}>
             {title}
           </h1>
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink/65">
+          <p className={`mt-8 max-w-2xl text-lg leading-relaxed text-ink/65 ${isCentered ? "mx-auto" : ""}`}>
             {introduction}
           </p>
         </div>
