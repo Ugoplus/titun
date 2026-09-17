@@ -121,12 +121,7 @@ export default async function Home() {
             {towels.map((product, index) => <ProductCard key={product.id} product={product} index={index} priority={index === 0} />)}
           </div>
           <div className="mt-16 border-t border-ink/20 pt-10 md:mt-24 md:pt-14">
-            <div className="flex items-end justify-between gap-6">
-              <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Discover the scents</h3>
-              <p className="hidden max-w-sm text-right text-sm leading-relaxed text-ink/65 md:block">
-                Three distinct notes, each created for a different kind of renewal.
-              </p>
-            </div>
+            <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Discover the scents</h3>
             <div className="filter-scroll mt-8 grid grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
               {scentStories.map((scent) => (
                 <Link key={scent.name} href={scent.href} className="group block overflow-hidden bg-ink">
