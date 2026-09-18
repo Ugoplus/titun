@@ -1,4 +1,4 @@
-const fallbackUrl = "http://148.113.184.156";
+const fallbackUrl = "https://titunrenewal.com";
 
 export const siteUrl = (() => {
   try {
