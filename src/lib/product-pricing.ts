@@ -60,6 +60,18 @@ export function getLinePricing(
   product: Pick<Product, "category" | "price" | "packSize">,
   quantity: number,
 ) {
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error("Choose a valid quantity");
+  }
+
+  if (!hasPackOptions(product)) {
+    return {
+      total: product.price * quantity,
+      unitPrice: product.price,
+      label: quantity === 1 ? product.packSize : `${quantity} × ${product.packSize}`,
+    };
+  }
+
   const option = getPackOptions(product).find((candidate) => candidate.quantity === quantity);
   if (!option) throw new Error("Choose an available pack size");
   return {

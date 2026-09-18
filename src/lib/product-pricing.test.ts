@@ -19,6 +19,12 @@ const wipe = {
   packSize: "Minimum 50 wipes",
 } as Product;
 
+const giftBox = {
+  category: "Boxes and multipacks",
+  price: 1_450_000,
+  packSize: "One gift box",
+} as Product;
+
 describe("refreshing towel pricing", () => {
   it("uses the confirmed client pack totals", () => {
     expect(getPackOptions(towel).map(({ quantity, total }) => ({ quantity, total }))).toEqual([
@@ -63,5 +69,20 @@ describe("refreshing wipe pricing", () => {
 
   it("rejects an order below the minimum", () => {
     expect(() => getLinePricing(wipe, 49)).toThrow("Choose an available pack size");
+  });
+});
+
+describe("standard product pricing", () => {
+  it("supports more than one unit without crashing the basket", () => {
+    expect(getLinePricing(giftBox, 2)).toEqual({
+      total: 2_900_000,
+      unitPrice: 1_450_000,
+      label: "2 × One gift box",
+    });
+  });
+
+  it("rejects invalid quantities", () => {
+    expect(() => getLinePricing(giftBox, 0)).toThrow("Choose a valid quantity");
+    expect(() => getLinePricing(giftBox, 1.5)).toThrow("Choose a valid quantity");
   });
 });
