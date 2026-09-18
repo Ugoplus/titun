@@ -97,7 +97,7 @@ export function SitePrompts() {
       {showConsent && (
         <aside
           aria-label="Cookie preferences"
-          className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-h-[85svh] max-w-4xl overflow-y-auto border-t border-ink bg-ink p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-white shadow-[0_18px_60px_rgba(24,21,17,.3)] sm:inset-x-4 sm:bottom-4 sm:border md:flex md:items-end md:justify-between md:gap-8 md:p-6"
+          className="fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-full max-h-[85svh] overflow-y-auto border-t border-ink bg-ink p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-white shadow-[0_18px_60px_rgba(24,21,17,.3)] sm:inset-x-4 sm:bottom-4 sm:w-auto sm:max-w-4xl sm:border md:flex md:items-end md:justify-between md:gap-8 md:p-6"
         >
           <div className="max-w-2xl">
             <p className="font-display text-2xl">Your privacy, considered.</p>

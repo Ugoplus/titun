@@ -9,17 +9,27 @@
   box-sizing: border-box;
 }
 html {
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 body {
   margin: 0;
-  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background: #f8f6f1;
   color: #181511;
   font-feature-settings:
     "kern" 1,
     "liga" 1;
   text-rendering: optimizeLegibility;
+}
+
+@supports (overflow: clip) {
+  body {
+    overflow-x: clip;
+  }
 }
 a,
 button,
@@ -128,6 +138,10 @@ footer :where(a, button, input, textarea, select, [tabindex]):focus-visible {
 }
 
 .filter-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 .filter-scroll::-webkit-scrollbar {
