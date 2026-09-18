@@ -110,6 +110,10 @@ footer :where(a, button, input, textarea, select, [tabindex]):focus-visible {
   outline-color: #d8b85f;
 }
 
+.bg-walnut :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline-color: #ffffff;
+}
+
 :where(input, textarea) {
   caret-color: #4c3025;
 }

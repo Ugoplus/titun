@@ -31,11 +31,11 @@ export function Header() {
     <>
       <Link
         href="/#welcome-offer"
-        className="block bg-ink px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[.09em] text-white"
+        className="block bg-walnut px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[.09em] text-white focus-visible:outline-white"
       >
         10% off your first order · Shop TITUN
       </Link>
-      <header className="sticky top-0 z-40 border-b border-ink/15 bg-white/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-white/15 bg-walnut text-white">
         <div className="mx-auto flex h-[5.25rem] max-w-[1440px] items-center justify-between px-4 md:px-8 lg:h-[5.75rem]">
           <button
             onClick={() => setIsMenuOpen((open) => !open)}
@@ -48,7 +48,7 @@ export function Header() {
           </button>
           <Link
             href="/corporate"
-            className="hidden min-h-11 items-center border border-ink px-4 text-xs font-semibold lg:inline-flex"
+            className="hidden min-h-11 items-center border border-white/45 px-4 text-xs font-semibold transition-colors hover:border-white lg:inline-flex"
           >
             Corporate enquiries
           </Link>
@@ -58,7 +58,7 @@ export function Header() {
             aria-label="TITUN home"
           >
             <Image
-              src="/brand/titun-logo-black.png"
+              src="/brand/titun-logo-gold.png"
               alt=""
               width={720}
               height={662}
@@ -87,7 +87,7 @@ export function Header() {
               className="relative flex h-11 w-11 items-center justify-center"
             >
               <ShoppingBag />
-              <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-white">
+              <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-ink">
                 {count}
               </span>
             </button>
@@ -95,10 +95,10 @@ export function Header() {
         </div>
         <nav
           aria-label="Primary navigation"
-          className="hidden min-h-11 items-center justify-center gap-8 border-t border-ink/10 px-8 text-xs font-semibold lg:flex"
+          className="hidden min-h-11 items-center justify-center gap-8 border-t border-white/15 px-8 text-xs font-semibold lg:flex"
         >
           {navigation.map(([label, href]) => (
-            <Link key={href} href={href} className="py-3 hover:text-walnut">
+            <Link key={href} href={href} className="border-b border-transparent py-3 hover:border-gold">
               {label}
             </Link>
           ))}
@@ -107,13 +107,13 @@ export function Header() {
           <nav
             id="mobile-navigation"
             aria-label="Mobile navigation"
-            className="grid border-t border-ink/15 bg-white px-5 py-6 font-display text-2xl lg:hidden"
+            className="grid border-t border-white/15 bg-walnut px-5 py-6 font-display text-2xl lg:hidden"
           >
             {navigation.map(([label, href]) => (
               <Link
                 key={href}
                 onClick={() => setIsMenuOpen(false)}
-                className="border-b border-ink/10 py-3"
+                className="border-b border-white/15 py-3 hover:bg-white/5"
                 href={href}
               >
                 {label}

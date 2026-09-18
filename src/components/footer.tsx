@@ -35,7 +35,7 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="bg-ink px-5 py-14 text-white md:px-8 md:py-20">
+    <footer className="bg-walnut px-5 py-14 text-white md:px-8 md:py-20">
       <div className="mx-auto max-w-[1440px]">
         <div className="grid gap-12 border-b border-white/20 pb-14 lg:grid-cols-[1.15fr_1.85fr] lg:gap-20">
           <div>
@@ -68,7 +68,7 @@ export function Footer() {
                   {column.title}
                 </p>
                 {column.links.map(([label, href]) => (
-                  <Link key={href} href={href} className="w-fit hover:text-gold">
+                  <Link key={href} href={href} className="w-fit decoration-gold underline-offset-4 hover:underline">
                     {label}
                   </Link>
                 ))}
