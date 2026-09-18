@@ -40,7 +40,7 @@ export function ProductImageManager({
       setProducts((current) => current.map((item) => (
         item.id === product.id ? { ...item, images: updated.images } : item
       )));
-      toast.success(`${product.name} image published everywhere`);
+      toast.success(`${product.name} image published across the catalogue`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Product image could not be replaced");
     } finally {
@@ -52,7 +52,7 @@ export function ProductImageManager({
     <section id="product-images" className="mt-16 scroll-mt-6 border-t border-ink/20 pt-10">
       <h2 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Product images</h2>
       <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-ink/70">
-        Replace the Gift Box, refreshing towel and wet-wipe photographs here. A new image publishes immediately everywhere that product appears.
+        Replace the Gift Box, refreshing towel and wet-wipe photographs here. A new image publishes immediately across product cards, the shop, the wet-wipe section and the product page. Collection-tile artwork remains under Other website images.
       </p>
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -87,7 +87,12 @@ export function ProductImageManager({
                     className="sr-only"
                     accept="image/jpeg,image/png,image/webp,image/avif"
                     disabled={uploadingProductId !== null}
-                    onChange={(event) => void replaceImage(product, event.target.files?.[0])}
+                    onChange={(event) => {
+                      const input = event.currentTarget;
+                      void replaceImage(product, input.files?.[0]).finally(() => {
+                        input.value = "";
+                      });
+                    }}
                   />
                 </label>
               </div>
