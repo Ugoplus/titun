@@ -53,8 +53,8 @@ export function SitePrompts() {
         <DialogShell
           labelledBy="welcome-offer-title"
           onClose={dismissWelcome}
-          backdropClassName="p-4 md:p-8"
-          panelClassName="relative m-auto max-h-[calc(100svh-2rem)] w-full max-w-[58rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] md:max-h-[calc(100svh-4rem)]"
+          backdropClassName="p-3 sm:p-5 md:p-8"
+          panelClassName="relative m-auto max-h-[calc(100svh-1.5rem)] w-full max-w-[22rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] sm:max-w-[32rem] md:max-h-[calc(100svh-4rem)] md:max-w-[58rem]"
         >
           <button
             onClick={dismissWelcome}
@@ -65,7 +65,7 @@ export function SitePrompts() {
             <X size={22} />
           </button>
           <div className="grid md:grid-cols-[.82fr_1.18fr]">
-            <div className="relative min-h-48 sm:min-h-56 md:min-h-[34rem]">
+            <div className="relative hidden md:block md:min-h-[34rem]">
               <Image
                 src="/images/titun/ritual-spa.jpg"
                 alt="TITUN refreshing towels arranged for a calm wellness ritual"
@@ -74,18 +74,18 @@ export function SitePrompts() {
                 className="object-cover"
               />
             </div>
-            <div className="flex items-center px-6 py-8 sm:p-9 md:p-10 lg:p-12">
+            <div className="flex items-center px-5 pb-6 pt-16 sm:px-8 sm:pb-8 sm:pt-16 md:p-10 lg:p-12">
               <div className="w-full max-w-lg">
-                <h2 id="welcome-offer-title" className="text-balance font-display text-[clamp(2.6rem,5vw,4.25rem)] leading-[.9] tracking-[-.03em]">
+                <h2 id="welcome-offer-title" className="text-balance font-display text-4xl leading-[.92] tracking-[-.03em] sm:text-5xl md:text-[4.25rem]">
                   A more considered kind of refresh.
                 </h2>
-                <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-ink/70 sm:text-base">
+                <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink/70 md:mt-5 md:text-base">
                   Join the TITUN list for 10% off your first order, new collection notes and invitations from our community.
                 </p>
-                <div className="mt-7 max-w-lg">
+                <div className="mt-5 max-w-lg md:mt-7">
                   <NewsletterForm source="welcome" onSuccess={rememberWelcomeSignup} />
                 </div>
-                <p className="mt-4 max-w-[54ch] text-xs leading-relaxed text-ink/60">
+                <p className="mt-3 max-w-[54ch] text-xs leading-relaxed text-ink/60 md:mt-4">
                   By joining, you agree to receive TITUN emails. You can unsubscribe at any time.
                 </p>
               </div>
@@ -97,13 +97,12 @@ export function SitePrompts() {
       {showConsent && (
         <aside
           aria-label="Cookie preferences"
-          className="fixed inset-x-4 bottom-4 z-[60] mx-auto max-w-4xl border border-ink bg-ink p-5 text-white shadow-[0_18px_60px_rgba(24,21,17,.3)] md:flex md:items-end md:justify-between md:gap-8 md:p-6"
+          className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-h-[85svh] max-w-4xl overflow-y-auto border-t border-ink bg-ink p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-white shadow-[0_18px_60px_rgba(24,21,17,.3)] sm:inset-x-4 sm:bottom-4 sm:border md:flex md:items-end md:justify-between md:gap-8 md:p-6"
         >
           <div className="max-w-2xl">
             <p className="font-display text-2xl">Your privacy, considered.</p>
             <p className="mt-2 text-sm leading-relaxed text-white/70">
-              Essential storage keeps the basket and checkout working. Optional
-              analytics will only be used with your permission.
+              Essential storage keeps your basket and checkout working. Analytics stay off unless you accept.
             </p>
             {showPreferences && (
               <div className="mt-4 border-t border-white/20 pt-4 text-sm">
@@ -112,24 +111,25 @@ export function SitePrompts() {
               </div>
             )}
           </div>
-          <div className="mt-5 flex flex-wrap gap-2 md:mt-0 md:justify-end">
+          <div className="mt-5 grid grid-cols-2 gap-2 md:mt-0 md:flex md:justify-end">
+            <button
+              onClick={() => saveConsent("all")}
+              className="col-span-2 min-h-11 bg-gold px-4 text-sm font-semibold text-ink md:order-3"
+            >
+              Accept all
+            </button>
             <button
               onClick={() => saveConsent("essential")}
-              className="min-h-11 border border-white/40 px-4 text-sm font-semibold"
+              className="min-h-11 border border-white/40 px-3 text-sm font-semibold"
             >
-              Reject non-essential
+              Essential only
             </button>
             <button
               onClick={() => setShowPreferences((open) => !open)}
-              className="min-h-11 border border-white/40 px-4 text-sm font-semibold"
+              className="min-h-11 border border-white/40 px-3 text-sm font-semibold"
+              aria-expanded={showPreferences}
             >
-              Manage preferences
-            </button>
-            <button
-              onClick={() => saveConsent("all")}
-              className="min-h-11 bg-gold px-4 text-sm font-semibold text-ink"
-            >
-              Accept all
+              Preferences
             </button>
           </div>
         </aside>

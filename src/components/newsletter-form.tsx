@@ -47,7 +47,7 @@ export function NewsletterForm({
     <form onSubmit={handleSubmit} className={compact ? "" : "max-w-md"}>
       {source === "welcome" && (
         <label
-          className="mb-3 block text-xs font-bold uppercase tracking-[.08em]"
+          className="mb-2 block text-xs font-bold uppercase tracking-[.08em] sm:mb-3"
           htmlFor={`newsletter-email-${source}`}
         >
           Your email address
@@ -67,13 +67,13 @@ export function NewsletterForm({
           autoComplete="email"
           placeholder="Email address"
           className={source === "welcome"
-            ? "h-14 min-w-0 border border-ink/35 bg-white px-4 text-base outline-none placeholder:text-ink/55 focus:border-ink"
+            ? "h-12 min-w-0 border border-ink/35 bg-white px-4 text-base outline-none placeholder:text-ink/55 focus:border-ink sm:h-14"
             : "h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-current/55"}
         />
         <button
           disabled={status === "loading"}
           className={source === "welcome"
-            ? "inline-flex min-h-14 items-center justify-center gap-4 bg-ink px-6 text-sm font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-wait disabled:opacity-50"
+            ? "inline-flex min-h-12 items-center justify-center gap-4 bg-ink px-6 text-sm font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-wait disabled:opacity-50 sm:min-h-14"
             : "flex h-12 w-12 items-center justify-center disabled:opacity-50"}
           aria-label="Join the TITUN newsletter"
         >
