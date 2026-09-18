@@ -144,7 +144,7 @@ export default async function ProductPage({
       {scentStory && (
         <section className="border-t border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
           <div className="mx-auto max-w-[1200px] text-left">
-            <h2 className="max-w-[22ch] text-balance font-display text-4xl leading-[.98] tracking-[-.025em] md:text-5xl">
+            <h2 className="max-w-[22ch] text-balance font-display text-4xl leading-[.98] tracking-[-.025em] md:max-w-none md:whitespace-nowrap md:text-5xl">
               {scentStory.tagline}
             </h2>
             <p className="mt-7 max-w-[68ch] text-base leading-relaxed text-ink/70 md:mt-8 md:text-lg">
