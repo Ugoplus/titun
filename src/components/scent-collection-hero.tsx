@@ -11,10 +11,15 @@ export function ScentCollectionHero({
   name,
   products,
   initialSlug,
+  story,
 }: {
   name: string;
   products: Product[];
   initialSlug: string;
+  story: {
+    tagline: string;
+    description: string;
+  } | null;
 }) {
   const initialProduct = products.find((product) => product.slug === initialSlug) ?? products[0];
   const [selectedId, setSelectedId] = useState(initialProduct.id);
@@ -40,7 +45,19 @@ export function ScentCollectionHero({
             {name}
           </h1>
           <p className="mt-5 text-sm font-bold">{selectedProduct.scent}</p>
-          <p className="mt-4 max-w-lg text-base leading-relaxed text-ink/70">
+
+          {story && (
+            <div className="mt-6 max-w-lg border-t border-ink/15 pt-6">
+              <h2 className="font-display text-2xl leading-tight tracking-[-.02em] md:text-3xl">
+                {story.tagline}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-ink/70">
+                {story.description}
+              </p>
+            </div>
+          )}
+
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-ink/70">
             {selectedProduct.description}
           </p>
 
