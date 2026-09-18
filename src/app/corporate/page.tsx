@@ -21,7 +21,9 @@ export default async function CorporatePage({
     <div className="bg-white">
       <section className="grid min-h-[68svh] border-b border-ink/15 lg:grid-cols-[.9fr_1.1fr]">
         <div className="flex flex-col justify-center px-5 py-16 md:px-10 lg:px-[7vw]">
-          <h1 className="font-display text-[clamp(4rem,8vw,6rem)] leading-[.84] tracking-[-.035em]">Hospitality at your scale.</h1>
+          <h1 className="whitespace-nowrap font-display text-[clamp(1.75rem,3.4vw,2.75rem)] leading-none tracking-[-.035em]">
+            Hospitality at your scale.
+          </h1>
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/65">Create a considered welcome for hotels, restaurants, airlines, spas, gyms, corporate teams and private events.</p>
           <a href="#enquiry" className="mt-8 w-fit bg-ink px-6 py-4 text-sm font-semibold text-white">Enquire about corporate orders</a>
         </div>
