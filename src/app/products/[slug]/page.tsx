@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
+import { ProductCard } from "@/components/product-card";
 import { ProductVisual } from "@/components/product-visual";
 import { StructuredData } from "@/components/structured-data";
-import { getProductBySlug } from "@/lib/catalog";
+import { getProductBySlug, getProducts } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
 import { getPackOptions, isRefreshingTowel } from "@/lib/product-pricing";
 import { absoluteUrl } from "@/lib/site";
@@ -26,6 +27,21 @@ const scentStoryKeys = {
   tagline: keyof HomepageCopy;
   description: keyof HomepageCopy;
 }>;
+
+const scentCollections = {
+  "green-tea-refreshing-towel": {
+    name: "Green Tea",
+    slugs: ["green-tea-refreshing-towel", "green-tea-refreshing-wipes"],
+  },
+  "lemongrass-refreshing-towel": {
+    name: "Lemongrass",
+    slugs: ["lemongrass-refreshing-towel", "lemongrass-refreshing-wipes"],
+  },
+  "sandalwood-refreshing-towel": {
+    name: "Sandalwood",
+    slugs: ["sandalwood-refreshing-towel", "sandalwood-refreshing-wipes"],
+  },
+} as const;
 
 export async function generateMetadata({
   params,
@@ -58,8 +74,9 @@ export default async function ProductPage({
   params,
 }: PageProps<"/products/[slug]">) {
   const { slug } = await params;
-  const [product, homepageCopy] = await Promise.all([
+  const [product, products, homepageCopy] = await Promise.all([
     getProductBySlug(slug),
+    getProducts(),
     getHomepageCopy(),
   ]);
   if (!product) notFound();
@@ -68,6 +85,12 @@ export default async function ProductPage({
   const isTowel = isRefreshingTowel(product);
   const inStock = available >= packOptions[0].quantity;
   const scentStoryKey = scentStoryKeys[slug as keyof typeof scentStoryKeys];
+  const scentCollection = scentCollections[slug as keyof typeof scentCollections];
+  const scentProducts = scentCollection
+    ? scentCollection.slugs
+        .map((productSlug) => products.find((candidate) => candidate.slug === productSlug))
+        .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
+    : [];
   const scentStory = scentStoryKey
     ? {
         tagline: homepageCopy[scentStoryKey.tagline],
@@ -141,6 +164,30 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
+      {scentCollection && scentProducts.length > 0 && (
+        <section className="border-t border-ink/15 bg-white px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-4xl leading-[.98] tracking-[-.025em] md:text-5xl">
+                Available in {scentCollection.name}.
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/70">
+                Choose a refreshing towel or refreshing wipes in the same signature scent.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              {scentProducts.map((scentProduct, index) => (
+                <ProductCard
+                  key={scentProduct.id}
+                  product={scentProduct}
+                  index={index}
+                  headingLevel="h3"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       {scentStory && (
         <section className="border-t border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
           <div className="max-w-[1200px] text-left">
