@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, CreditCard, LockSimple } from "@phosphor-icons/react";
+import { ArrowLeft, Bank, CreditCard, LockSimple } from "@phosphor-icons/react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart-provider";
@@ -166,19 +166,20 @@ export default function CheckoutPage() {
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
               Payment method
             </legend>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid max-w-2xl gap-3">
               <label className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30">
                 <input
                   required
                   defaultChecked
                   type="radio"
                   name="paymentProvider"
-                  value="paystack"
+                  value="stripe"
                 />
+                <CreditCard aria-hidden="true" />
                 <span>
-                  <strong className="block">Paystack</strong>
-                  <span className="text-xs text-ink/70">
-                    Cards, transfer and local payment options
+                  <strong className="block">Stripe</strong>
+                  <span className="mt-1 block text-xs leading-relaxed text-ink/70">
+                    Cards, Apple Pay, Google Pay, Link and other eligible payment methods
                   </span>
                 </span>
               </label>
@@ -187,17 +188,20 @@ export default function CheckoutPage() {
                   required
                   type="radio"
                   name="paymentProvider"
-                  value="stripe"
+                  value="paystack"
                 />
-                <CreditCard />
+                <Bank aria-hidden="true" />
                 <span>
-                  <strong className="block">Stripe</strong>
-                  <span className="text-xs text-ink/70">
-                    Secure international card checkout
+                  <strong className="block">Paystack</strong>
+                  <span className="mt-1 block text-xs leading-relaxed text-ink/70">
+                    Cards, bank transfer and other eligible local payment methods
                   </span>
                 </span>
               </label>
             </div>
+            <p className="mt-3 max-w-2xl text-xs leading-relaxed text-ink/65">
+              Available options are confirmed securely by your selected provider based on your location, currency and device.
+            </p>
           </fieldset>
           <fieldset>
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
