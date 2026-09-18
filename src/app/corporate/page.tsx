@@ -31,12 +31,7 @@ export default async function CorporatePage({
       </section>
       <section className="px-5 py-20 md:px-8 md:py-28">
         <div className="mx-auto max-w-[1200px]">
-          <div className="grid border-l border-t border-ink/20 sm:grid-cols-2 lg:grid-cols-5">
-            {["Discover TITUN", "See applications", "Enquire", "Receive a quote", "Place your order"].map((step) => (
-              <div key={step} className="border-b border-r border-ink/20 p-5 font-display text-2xl">{step}</div>
-            ))}
-          </div>
-          <div id="enquiry" className="mt-20 grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+          <div id="enquiry" className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
             <div>
               <h2 className="font-display text-6xl leading-[.9] tracking-[-.03em]">Tell us what welcome looks like for you.</h2>
               <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">Share the product, quantity and occasion. We’ll use those details to prepare the right next step.</p>
