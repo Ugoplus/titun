@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { HomepageContentManager } from "@/components/admin/homepage-content-manager";
 import { HomepageCopyManager } from "@/components/admin/homepage-copy-manager";
+import { ProductImageManager } from "@/components/admin/product-image-manager";
 import { SiteImageManager } from "@/components/admin/site-image-manager";
 import { adminCan, getAdminIdentity } from "@/lib/auth";
 import { getHomepageCopy, getHomepageHeroSlides } from "@/lib/site-content";
 import { getSiteAssetRecords } from "@/lib/site-assets";
+import { getProducts } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +16,12 @@ export default async function AdminContentPage() {
   if (!identity) redirect("/admin/login");
   if (!adminCan(identity, "site_assets:manage")) redirect("/admin?error=forbidden");
 
-  const [slides, content, assets] = await Promise.all([
+  const canManageProducts = adminCan(identity, "products:manage");
+  const [slides, content, assets, products] = await Promise.all([
     getHomepageHeroSlides(),
     getHomepageCopy(),
     getSiteAssetRecords(),
+    canManageProducts ? getProducts() : Promise.resolve([]),
   ]);
   const otherAssets = assets.filter(({ key }) => !key.startsWith("home.hero."));
 
@@ -40,6 +44,11 @@ export default async function AdminContentPage() {
         <a href="#homepage-text" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
           Homepage text
         </a>
+        {canManageProducts && (
+          <a href="#product-images" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
+            Product images
+          </a>
+        )}
         <a href="#other-website-images" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
           Other website images
         </a>
@@ -47,6 +56,7 @@ export default async function AdminContentPage() {
 
       <HomepageContentManager initialSlides={slides} />
       <HomepageCopyManager initialContent={content} />
+      {canManageProducts && <ProductImageManager initialProducts={products} />}
       <SiteImageManager initialAssets={otherAssets} />
     </main>
   );
