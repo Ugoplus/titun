@@ -10,7 +10,7 @@ import {
 } from "@/lib/product-pricing";
 import { useCart } from "./cart-provider";
 
-export function AddToCart({ product }: { product: Product }) {
+export function AddToCart({ product, compact = false }: { product: Product; compact?: boolean }) {
   const options = useMemo(() => getPackOptions(product), [product]);
   const [quantity, setQuantity] = useState(
     getDefaultPurchaseQuantity(product),
@@ -68,7 +68,9 @@ export function AddToCart({ product }: { product: Product }) {
               return (
                 <label
                   key={option.quantity}
-                  className={`relative flex min-h-32 cursor-pointer flex-col justify-between border p-4 transition-colors ${
+                  className={`relative flex cursor-pointer flex-col justify-between border transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink ${
+                    compact ? "min-h-24 p-3" : "min-h-32 p-4"
+                  } ${
                     checked
                       ? "border-ink bg-ink text-white"
                       : "border-ink/25 bg-white hover:border-gold"
@@ -105,7 +107,7 @@ export function AddToCart({ product }: { product: Product }) {
                       per piece
                     </span>
                     {option.note && (
-                      <span className="mt-2 block text-[10px] font-bold uppercase tracking-[.08em] text-gold">
+                      <span className={`${compact ? "mt-1" : "mt-2"} block text-[10px] font-bold uppercase tracking-[.08em] text-gold`}>
                         {option.note}
                       </span>
                     )}

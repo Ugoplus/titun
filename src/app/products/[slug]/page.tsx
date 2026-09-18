@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
-import { ProductCard } from "@/components/product-card";
 import { ProductVisual } from "@/components/product-visual";
+import { ScentCollectionHero } from "@/components/scent-collection-hero";
 import { StructuredData } from "@/components/structured-data";
 import { getProductBySlug, getProducts } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
@@ -15,11 +15,23 @@ const scentStoryKeys = {
     tagline: "scentGreenTeaTagline",
     description: "scentGreenTeaCopy",
   },
+  "green-tea-refreshing-wipes": {
+    tagline: "scentGreenTeaTagline",
+    description: "scentGreenTeaCopy",
+  },
   "lemongrass-refreshing-towel": {
     tagline: "scentLemongrassTagline",
     description: "scentLemongrassCopy",
   },
+  "lemongrass-refreshing-wipes": {
+    tagline: "scentLemongrassTagline",
+    description: "scentLemongrassCopy",
+  },
   "sandalwood-refreshing-towel": {
+    tagline: "scentSandalwoodTagline",
+    description: "scentSandalwoodCopy",
+  },
+  "sandalwood-refreshing-wipes": {
     tagline: "scentSandalwoodTagline",
     description: "scentSandalwoodCopy",
   },
@@ -33,11 +45,23 @@ const scentCollections = {
     name: "Green Tea",
     slugs: ["green-tea-refreshing-towel", "green-tea-refreshing-wipes"],
   },
+  "green-tea-refreshing-wipes": {
+    name: "Green Tea",
+    slugs: ["green-tea-refreshing-towel", "green-tea-refreshing-wipes"],
+  },
   "lemongrass-refreshing-towel": {
     name: "Lemongrass",
     slugs: ["lemongrass-refreshing-towel", "lemongrass-refreshing-wipes"],
   },
+  "lemongrass-refreshing-wipes": {
+    name: "Lemongrass",
+    slugs: ["lemongrass-refreshing-towel", "lemongrass-refreshing-wipes"],
+  },
   "sandalwood-refreshing-towel": {
+    name: "Sandalwood",
+    slugs: ["sandalwood-refreshing-towel", "sandalwood-refreshing-wipes"],
+  },
+  "sandalwood-refreshing-wipes": {
     name: "Sandalwood",
     slugs: ["sandalwood-refreshing-towel", "sandalwood-refreshing-wipes"],
   },
@@ -122,71 +146,35 @@ export default async function ProductPage({
           })),
         }}
       />
-      <ProductVisual
-        images={product.images}
-        name={product.name}
-        className="min-h-[55svh] lg:min-h-full"
-        priority
-      />
-      <div className="flex items-center px-5 py-12 md:px-12 lg:px-[10%]">
-        <div className="w-full max-w-xl">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
-            {product.category}
-          </p>
-          <h1 className="mt-4 whitespace-nowrap font-display text-[clamp(1.625rem,6vw,2.625rem)] leading-none tracking-[-.03em]">
-            {product.name}
-          </h1>
-          <p className="mt-6 text-sm font-bold">{product.scent}</p>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/70">
-            {product.description}
-          </p>
-          <dl className="my-8 grid grid-cols-2 border-y border-ink/20 py-5 text-sm">
-            <div>
-              <dt className="text-xs text-ink/70">Pack size</dt>
-              <dd className="mt-1 font-bold">{product.packSize}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink/70">Availability</dt>
-              <dd className="mt-1 font-bold">
-                {inStock ? "In stock" : "Sold out"}
-              </dd>
-            </div>
-          </dl>
-          <p className="mb-6 text-xl font-bold tabular-nums">
-            {packOptions.length > 1 ? "From " : ""}
-            {formatMoney(packOptions[0].total, product.currency)}
-          </p>
-          <AddToCart product={product} />
-          <div className="mt-8 grid gap-2 text-xs text-ink/70">
-            <p>✓ Secure checkout with Paystack or Stripe</p>
-            <p>✓ Delivery updates by email</p>
-            <p>✓ Individually sealed for freshness</p>
-          </div>
-        </div>
-      </div>
-      {scentCollection && scentProducts.length > 0 && (
-        <section className="border-t border-ink/15 bg-white px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
-          <div className="mx-auto max-w-[1200px]">
-            <div className="max-w-2xl">
-              <h2 className="font-display text-4xl leading-[.98] tracking-[-.025em] md:text-5xl">
-                Available in {scentCollection.name}.
-              </h2>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-ink/70">
-                Choose a refreshing towel or refreshing wipes in the same signature scent.
-              </p>
-            </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
-              {scentProducts.map((scentProduct, index) => (
-                <ProductCard
-                  key={scentProduct.id}
-                  product={scentProduct}
-                  index={index}
-                  headingLevel="h3"
-                />
-              ))}
+      {scentCollection && scentProducts.length > 0 ? (
+        <ScentCollectionHero
+          name={scentCollection.name}
+          products={scentProducts}
+          initialSlug={slug}
+        />
+      ) : (
+        <>
+          <ProductVisual
+            images={product.images}
+            name={product.name}
+            className="min-h-[55svh] lg:min-h-full"
+            priority
+          />
+          <div className="flex items-center px-5 py-12 md:px-12 lg:px-[10%]">
+            <div className="w-full max-w-xl">
+              <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">{product.category}</p>
+              <h1 className="mt-4 whitespace-nowrap font-display text-[clamp(1.625rem,6vw,2.625rem)] leading-none tracking-[-.03em]">{product.name}</h1>
+              <p className="mt-6 text-sm font-bold">{product.scent}</p>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/70">{product.description}</p>
+              <dl className="my-8 grid grid-cols-2 border-y border-ink/20 py-5 text-sm">
+                <div><dt className="text-xs text-ink/70">Pack size</dt><dd className="mt-1 font-bold">{product.packSize}</dd></div>
+                <div><dt className="text-xs text-ink/70">Availability</dt><dd className="mt-1 font-bold">{inStock ? "In stock" : "Sold out"}</dd></div>
+              </dl>
+              <p className="mb-6 text-xl font-bold tabular-nums">{packOptions.length > 1 ? "From " : ""}{formatMoney(packOptions[0].total, product.currency)}</p>
+              <AddToCart product={product} />
             </div>
           </div>
-        </section>
+        </>
       )}
       {scentStory && (
         <section className="border-t border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
@@ -200,7 +188,7 @@ export default async function ProductPage({
           </div>
         </section>
       )}
-      {isTowel && (
+      {isTowel && !scentCollection && (
         <section className="border-t border-ink/15 bg-white px-5 py-16 md:px-8 md:py-24 lg:col-span-2">
           <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[.8fr_1.2fr]">
             <div>
