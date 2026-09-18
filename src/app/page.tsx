@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { ProductCard } from "@/components/product-card";
+import { ScentShopCard } from "@/components/scent-shop-card";
 import { HomeHeroSlideshow } from "@/components/home-hero-slideshow";
 import { StructuredData } from "@/components/structured-data";
 import { getProducts } from "@/lib/catalog";
@@ -52,17 +53,20 @@ const scentStories = [
   {
     name: "Green Tea",
     assetKey: "home.scent.green-tea",
-    href: "/products/green-tea-refreshing-towel",
+    towelSlug: "green-tea-refreshing-towel",
+    wipeSlug: "green-tea-refreshing-wipes",
   },
   {
     name: "Lemongrass",
     assetKey: "home.scent.lemongrass",
-    href: "/products/lemongrass-refreshing-towel",
+    towelSlug: "lemongrass-refreshing-towel",
+    wipeSlug: "lemongrass-refreshing-wipes",
   },
   {
     name: "Sandalwood",
     assetKey: "home.scent.sandalwood",
-    href: "/products/sandalwood-refreshing-towel",
+    towelSlug: "sandalwood-refreshing-towel",
+    wipeSlug: "sandalwood-refreshing-wipes",
   },
 ] as const;
 
@@ -73,6 +77,7 @@ export default async function Home() {
     getHomepageCopy(),
   ]);
   const heroSlides = await getHomepageHeroSlides(siteImages);
+  const productsBySlug = new Map(products.map((product) => [product.slug, product]));
   const towels = products.filter((product) => product.category === "Refreshing towels");
   const wipes = products.filter((product) => product.category === "Refreshing wet wipes");
   const wipeMinimums = wipes.map((product) => getPackOptions(product)[0]);
@@ -139,18 +144,13 @@ export default async function Home() {
             <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">{homepageCopy.scentsHeading}</h3>
             <div className="filter-scroll mt-8 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
               {scentStories.map((scent) => (
-                <Link key={scent.name} href={scent.href} className="group block snap-start overflow-hidden bg-ink">
-                  <div className="relative aspect-[944/1080] overflow-hidden">
-                    <Image
-                      src={siteImages[scent.assetKey as SiteAssetKey]}
-                      alt={`${scent.name} scent story for TITUN refreshing towels`}
-                      fill
-                      sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 33vw"
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none"
-                    />
-                  </div>
-                  <span className="sr-only">Shop {scent.name} refreshing towels</span>
-                </Link>
+                <ScentShopCard
+                  key={scent.name}
+                  name={scent.name}
+                  image={siteImages[scent.assetKey as SiteAssetKey]}
+                  towel={productsBySlug.get(scent.towelSlug)}
+                  wipe={productsBySlug.get(scent.wipeSlug)}
+                />
               ))}
             </div>
           </div>
