@@ -73,7 +73,7 @@ export const defaultHomepageCopy: HomepageCopy = {
   towelsHeading: "Our refreshing towels",
   scentsHeading: "Discover the scents",
   scentGreenTeaTagline: "Pause. Breathe. Begin again.",
-  scentGreenTeaCopy: "A delicate veil of green tea creates a moment of calm and clarity — fresh, serene and beautifully understated.",
+  scentGreenTeaCopy: "A delicate veil of green tea creates a moment of calm and clarity. Fresh, serene and beautifully understated.",
   scentLemongrassTagline: "A little brightness. A fresh beginning.",
   scentLemongrassCopy: "Crisp lemongrass awakens the senses with its clean, citrusy freshness — an invigorating pause designed to leave you feeling renewed.",
   scentSandalwoodTagline: "Warmth that lingers.",
