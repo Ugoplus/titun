@@ -111,7 +111,9 @@ export default async function Home() {
                 />
                 <div className="absolute inset-0 bg-ink/55 transition-colors group-hover:bg-ink/65 group-focus-visible:bg-ink/65" />
                 <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
-                  <h3 className="max-w-[13ch] font-display text-4xl leading-[.95] tracking-[-.025em]">{homepageCopy[collection.titleKey]}</h3>
+                  <h3 className="whitespace-nowrap font-display text-[clamp(1.65rem,7vw,2.25rem)] leading-[.95] tracking-[-.025em] md:text-xl lg:text-[clamp(1.5rem,2.2vw,2.25rem)]">
+                    {homepageCopy[collection.titleKey]}
+                  </h3>
                   <p className="mt-3 max-w-[38ch] text-sm leading-relaxed text-white/90">{homepageCopy[collection.copyKey]}</p>
                   <span className="mt-5 inline-flex min-h-11 items-center gap-3 border-b border-white pb-1 text-sm font-semibold">
                     Explore <ArrowRight aria-hidden="true" />
