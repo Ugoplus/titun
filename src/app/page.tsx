@@ -150,6 +150,9 @@ export default async function Home() {
                       sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 33vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02] group-focus-visible:scale-[1.02] motion-reduce:transition-none"
                     />
+                    {scent.name === "Sandalwood" && (
+                      <span aria-hidden="true" className="absolute inset-y-0 left-0 z-10 w-[7%] bg-white" />
+                    )}
                   </div>
                   <span className="sr-only">Shop {scent.name} refreshing towels</span>
                 </Link>
