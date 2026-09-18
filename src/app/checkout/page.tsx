@@ -6,7 +6,11 @@ import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart-provider";
 import { ProductVisual } from "@/components/product-visual";
-import { PaystackLogo, StripeLogo } from "@/components/payment-provider-logos";
+import {
+  PaystackLogo,
+  StripeLogo,
+  StripePaymentMethodLogos,
+} from "@/components/payment-provider-logos";
 import { formatMoney } from "@/lib/money";
 import type { Product } from "@/lib/db/schema";
 import {
@@ -182,6 +186,7 @@ export default function CheckoutPage() {
                   <span className="mt-1 block text-xs leading-relaxed text-ink/70">
                     Cards, Apple Pay, Google Pay, Link and other eligible payment methods
                   </span>
+                  <StripePaymentMethodLogos />
                 </span>
               </label>
               <label className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30">

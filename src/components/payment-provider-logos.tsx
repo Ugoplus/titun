@@ -24,3 +24,37 @@ export function PaystackLogo({ className = "" }: { className?: string }) {
     </span>
   );
 }
+
+export function StripePaymentMethodLogos() {
+  const badgeClass = "flex h-8 min-w-12 items-center justify-center border border-ink/15 bg-white px-2";
+
+  return (
+    <div
+      aria-label="Eligible Stripe payment methods may include Apple Pay, Google Pay, Visa, Mastercard, American Express and Link"
+      className="mt-3 flex flex-wrap items-center gap-2"
+    >
+      <span className={badgeClass} aria-hidden="true">
+        <AppleLogo size={15} weight="fill" />
+        <span className="ml-1 text-[10px] font-semibold">Pay</span>
+      </span>
+      <span className={badgeClass} aria-hidden="true">
+        <GoogleLogo size={15} weight="bold" />
+        <span className="ml-1 text-[10px] font-semibold">Pay</span>
+      </span>
+      <span className={badgeClass} title="Visa" aria-hidden="true">
+        <Visa width={34} height={22} />
+      </span>
+      <span className={badgeClass} title="Mastercard" aria-hidden="true">
+        <Mastercard width={34} height={22} />
+      </span>
+      <span className={badgeClass} title="American Express" aria-hidden="true">
+        <Amex width={34} height={22} />
+      </span>
+      <span className={`${badgeClass} text-[11px] font-bold tracking-[-.02em]`} aria-hidden="true">
+        Link
+      </span>
+    </div>
+  );
+}
+import { AppleLogo, GoogleLogo } from "@phosphor-icons/react";
+import { Amex, Mastercard, Visa } from "react-payment-logos/dist/flat-rounded";
