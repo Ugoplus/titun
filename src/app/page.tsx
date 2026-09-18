@@ -159,8 +159,8 @@ export default async function Home() {
 
       <section className="border-y border-ink/15 bg-cream px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-[1320px]">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em] md:text-6xl">{homepageCopy.applicationsHeading}</h2>
+          <div className="text-center">
+            <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em] lg:whitespace-nowrap lg:text-[clamp(2.75rem,4.2vw,3.75rem)]">{homepageCopy.applicationsHeading}</h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink/65">{homepageCopy.applicationsCopy}</p>
           </div>
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
@@ -178,7 +178,7 @@ export default async function Home() {
       <section className="bg-white px-5 py-16 md:px-8 md:py-24">
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
           <div>
-            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.whyHeading}</h2>
+            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] lg:whitespace-nowrap lg:text-[2.5rem] xl:text-5xl">{homepageCopy.whyHeading}</h2>
             <p className="mt-6 max-w-md text-base leading-relaxed text-ink/65">{homepageCopy.whyCopy}</p>
             <Link href="/shop" className="mt-7 inline-flex items-center gap-3 bg-gold px-6 py-4 text-sm font-semibold text-ink">Explore the collection <ArrowRight /></Link>
           </div>
@@ -221,7 +221,7 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[1320px] overflow-hidden bg-linen lg:grid-cols-[1.05fr_.95fr]">
           <div className="relative min-h-[28rem] lg:min-h-[38rem]"><Image src={siteImages["home.corporate"]} alt="A guest using a TITUN wipe during a hospitality experience" fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" /></div>
           <div className="flex flex-col justify-center px-6 py-14 md:px-12 lg:px-16">
-            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.corporateHeading}</h2>
+            <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] lg:whitespace-nowrap lg:text-[2.75rem] xl:text-5xl">{homepageCopy.corporateHeading}</h2>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-ink/65">{homepageCopy.corporateCopy}</p>
             <Link href="/corporate" className="mt-7 inline-flex w-fit items-center gap-3 bg-ink px-6 py-4 text-sm font-semibold text-white">Request a corporate quote <ArrowRight /></Link>
           </div>
@@ -235,8 +235,8 @@ export default async function Home() {
       </section>
 
       <section className="bg-cream px-5 py-20 text-center md:px-8 md:py-28">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] md:text-6xl">{homepageCopy.storyHeading}</h2>
+        <div className="mx-auto max-w-[1320px]">
+          <h2 className="font-display text-5xl leading-[.92] tracking-[-.03em] lg:whitespace-nowrap lg:text-[clamp(2.5rem,3.6vw,3.25rem)]">{homepageCopy.storyHeading}</h2>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ink/65">{homepageCopy.storyCopy}</p>
           <Link href="/about" className="mt-7 inline-flex items-center gap-3 border-b border-ink pb-2 text-sm font-semibold">Read the TITUN story <ArrowRight /></Link>
         </div>
