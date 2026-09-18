@@ -139,9 +139,9 @@ export default async function Home() {
           </div>
           <div className="mt-16 border-t border-ink/20 pt-10 md:mt-24 md:pt-14">
             <h3 className="font-display text-4xl tracking-[-.025em] md:text-5xl">{homepageCopy.scentsHeading}</h3>
-            <div className="filter-scroll mt-8 grid snap-x snap-mandatory grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto pb-3 sm:auto-cols-[46%] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 lg:overflow-visible">
+            <div className="mt-8 grid grid-cols-1 gap-3 lg:grid-cols-3">
               {scentStories.map((scent) => (
-                <Link key={scent.name} href={scent.href} className="group block snap-start overflow-hidden bg-ink">
+                <Link key={scent.name} href={scent.href} className="group block overflow-hidden bg-ink">
                   <div className="relative aspect-[944/1080] overflow-hidden">
                     <Image
                       src={siteImages[scent.assetKey as SiteAssetKey]}
