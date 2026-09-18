@@ -37,6 +37,8 @@ type CartContextValue = {
   clear: () => void;
 };
 const CartContext = createContext<CartContextValue | null>(null);
+const CART_STORAGE_KEY = "titun-cart-v2";
+const LEGACY_CART_STORAGE_KEY = "titun-cart";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -46,7 +48,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     queueMicrotask(() => {
       try {
         const stored = JSON.parse(
-          localStorage.getItem("titun-cart") ?? "[]",
+          localStorage.getItem(CART_STORAGE_KEY) ?? "[]",
         ) as Array<CartItem & {
           configuration?: CartConfiguration & { giftBoxScents?: string[] };
         }>;
@@ -65,6 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 : item.quantity,
           })),
         );
+        localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
       } catch {
         setItems([]);
       }
@@ -73,10 +76,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
   useEffect(() => {
     if (hasLoaded)
-      localStorage.setItem("titun-cart", JSON.stringify(items));
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items, hasLoaded]);
   const addItem = useCallback((product: Product, suppliedQuantity?: number, configuration?: CartConfiguration) => {
     const quantity = suppliedQuantity ?? getDefaultPurchaseQuantity(product);
+    const available = Math.max(0, product.stockOnHand - product.stockReserved);
     setItems((current) => {
       const existing = current.find((item) => item.product.id === product.id);
       return existing
@@ -84,14 +88,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             item.product.id === product.id
               ? {
                   ...item,
+                  product,
                   quantity: hasPackOptions(product)
                     ? quantity
-                    : Math.min(20, item.quantity + quantity),
+                    : Math.min(20, available, item.quantity + quantity),
                   configuration: configuration ?? item.configuration,
                 }
               : item,
           )
-        : [...current, { product, quantity, configuration }];
+        : [...current, {
+            product,
+            quantity: hasPackOptions(product)
+              ? quantity
+              : Math.min(available, quantity),
+            configuration,
+          }];
     });
     setIsOpen(true);
   }, []);
@@ -118,7 +129,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems((current) =>
         current.map((item) =>
           item.product.id === productId
-            ? { ...item, quantity: Math.max(1, Math.min(200, quantity)) }
+            ? {
+                ...item,
+                quantity: Math.max(
+                  1,
+                  Math.min(
+                    200,
+                    item.product.stockOnHand - item.product.stockReserved,
+                    quantity,
+                  ),
+                ),
+              }
             : item,
         ),
       ),
