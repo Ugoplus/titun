@@ -20,6 +20,43 @@ describe("checkoutSchema payment providers", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 100_000 }).success).toBe(true);
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 0 }).success).toBe(false);
   });
+
+  it("accepts a Discovery Gift Box containing exactly 25 pieces", () => {
+    const result = checkoutSchema.safeParse({
+      ...validCheckout,
+      paymentProvider: "paystack",
+      items: [{
+        productId: "11111111-1111-4111-8111-111111111111",
+        quantity: 1,
+        configuration: {
+          giftBoxContents: [
+            { item: "Green Tea towel", quantity: 15 },
+            { item: "Sandalwood wet wipes", quantity: 10 },
+          ],
+        },
+      }],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects incomplete or duplicate gift-box selections", () => {
+    const parse = (giftBoxContents: unknown[]) => checkoutSchema.safeParse({
+      ...validCheckout,
+      paymentProvider: "stripe",
+      items: [{
+        productId: "11111111-1111-4111-8111-111111111111",
+        quantity: 1,
+        configuration: { giftBoxContents },
+      }],
+    }).success;
+
+    expect(parse([{ item: "Green Tea towel", quantity: 24 }])).toBe(false);
+    expect(parse([
+      { item: "Green Tea towel", quantity: 10 },
+      { item: "Green Tea towel", quantity: 15 },
+    ])).toBe(false);
+  });
 });
 
 describe("eventSchema", () => {

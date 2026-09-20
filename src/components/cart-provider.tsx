@@ -10,6 +10,10 @@ import {
 } from "react";
 import type { Product } from "@/lib/db/schema";
 import {
+  isDiscoveryGiftBox,
+  normalizeStoredGiftBoxContents,
+} from "@/lib/gift-box";
+import {
   getCartUnitCount,
   mergeCartItems,
   type CartConfiguration,
@@ -39,8 +43,8 @@ type CartContextValue = {
   clear: () => void;
 };
 const CartContext = createContext<CartContextValue | null>(null);
-const CART_STORAGE_KEY = "titun-cart-v2";
-const LEGACY_CART_STORAGE_KEY = "titun-cart";
+const CART_STORAGE_KEY = "titun-cart-v3";
+const LEGACY_CART_STORAGE_KEYS = ["titun-cart-v2", "titun-cart"];
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -49,27 +53,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     queueMicrotask(() => {
       try {
-        const stored = JSON.parse(
-          localStorage.getItem(CART_STORAGE_KEY) ?? "[]",
-        ) as Array<CartItem & {
-          configuration?: CartConfiguration & { giftBoxScents?: string[] };
-        }>;
-        setItems(
-          stored.map((item) => ({
+        const storedValue = localStorage.getItem(CART_STORAGE_KEY)
+          ?? LEGACY_CART_STORAGE_KEYS.map((key) => localStorage.getItem(key)).find(Boolean)
+          ?? "[]";
+        const stored = JSON.parse(storedValue) as Array<
+          Omit<CartItem, "configuration"> & {
+            configuration?: {
+              giftBoxContents?: unknown;
+              giftBoxScents?: string[];
+            };
+          }
+        >;
+        const migrated = stored.map((item): CartItem => {
+          const storedContents = item.configuration?.giftBoxContents
+            ?? item.configuration?.giftBoxScents?.map((scent) => `${scent} towel`);
+          const giftBoxContents = normalizeStoredGiftBoxContents(storedContents);
+          return {
             ...item,
-            configuration: item.configuration?.giftBoxContents
-              ? { giftBoxContents: item.configuration.giftBoxContents }
-              : item.configuration?.giftBoxScents?.length
-                ? { giftBoxContents: item.configuration.giftBoxScents.map((scent) => `${scent} towel`) }
-                : undefined,
+            configuration: isDiscoveryGiftBox(item.product)
+              ? { giftBoxContents }
+              : undefined,
             quantity:
               hasPackOptions(item.product) &&
               !getPackOptions(item.product).some((option) => option.quantity === item.quantity)
                 ? getDefaultPurchaseQuantity(item.product)
                 : item.quantity,
-          })),
-        );
-        localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+          };
+        });
+        setItems(mergeCartItems([], migrated));
+        LEGACY_CART_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
       } catch {
         setItems([]);
       }

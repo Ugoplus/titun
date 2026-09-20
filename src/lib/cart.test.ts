@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Product } from "@/lib/db/schema";
 import { createCartQuote, getCartUnitCount, mergeCartItems } from "./cart";
+import type { GiftBoxSelection } from "./gift-box";
 
 const product = (overrides: Partial<Product> = {}): Product => ({
   id: "11111111-1111-4111-8111-111111111111",
@@ -49,6 +50,21 @@ describe("cart merging", () => {
   it("does not add an unavailable recommendation", () => {
     expect(mergeCartItems([], [{ product: product({ stockOnHand: 0 }), quantity: 1 }])).toEqual([]);
   });
+
+  it("only adds a Discovery Gift Box with a complete 25-piece configuration", () => {
+    const giftBox = product({ slug: "titun-discovery-gift-box" });
+    const complete: GiftBoxSelection[] = [
+      { item: "Green Tea towel", quantity: 15 },
+      { item: "Lemongrass wet wipes", quantity: 10 },
+    ];
+
+    expect(mergeCartItems([], [{ product: giftBox, quantity: 1 }])).toEqual([]);
+    expect(mergeCartItems([], [{
+      product: giftBox,
+      quantity: 1,
+      configuration: { giftBoxContents: complete },
+    }])).toHaveLength(1);
+  });
 });
 
 describe("canonical cart quote", () => {
@@ -64,5 +80,16 @@ describe("canonical cart quote", () => {
     const current = product({ stockOnHand: 1 });
     expect(() => createCartQuote([current], [{ productId: current.id, quantity: 2 }]))
       .toThrow("does not have enough stock");
+  });
+
+  it("rejects an incomplete Discovery Gift Box before checkout", () => {
+    const giftBox = product({ slug: "titun-discovery-gift-box" });
+    expect(() => createCartQuote([giftBox], [{
+      productId: giftBox.id,
+      quantity: 1,
+      configuration: {
+        giftBoxContents: [{ item: "Green Tea towel", quantity: 24 }],
+      },
+    }])).toThrow("exactly 25 pieces");
   });
 });

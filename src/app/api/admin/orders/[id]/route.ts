@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
-import { orders } from "@/lib/db/schema";
+import { orderItems, orders } from "@/lib/db/schema";
 import { protectAdminRequest } from "@/lib/rate-limit";
 import { adminCan, getAdminIdentity } from "@/lib/auth";
 import { toAdminOrderView } from "@/lib/admin-order-view";
@@ -48,6 +48,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       trackingNumber: input.trackingNumber || current.trackingNumber,
       updatedAt: now,
     }).where(eq(orders.id, id)).returning();
+    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id));
     revalidatePath("/admin");
     revalidatePath("/admin/orders");
     const identity = await getAdminIdentity();
@@ -55,6 +56,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       toAdminOrderView(
         updated,
         Boolean(identity && adminCan(identity, "orders:view_financials")),
+        items,
       ),
     );
   } catch (error) {

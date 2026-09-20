@@ -15,6 +15,7 @@ import { assertExpectedTotal, calculateOrder } from "./pricing";
 import { sendLowStockAlert, sendOrderConfirmation } from "@/lib/email";
 import type { PaymentProvider } from "@/lib/payments";
 import { getLinePricing } from "@/lib/product-pricing";
+import { assertCompleteGiftBox, type GiftBoxSelection } from "@/lib/gift-box";
 
 export type CheckoutInput = {
   customer: {
@@ -28,7 +29,7 @@ export type CheckoutInput = {
   items: {
     productId: string;
     quantity: number;
-    configuration?: { giftBoxContents?: string[] };
+    configuration?: { giftBoxContents?: GiftBoxSelection[] };
   }[];
   expectedSubtotal: number;
   discountCode?: string;
@@ -50,10 +51,7 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     const pricedItems = catalog.map((product) => {
       const quantity = quantityById.get(product.id) ?? 0;
       const configuration = configurationById.get(product.id);
-      if (
-        product.category === "Boxes and multipacks" &&
-        !configuration?.giftBoxContents?.length
-      ) throw new Error("Choose at least one product for your gift box");
+      assertCompleteGiftBox(product, configuration?.giftBoxContents);
       const pricing = getLinePricing(product, quantity);
       return {
         productId: product.id,

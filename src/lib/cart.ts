@@ -1,7 +1,13 @@
 import type { Product } from "@/lib/db/schema";
+import {
+  assertCompleteGiftBox,
+  isCompleteGiftBox,
+  isDiscoveryGiftBox,
+  type GiftBoxSelection,
+} from "@/lib/gift-box";
 import { getLinePricing, getPackOptions, hasPackOptions } from "@/lib/product-pricing";
 
-export type CartConfiguration = { giftBoxContents?: string[] };
+export type CartConfiguration = { giftBoxContents?: GiftBoxSelection[] };
 export type CartItem = {
   product: Product;
   quantity: number;
@@ -31,6 +37,10 @@ export const getCartUnitCount = (items: Pick<CartItem, "quantity">[]) =>
 
 export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
   return incomingItems.reduce<CartItem[]>((next, incoming) => {
+    if (
+      isDiscoveryGiftBox(incoming.product) &&
+      !isCompleteGiftBox(incoming.configuration?.giftBoxContents)
+    ) return next;
     const existing = next.find((item) => item.product.id === incoming.product.id);
     const requested = hasPackOptions(incoming.product)
       ? incoming.quantity
@@ -63,6 +73,7 @@ export function createCartQuote(
   const items = requestedItems.map((requested) => {
     const product = byId.get(requested.productId);
     if (!product?.active) throw new Error("One or more products are unavailable");
+    assertCompleteGiftBox(product, requested.configuration?.giftBoxContents);
     const pricing = getLinePricing(product, requested.quantity);
     if (availableStock(product) < requested.quantity)
       throw new Error(`${product.name} does not have enough stock`);

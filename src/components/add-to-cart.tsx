@@ -1,9 +1,19 @@
 "use client";
 
-import { Check } from "@phosphor-icons/react";
+import { Check, Minus, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import type { Product } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
+import {
+  GIFT_BOX_ITEMS,
+  GIFT_BOX_SIZE,
+  adjustGiftBoxQuantity,
+  getGiftBoxRemaining,
+  getGiftBoxTotal,
+  isCompleteGiftBox,
+  isDiscoveryGiftBox,
+  type GiftBoxSelection,
+} from "@/lib/gift-box";
 import {
   getDefaultPurchaseQuantity,
   getPackOptions,
@@ -15,46 +25,82 @@ export function AddToCart({ product, compact = false }: { product: Product; comp
   const [quantity, setQuantity] = useState(
     getDefaultPurchaseQuantity(product),
   );
-  const giftBoxOptions = [
-    "Green Tea towel",
-    "Lemongrass towel",
-    "Sandalwood towel",
-    "Green Tea wet wipes",
-    "Lemongrass wet wipes",
-    "Sandalwood wet wipes",
-  ] as const;
-  const [selectedContents, setSelectedContents] = useState<string[]>([...giftBoxOptions]);
-  const isGiftBox = product.category === "Boxes and multipacks";
+  const [selectedContents, setSelectedContents] = useState<GiftBoxSelection[]>([]);
+  const isGiftBox = isDiscoveryGiftBox(product);
   const { addItem } = useCart();
   const available = product.stockOnHand - product.stockReserved;
   const selected =
     options.find((option) => option.quantity === quantity) ?? options[0];
   const selectedAvailable = available >= selected.quantity;
+  const selectedPieceCount = getGiftBoxTotal(selectedContents);
+  const remainingPieceCount = getGiftBoxRemaining(selectedContents);
+  const giftBoxComplete = isCompleteGiftBox(selectedContents);
 
   return (
     <div>
       {isGiftBox && (
         <fieldset className="mb-6">
-          <legend className="mb-2 text-sm font-semibold">Choose what goes inside your gift box</legend>
+          <legend className="mb-2 text-lg font-semibold">Build your 25-piece box</legend>
           <p className="mb-4 max-w-lg text-xs leading-relaxed text-ink/65">
-            Mix refreshing towels and wet wipes in any combination. We’ll balance the selected types across the box.
+            Choose any mix of towel and wet-wipe fragrances. Your box remains {formatMoney(selected.total, product.currency)}.
           </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {giftBoxOptions.map((item) => {
-              const checked = selectedContents.includes(item);
+          <div className="grid border-t border-ink/20">
+            {GIFT_BOX_ITEMS.map((item) => {
+              const itemQuantity = selectedContents.find(
+                (selection) => selection.item === item,
+              )?.quantity ?? 0;
               return (
-                <label key={item} className={`flex min-h-12 cursor-pointer items-center gap-3 border px-4 text-sm font-semibold ${checked ? "border-ink bg-ink text-white" : "border-ink/25 bg-white"}`}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => setSelectedContents((current) =>
-                      checked ? current.filter((selected) => selected !== item) : [...current, item],
-                    )}
-                  />
-                  {item}
-                </label>
+                <div
+                  key={item}
+                  className="flex min-h-16 items-center justify-between gap-4 border-b border-ink/20 py-2"
+                >
+                  <span className="min-w-0 text-sm font-semibold">{item}</span>
+                  <div className="flex shrink-0 items-center border border-ink/25">
+                    <button
+                      type="button"
+                      disabled={itemQuantity === 0}
+                      aria-label={`Remove one ${item}`}
+                      onClick={() => setSelectedContents((current) =>
+                        adjustGiftBoxQuantity(current, item, -1)
+                      )}
+                      className="grid h-11 w-11 place-content-center disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <Minus aria-hidden="true" />
+                    </button>
+                    <output
+                      aria-label={`${itemQuantity} ${item} selected`}
+                      className="w-9 text-center text-sm font-bold tabular-nums"
+                    >
+                      {itemQuantity}
+                    </output>
+                    <button
+                      type="button"
+                      disabled={selectedPieceCount >= GIFT_BOX_SIZE}
+                      aria-label={`Add one ${item}`}
+                      onClick={() => setSelectedContents((current) =>
+                        adjustGiftBoxQuantity(current, item, 1)
+                      )}
+                      className="grid h-11 w-11 place-content-center disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <Plus aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
               );
             })}
+          </div>
+          <div
+            aria-live="polite"
+            className={`mt-4 border p-4 ${giftBoxComplete ? "border-ink bg-ink text-white" : "border-ink/20 bg-linen"}`}
+          >
+            <p className="font-display text-2xl tabular-nums">
+              {selectedPieceCount} / {GIFT_BOX_SIZE} pieces selected
+            </p>
+            <p className={`mt-1 text-xs leading-relaxed ${giftBoxComplete ? "text-white/75" : "text-ink/65"}`}>
+              {giftBoxComplete
+                ? "Your Discovery Gift Box is complete."
+                : `Please select ${remainingPieceCount} more ${remainingPieceCount === 1 ? "piece" : "pieces"} to complete your box.`}
+            </p>
           </div>
         </fieldset>
       )}
@@ -124,7 +170,7 @@ export function AddToCart({ product, compact = false }: { product: Product; comp
         </fieldset>
       )}
       <button
-        disabled={!selectedAvailable || (isGiftBox && selectedContents.length === 0)}
+        disabled={!selectedAvailable || (isGiftBox && !giftBoxComplete)}
         className="mt-4 flex min-h-14 w-full items-center justify-between bg-ink px-6 font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-not-allowed disabled:opacity-40"
         onClick={() => addItem(
           product,
@@ -132,7 +178,7 @@ export function AddToCart({ product, compact = false }: { product: Product; comp
           isGiftBox ? { giftBoxContents: selectedContents } : undefined,
         )}
       >
-        <span>{!selectedAvailable ? "Pack unavailable" : isGiftBox && selectedContents.length === 0 ? "Choose at least one product" : "Add to basket"}</span>
+        <span>{!selectedAvailable ? "Pack unavailable" : isGiftBox && !giftBoxComplete ? `Select ${remainingPieceCount} more` : "Add to basket"}</span>
         <span className="tabular-nums">
           {formatMoney(selected.total, product.currency)}
         </span>

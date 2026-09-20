@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { GiftBoxSelection } from "@/lib/gift-box";
 
 export const orderStatus = pgEnum("order_status", [
   "pending",
@@ -131,7 +132,7 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   lineTotal: integer("line_total").notNull(),
   configuration: jsonb("configuration")
-    .$type<{ giftBoxContents?: string[] }>()
+    .$type<{ giftBoxContents?: GiftBoxSelection[] }>()
     .notNull()
     .default({}),
 });
@@ -401,6 +402,7 @@ export const adminAuditLog = pgTable(
 
 export type Product = typeof products.$inferSelect;
 export type Order = typeof orders.$inferSelect;
+export type OrderItem = typeof orderItems.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type AdminRole = typeof adminRoles.$inferSelect;

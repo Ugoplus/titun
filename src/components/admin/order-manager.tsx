@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { Order } from "@/lib/db/schema";
 import type { AdminOrderView } from "@/lib/admin-order-view";
 import { formatMoney } from "@/lib/money";
+import { formatGiftBoxContents } from "@/lib/gift-box";
 
 const categories = ["all", "pending", "paid", "processing", "shipped", "fulfilled", "failed", "cancelled", "refunded"] as const;
 const nextStatus: Partial<Record<Order["status"], Array<"processing" | "shipped" | "fulfilled">>> = {
@@ -78,6 +79,28 @@ export function OrderManager({
               </dl>
               <div className="lg:text-right"><span className="inline-flex border border-ink/20 px-3 py-2 text-xs font-bold capitalize">{order.status}</span>{canViewFinancials && order.total !== undefined ? <p className="mt-3 font-display text-3xl tabular-nums">{formatMoney(order.total, order.currency)}</p> : null}</div>
             </div>
+            {order.items.length > 0 && (
+              <section className="mt-5 border-t border-ink/15 pt-5">
+                <h3 className="text-xs font-bold uppercase tracking-[.08em] text-ink/60">
+                  Order contents
+                </h3>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {order.items.map((item) => (
+                    <div key={item.id} className="border border-ink/15 bg-linen p-4">
+                      <p className="text-sm font-semibold">
+                        {item.quantity} × {item.productName}
+                      </p>
+                      <p className="mt-1 text-xs text-ink/60">{item.packSize}</p>
+                      {item.configuration.giftBoxContents?.length ? (
+                        <p className="mt-3 text-xs leading-relaxed text-ink/75">
+                          {formatGiftBoxContents(item.configuration.giftBoxContents)}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
             {canManage && nextStatus[order.status]?.length ? (
               <form className="mt-5 grid gap-3 border-t border-ink/15 pt-5 sm:grid-cols-[1fr_1fr_1fr_auto]" onSubmit={(event) => { event.preventDefault(); handleUpdate(order, event.currentTarget); }}>
                 <label className="grid gap-1 text-xs font-bold uppercase tracking-[.06em]">Next stage<select required name="status" defaultValue="" className="h-11 border border-ink/25 bg-transparent px-3 text-sm normal-case"><option value="" disabled>Choose status</option>{nextStatus[order.status]?.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>

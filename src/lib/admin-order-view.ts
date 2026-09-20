@@ -1,4 +1,9 @@
-import type { Order } from "@/lib/db/schema";
+import type { Order, OrderItem } from "@/lib/db/schema";
+
+export type AdminOrderItemView = Pick<
+  OrderItem,
+  "id" | "productName" | "packSize" | "quantity" | "configuration"
+>;
 
 export type AdminOrderView = Omit<
   Order,
@@ -17,13 +22,22 @@ export type AdminOrderView = Omit<
   discountCode?: string | null;
   paymentProvider?: string;
   paymentReference?: string | null;
+  items: AdminOrderItemView[];
 };
 
 export function toAdminOrderView(
   order: Order,
   canViewFinancials: boolean,
+  items: OrderItem[] = [],
 ): AdminOrderView {
-  if (canViewFinancials) return order;
+  const visibleItems = items.map((item) => ({
+    id: item.id,
+    productName: item.productName,
+    packSize: item.packSize,
+    quantity: item.quantity,
+    configuration: item.configuration,
+  }));
+  if (canViewFinancials) return { ...order, items: visibleItems };
   return {
     id: order.id,
     reference: order.reference,
@@ -46,5 +60,6 @@ export function toAdminOrderView(
     trackingNumber: order.trackingNumber,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
+    items: visibleItems,
   };
 }

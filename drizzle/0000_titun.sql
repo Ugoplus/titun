@@ -256,7 +256,7 @@ VALUES
   ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),
   ('lemongrass-refreshing-towel', 'Lemongrass Refreshing Towel', 'Lemongrass', 'A bright, delicately scented towel that makes a clean reset feel effortless after travel, dining or movement.', 'Individual towels', '1 individually wrapped towel', 180000, 34, 8, true),
   ('sandalwood-refreshing-towel', 'Sandalwood Refreshing Towel', 'Sandalwood', 'A warm, grounded scent in TITUN''s signature black-and-gold wrap—made for considered hospitality and evening rituals.', 'Individual towels', '1 individually wrapped towel', 180000, 18, 6, true),
-  ('titun-discovery-gift-box', 'TITUN Discovery Gift Box', 'Green tea, lemongrass and sandalwood', 'A presentation-ready collection of TITUN''s signature refreshing towels for gifting and elevated hospitality.', 'Boxes and multipacks', 'Curated gift box', 1450000, 9, 5, false)
+  ('titun-discovery-gift-box', 'TITUN Discovery Gift Box', 'Green tea, lemongrass and sandalwood', 'A presentation-ready collection of 25 TITUN refreshing towels and wet wipes, composed in any mix of signature fragrances.', 'Boxes and multipacks', 'Custom 25-piece gift box', 5000000, 9, 5, false)
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured, images)

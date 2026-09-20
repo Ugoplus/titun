@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Minus, Plus, Trash, X } from "@phosphor-icons/react";
 import { formatMoney } from "@/lib/money";
+import { formatGiftBoxContents } from "@/lib/gift-box";
 import { DialogShell } from "./dialog-shell";
 import { ProductVisual } from "./product-visual";
 import { useCart } from "./cart-provider";
@@ -74,7 +75,7 @@ export function CartDrawer() {
                     </p>
                     {item.configuration?.giftBoxContents?.length ? (
                       <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                        {item.configuration.giftBoxContents.join(", ")}
+                        {formatGiftBoxContents(item.configuration.giftBoxContents)}
                       </p>
                     ) : null}
                   </div>

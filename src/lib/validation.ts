@@ -1,17 +1,22 @@
 import { z } from "zod";
+import { GIFT_BOX_ITEMS, GIFT_BOX_SIZE } from "@/lib/gift-box";
+
+export const giftBoxContentsSchema = z.array(z.object({
+  item: z.enum(GIFT_BOX_ITEMS),
+  quantity: z.int().min(1).max(GIFT_BOX_SIZE),
+})).min(1).max(GIFT_BOX_ITEMS.length).superRefine((contents, context) => {
+  if (new Set(contents.map(({ item }) => item)).size !== contents.length)
+    context.addIssue({ code: "custom", message: "Choose each gift-box product only once" });
+  const total = contents.reduce((sum, { quantity }) => sum + quantity, 0);
+  if (total !== GIFT_BOX_SIZE)
+    context.addIssue({ code: "custom", message: `Choose exactly ${GIFT_BOX_SIZE} pieces for your gift box` });
+});
 
 export const cartItemSchema = z.object({
   productId: z.uuid(),
   quantity: z.int().min(1).max(200),
   configuration: z.object({
-    giftBoxContents: z.array(z.enum([
-      "Green Tea towel",
-      "Lemongrass towel",
-      "Sandalwood towel",
-      "Green Tea wet wipes",
-      "Lemongrass wet wipes",
-      "Sandalwood wet wipes",
-    ])).min(1).max(6).optional(),
+    giftBoxContents: giftBoxContentsSchema.optional(),
   }).optional(),
 });
 

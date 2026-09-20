@@ -13,6 +13,11 @@ import {
 } from "@/components/payment-provider-logos";
 import { formatMoney } from "@/lib/money";
 import type { Product } from "@/lib/db/schema";
+import {
+  formatGiftBoxContents,
+  isDiscoveryGiftBox,
+  type GiftBoxSelection,
+} from "@/lib/gift-box";
 import type { PaymentProvider } from "@/lib/payments";
 import { getAlternativePaymentProvider } from "@/lib/payment-recommendation";
 import {
@@ -36,7 +41,7 @@ export default function CheckoutPage() {
     items: Array<{
       product: Product;
       quantity: number;
-      configuration?: { giftBoxContents?: string[] };
+      configuration?: { giftBoxContents?: GiftBoxSelection[] };
     }>;
     subtotal: number;
     cartKey: string;
@@ -49,7 +54,7 @@ export default function CheckoutPage() {
   } | null>(null);
   const [quoteVersion, setQuoteVersion] = useState(0);
   const cartKey = useMemo(
-    () => items.map((item) => `${item.product.id}:${item.quantity}:${item.configuration?.giftBoxContents?.join("|") ?? ""}`).join(","),
+    () => items.map((item) => `${item.product.id}:${item.quantity}:${JSON.stringify(item.configuration?.giftBoxContents ?? [])}`).join(","),
     [items],
   );
   const activeQuote =
@@ -415,7 +420,7 @@ export default function CheckoutPage() {
                 )}
                 {item.configuration?.giftBoxContents?.length ? (
                   <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                    {item.configuration.giftBoxContents.join(", ")}
+                    {formatGiftBoxContents(item.configuration.giftBoxContents)}
                   </p>
                 ) : null}
               </div>
@@ -467,20 +472,29 @@ export default function CheckoutPage() {
                       From {formatMoney(getPackOptions(product)[0].total)}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      addItems([
-                        {
-                          product,
-                          quantity: getDefaultPurchaseQuantity(product),
-                        },
-                      ])
-                    }
-                    className="min-h-11 border border-ink px-3 py-2 text-xs font-bold"
-                  >
-                    Add
-                  </button>
+                  {isDiscoveryGiftBox(product) ? (
+                    <Link
+                      href={`/products/${product.slug}`}
+                      className="inline-flex min-h-11 items-center border border-ink px-3 py-2 text-xs font-bold"
+                    >
+                      Build
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        addItems([
+                          {
+                            product,
+                            quantity: getDefaultPurchaseQuantity(product),
+                          },
+                        ])
+                      }
+                      className="min-h-11 border border-ink px-3 py-2 text-xs font-bold"
+                    >
+                      Add
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
