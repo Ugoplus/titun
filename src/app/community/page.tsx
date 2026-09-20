@@ -1,126 +1,151 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { getUpcomingEvents } from "@/lib/community";
 import { formatMoney } from "@/lib/money";
-import { getSiteAssetMap } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "Community",
-  description:
-    "Gather, restore and discover upcoming TITUN community experiences.",
+  description: "Stories and upcoming gatherings from the TITUN community.",
   alternates: { canonical: "/community" },
 };
 
 export default async function CommunityPage() {
-  const [events, siteImages] = await Promise.all([getUpcomingEvents(), getSiteAssetMap()]);
-  return (
-    <div>
-      <section className="grid min-h-[72svh] bg-ink text-cream lg:grid-cols-[1.1fr_.9fr]">
-        <div className="flex items-end px-5 py-14 md:px-10 md:py-20 lg:px-[7vw]">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[.12em] text-citron">
-              TITUN community
-            </p>
-            <h1 className="mt-5 font-display text-[clamp(4.5rem,10vw,10rem)] leading-[.78] tracking-[-.04em]">
-              Refresh,
-              <br />
-              <em>together.</em>
-            </h1>
-            <p className="mt-8 max-w-xl text-base leading-relaxed text-cream/70">
-              Intimate gatherings for thoughtful conversation, wellbeing and the
-              small rituals that bring us back to ourselves.
-            </p>
-          </div>
-        </div>
-        <div className="relative min-h-[48svh] lg:min-h-full">
-          <Image
-            src={siteImages["community.hero"]}
-            alt="A calm lounge prepared for a TITUN community gathering"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
-      </section>
+  const events = await getUpcomingEvents();
 
-      <section className="mx-auto max-w-[1440px] px-5 py-16 md:px-8 md:py-24">
-        <div className="grid gap-5 border-b border-ink/20 pb-8 md:grid-cols-[1fr_auto] md:items-end">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
-              Gather with us
-            </p>
-            <h2 className="mt-2 font-display text-5xl tracking-[-.04em] md:text-7xl">
-              Upcoming experiences
-            </h2>
-          </div>
-          <p className="max-w-sm text-sm leading-relaxed text-ink/70">
-            Read the story behind each gathering, then reserve a free place or
-            purchase admission without leaving the event experience.
+  return (
+    <main className="min-w-0 overflow-x-clip bg-white">
+      <header className="mx-auto max-w-[1440px] px-5 pb-14 pt-10 md:px-8 md:pb-20 md:pt-14 lg:px-12">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.08em] text-ink/70"
+        >
+          <Link href="/" className="min-h-11 content-center hover:text-ink">
+            Home
+          </Link>
+          <CaretRight size={12} aria-hidden="true" />
+          <span aria-current="page" className="text-ink">
+            Community
+          </span>
+        </nav>
+
+        <div className="mx-auto mt-16 max-w-3xl text-center md:mt-24">
+          <h1 className="font-display text-[clamp(3.25rem,13vw,6rem)] leading-[.88] tracking-[-.035em]">
+            The TITUN Journal
+          </h1>
+          <p className="mx-auto mt-6 max-w-[58ch] text-base leading-relaxed text-ink/65 md:text-lg">
+            Stories of welcome, thoughtful gatherings and the small rituals that
+            bring us back to ourselves.
           </p>
         </div>
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
-          {events.map((event) => (
-            <article key={event.id} className="group grid border border-ink/20 bg-white">
-              <Link href={`/community/events/${event.slug}`} className="block overflow-hidden">
-                <div className="relative aspect-[4/3] overflow-hidden bg-oat">
-                  {event.image && (
-                    <Image
-                      src={event.image}
-                      alt={`${event.title} event setting`}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
-                    />
-                  )}
-                </div>
-              </Link>
-              <div className="flex flex-col p-5 md:p-7">
-                <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold uppercase tracking-[.08em] text-clayInk">
-                  <p>
-                    {event.startsAt.toLocaleDateString("en-NG", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <p>{event.ticketProduct.price === 0 ? "Free event" : formatMoney(event.ticketProduct.price)}</p>
-                </div>
-                <h3 className="mt-3 font-display text-4xl">{event.title}</h3>
-                <p className="mt-2 text-sm font-semibold text-ink/70">{event.venue}</p>
-                <p className="mt-5 line-clamp-3 text-sm leading-relaxed text-ink/70">
-                  {event.description}
-                </p>
-                <div className="mt-7 grid grid-cols-2 gap-2 border-t border-ink/15 pt-5">
+      </header>
+
+      <section
+        aria-labelledby="community-stories-title"
+        className="mx-auto max-w-[1440px] px-5 pb-24 md:px-8 md:pb-32 lg:px-12"
+      >
+        <div className="flex items-end justify-between border-b border-ink/20 pb-4">
+          <h2
+            id="community-stories-title"
+            className="font-display text-3xl tracking-[-.025em] md:text-4xl"
+          >
+            Upcoming stories and events
+          </h2>
+          <p className="hidden text-xs font-semibold uppercase tracking-[.08em] text-ink/70 sm:block">
+            {events.length} {events.length === 1 ? "gathering" : "gatherings"}
+          </p>
+        </div>
+
+        {events.length > 0 ? (
+          <div className="mt-10 grid gap-x-14 gap-y-20 md:grid-cols-2 md:gap-y-28 lg:gap-x-20">
+            {events.map((event, index) => {
+              const isFree = event.ticketProduct.price === 0;
+              const href = `/community/events/${event.slug}`;
+
+              return (
+                <article key={event.id} className="group min-w-0">
                   <Link
-                    href={`/community/events/${event.slug}`}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 border border-ink px-4 text-sm font-bold"
+                    href={href}
+                    aria-label={`Read ${event.title}`}
+                    className="relative block aspect-[4/3] overflow-hidden bg-oat focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
                   >
-                    Read the story <ArrowRight aria-hidden="true" />
+                    {event.image && (
+                      <Image
+                        src={event.image}
+                        alt={`${event.title} event setting`}
+                        fill
+                        sizes="(max-width: 767px) 100vw, 50vw"
+                        priority={index < 2}
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+                      />
+                    )}
                   </Link>
-                  <Link
-                    href={`/community/events/${event.slug}#attend`}
-                    className="inline-flex min-h-12 items-center justify-center bg-ink px-4 text-sm font-bold text-white"
-                  >
-                    Attend the event
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
-          {events.length === 0 && (
-            <div className="border border-ink/20 p-8">
-              <h3 className="font-display text-4xl">
+
+                  <div className="relative -mt-10 ml-4 bg-white px-5 pb-1 pt-6 md:-mt-12 md:ml-8 md:px-7 md:pt-7 lg:ml-12 lg:px-9">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-[.08em] text-ink/70">
+                      <time dateTime={event.startsAt.toISOString()}>
+                        {event.startsAt.toLocaleDateString("en-NG", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </time>
+                      <span aria-hidden="true">·</span>
+                      <span>
+                        {isFree
+                          ? "Free event"
+                          : `${formatMoney(event.ticketProduct.price)} per guest`}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 max-w-[18ch] font-display text-[clamp(2rem,4vw,3.25rem)] leading-[.96] tracking-[-.03em]">
+                      <Link href={href} className="hover:text-walnut">
+                        {event.title}
+                      </Link>
+                    </h3>
+                    <p className="mt-3 break-words text-xs font-semibold text-ink/70">
+                      {event.venue}
+                    </p>
+                    <p className="mt-5 line-clamp-3 max-w-[62ch] break-words text-sm leading-relaxed text-ink/70">
+                      {event.description}
+                    </p>
+
+                    <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-ink/15 pt-5 text-sm font-semibold">
+                      <Link
+                        href={href}
+                        className="inline-flex min-h-11 items-center gap-2 border-b border-ink/50 hover:border-ink"
+                      >
+                        Read the story
+                        <ArrowRight size={16} aria-hidden="true" />
+                      </Link>
+                      <Link
+                        href={`${href}#attend`}
+                        className="inline-flex min-h-11 items-center gap-2 text-clayInk hover:text-walnut"
+                      >
+                        Attend the event
+                        <ArrowRight size={16} aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="grid min-h-[48svh] place-items-center border-b border-ink/15 text-center">
+            <div className="max-w-xl py-20">
+              <h3 className="font-display text-5xl tracking-[-.03em]">
                 The next gathering is taking shape.
               </h3>
-              <p className="mt-4 text-sm text-ink/70">
-                Follow TITUN on Instagram for the first announcement.
+              <p className="mx-auto mt-5 max-w-[48ch] text-sm leading-relaxed text-ink/65">
+                Join the TITUN list to receive new event stories and invitations
+                when they are released.
               </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
-    </div>
+    </main>
   );
 }

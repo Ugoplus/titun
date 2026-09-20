@@ -93,7 +93,7 @@ export function EventBookingPanel({
 
   if (registrationReference) {
     return (
-      <section className="border border-ink bg-ink p-6 text-white md:p-8" aria-live="polite">
+      <section className="min-w-0 border border-ink bg-ink p-6 text-white md:p-8" aria-live="polite">
         <h2 className="font-display text-4xl">Your place is confirmed.</h2>
         <p className="mt-4 text-sm leading-relaxed text-white/75">
           You’re registered for {eventTitle}. We’ve sent the event details to your email address.
@@ -106,18 +106,18 @@ export function EventBookingPanel({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-ink/20 bg-cream p-5 md:p-8">
-      <h2 className="font-display text-4xl">
+    <form onSubmit={handleSubmit} className="min-w-0 border border-ink/20 bg-cream p-5 md:p-8">
+      <h2 className="break-words font-display text-3xl sm:text-4xl">
         {isFree ? "Register to attend" : "Reserve your place"}
       </h2>
-      <div className="mt-5 flex items-center justify-between gap-5 border-b border-ink/20 pb-6">
-        <div>
+      <div className="mt-5 grid min-w-0 gap-4 border-b border-ink/20 pb-6 sm:flex sm:items-center sm:justify-between sm:gap-5">
+        <div className="min-w-0">
           <p className="text-sm font-semibold">Guest admission</p>
           <p className="mt-1 text-sm text-ink/70">
             {isFree ? "Free" : `${formatMoney(ticket.price)} per guest`} · {available} places left
           </p>
         </div>
-        <div className="flex items-center border border-ink/25">
+        <div className="flex w-fit shrink-0 items-center border border-ink/25">
           <button
             type="button"
             aria-label="Reduce ticket quantity"
@@ -168,7 +168,7 @@ export function EventBookingPanel({
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/70">
             Add TITUN products to your booking, or continue with admission only.
           </p>
-          <div className="mt-5 grid gap-3">
+          <div className="mt-5 grid min-w-0 gap-3">
             {recommendations.map((product, index) => {
               const isSelected = selected.includes(product.id);
               const productAvailable =
@@ -187,7 +187,7 @@ export function EventBookingPanel({
                         : [...current, product.id],
                     )
                   }
-                  className={`grid grid-cols-[64px_1fr_auto] items-center gap-3 border p-2 text-left transition-colors disabled:opacity-45 ${isSelected ? "border-ink bg-gold/10" : "border-ink/20"}`}
+                  className={`grid min-w-0 grid-cols-[56px_minmax(0,1fr)_28px] items-center gap-3 border p-2 text-left transition-colors disabled:opacity-45 sm:grid-cols-[64px_minmax(0,1fr)_28px] ${isSelected ? "border-ink bg-gold/10" : "border-ink/20"}`}
                 >
                   <ProductVisual
                     images={product.images}
@@ -195,8 +195,8 @@ export function EventBookingPanel({
                     index={index}
                     className="aspect-square"
                   />
-                  <span>
-                    <span className="block font-display text-lg leading-tight">
+                  <span className="min-w-0">
+                    <span className="block break-words font-display text-base leading-tight sm:text-lg">
                       {product.name}
                     </span>
                     <span className="mt-1 block text-xs text-ink/70">
@@ -226,8 +226,8 @@ export function EventBookingPanel({
         </p>
       )}
 
-      <div className="flex items-center justify-between gap-4 border-t border-ink/20 pt-6">
-        <div>
+      <div className="grid min-w-0 gap-4 border-t border-ink/20 pt-6 sm:flex sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="text-xs text-ink/70">{usesCheckout ? "Total before delivery" : "Admission total"}</p>
           <p className="mt-1 text-xl font-bold tabular-nums">
             {total === 0 ? "Free" : formatMoney(total)}
@@ -235,7 +235,7 @@ export function EventBookingPanel({
         </div>
         <button
           disabled={available < 1 || isRegistering}
-          className="min-h-12 bg-ink px-6 text-sm font-bold text-cream disabled:cursor-not-allowed disabled:opacity-45"
+          className="min-h-12 w-full bg-ink px-5 text-sm font-bold text-cream disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto sm:px-6"
         >
           {available < 1
             ? "Event sold out"
