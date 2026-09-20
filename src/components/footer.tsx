@@ -24,7 +24,7 @@ const columns = [
   {
     title: "Help",
     links: [
-      ["Frequently asked questions", "/faqs"],
+      ["FAQ", "/faqs"],
       ["Shipping", "/shipping"],
       ["Returns", "/returns"],
       ["Privacy", "/privacy"],
@@ -63,12 +63,19 @@ export function Footer() {
           </div>
           <div className="grid gap-10 sm:grid-cols-3">
             {columns.map((column) => (
-              <div key={column.title} className="grid content-start gap-3 text-sm">
+              <div
+                key={column.title}
+                className="grid content-start gap-3 text-sm"
+              >
                 <p className="mb-2 text-xs font-bold uppercase tracking-[.08em] text-white/55">
                   {column.title}
                 </p>
                 {column.links.map(([label, href]) => (
-                  <Link key={href} href={href} className="w-fit decoration-gold underline-offset-4 hover:underline">
+                  <Link
+                    key={href}
+                    href={href}
+                    className="w-fit decoration-gold underline-offset-4 hover:underline"
+                  >
                     {label}
                   </Link>
                 ))}
@@ -78,10 +85,33 @@ export function Footer() {
         </div>
         <div className="flex flex-wrap justify-between gap-6 pt-7 text-xs text-white/60">
           <span>© {new Date().getFullYear()} TITUN</span>
-          <div className="flex gap-5">
-            {contactDetails.instagramUrl && <a href={contactDetails.instagramUrl}>Instagram</a>}
-            {contactDetails.whatsappHref && <a href={contactDetails.whatsappHref}>WhatsApp</a>}
-            {contactDetails.email && <a href={`mailto:${contactDetails.email}`}>{contactDetails.email}</a>}
+          <div className="flex flex-wrap gap-5">
+            <a
+              href={contactDetails.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagram
+            </a>
+            <a
+              href={contactDetails.tiktokUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              TikTok
+            </a>
+            <a
+              href={contactDetails.whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+            {contactDetails.email && (
+              <a href={`mailto:${contactDetails.email}`}>
+                {contactDetails.email}
+              </a>
+            )}
           </div>
           <span>The Art of Renewal</span>
         </div>
