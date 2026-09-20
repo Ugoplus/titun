@@ -5,7 +5,7 @@ colors:
   ritual-ink: "#181511"
   porcelain: "#f8f6f1"
   pure-white: "#ffffff"
-  walnut: "#4c3025"
+  walnut: "#6b4736"
   restrained-gold: "#b39143"
   soft-linen: "#f3efe8"
   warm-sand: "#eee9df"
