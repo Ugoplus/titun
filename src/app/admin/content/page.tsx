@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
+import { DeliveryContentManager } from "@/components/admin/delivery-content-manager";
 import { HomepageContentManager } from "@/components/admin/homepage-content-manager";
 import { HomepageCopyManager } from "@/components/admin/homepage-copy-manager";
 import { ProductImageManager } from "@/components/admin/product-image-manager";
 import { SiteImageManager } from "@/components/admin/site-image-manager";
 import { SiteSettingsManager } from "@/components/admin/site-settings-manager";
 import { adminCan, getAdminIdentity } from "@/lib/auth";
+import { getDeliveryContent } from "@/lib/delivery-content";
 import { getHomepageCopy, getHomepageHeroSlides, getSiteSettings } from "@/lib/site-content";
 import { getSiteAssetRecords } from "@/lib/site-assets";
 import { getProducts } from "@/lib/catalog";
@@ -18,10 +20,11 @@ export default async function AdminContentPage() {
   if (!adminCan(identity, "site_assets:manage")) redirect("/admin?error=forbidden");
 
   const canManageProducts = adminCan(identity, "products:manage");
-  const [slides, content, siteSettings, assets, products] = await Promise.all([
+  const [slides, content, siteSettings, deliveryContent, assets, products] = await Promise.all([
     getHomepageHeroSlides(),
     getHomepageCopy(),
     getSiteSettings(),
+    getDeliveryContent(),
     getSiteAssetRecords(),
     canManageProducts ? getProducts() : Promise.resolve([]),
   ]);
@@ -49,6 +52,9 @@ export default async function AdminContentPage() {
         <a href="#site-details" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
           Site details
         </a>
+        <a href="#delivery-information" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
+          Delivery information
+        </a>
         {canManageProducts && (
           <a href="#product-images" className="inline-flex min-h-11 items-center border border-ink/30 px-4 text-sm font-semibold hover:border-ink">
             Product images
@@ -62,6 +68,7 @@ export default async function AdminContentPage() {
       <HomepageContentManager initialSlides={slides} />
       <HomepageCopyManager initialContent={content} />
       <SiteSettingsManager initialSettings={siteSettings} />
+      <DeliveryContentManager initialContent={deliveryContent} />
       {canManageProducts && <ProductImageManager initialProducts={products} />}
       <SiteImageManager initialAssets={otherAssets} />
     </main>
