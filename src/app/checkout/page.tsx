@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, LockSimple } from "@phosphor-icons/react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart-provider";
 import { ProductVisual } from "@/components/product-visual";
@@ -13,6 +13,8 @@ import {
 } from "@/components/payment-provider-logos";
 import { formatMoney } from "@/lib/money";
 import type { Product } from "@/lib/db/schema";
+import type { PaymentProvider } from "@/lib/payments";
+import { getAlternativePaymentProvider } from "@/lib/payment-recommendation";
 import {
   getDefaultPurchaseQuantity,
   getLinePricing,
@@ -23,6 +25,12 @@ import {
 export default function CheckoutPage() {
   const { items, addItems, replaceItems } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [recommendedPaymentProvider, setRecommendedPaymentProvider] =
+    useState<PaymentProvider | null>(null);
+  const [selectedPaymentProvider, setSelectedPaymentProvider] =
+    useState<PaymentProvider | null>(null);
+  const [showOtherPaymentMethod, setShowOtherPaymentMethod] = useState(false);
+  const paymentChoiceMade = useRef(false);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [quote, setQuote] = useState<{
     items: Array<{
@@ -58,6 +66,30 @@ export default function CheckoutPage() {
   const subtotal = activeQuote?.subtotal ?? localSubtotal;
   const fieldClass =
     "h-12 w-full border-b border-ink/35 bg-transparent px-0 text-base outline-none transition-colors focus:border-ink";
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/payments/recommendation", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Payment recommendation unavailable");
+        return response.json() as Promise<{ provider?: PaymentProvider }>;
+      })
+      .then(({ provider }) => {
+        const recommendation =
+          provider === "paystack" || provider === "stripe"
+            ? provider
+            : "stripe";
+        setRecommendedPaymentProvider(recommendation);
+        if (!paymentChoiceMade.current)
+          setSelectedPaymentProvider(recommendation);
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setRecommendedPaymentProvider("stripe");
+        if (!paymentChoiceMade.current) setSelectedPaymentProvider("stripe");
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const excluded = items.map((item) => item.product.id).join(",");
@@ -263,43 +295,75 @@ export default function CheckoutPage() {
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
               Payment method
             </legend>
-            <div className="grid max-w-2xl gap-3">
-              <label className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30">
-                <input
-                  required
-                  defaultChecked
-                  type="radio"
-                  name="paymentProvider"
-                  value="stripe"
-                />
-                <span>
-                  <strong className="sr-only">Stripe</strong>
-                  <StripeLogo className="h-7 w-[4.25rem]" />
-                  <span className="mt-1 block text-xs leading-relaxed text-ink/70">
-                    Cards, Apple Pay, Google Pay, Link and other eligible payment methods
-                  </span>
-                  <StripePaymentMethodLogos />
-                </span>
-              </label>
-              <label className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30">
-                <input
-                  required
-                  type="radio"
-                  name="paymentProvider"
-                  value="paystack"
-                />
-                <span>
-                  <strong className="sr-only">Paystack</strong>
-                  <PaystackLogo />
-                  <span className="mt-1 block text-xs leading-relaxed text-ink/70">
-                    Cards, bank transfer and other eligible local payment methods
-                  </span>
-                </span>
-              </label>
-            </div>
-            <p className="mt-3 max-w-2xl text-xs leading-relaxed text-ink/65">
-              Available options are confirmed securely by your selected provider based on your location, currency and device.
-            </p>
+            {!recommendedPaymentProvider || !selectedPaymentProvider ? (
+              <p role="status" className="max-w-2xl border border-ink/20 bg-linen p-4 text-sm">
+                Finding the best payment option for your location…
+              </p>
+            ) : (
+              <div id="payment-method-options" className="grid max-w-2xl gap-3">
+                {[
+                  recommendedPaymentProvider,
+                  ...(showOtherPaymentMethod
+                    ? [getAlternativePaymentProvider(recommendedPaymentProvider)]
+                    : []),
+                ].map((provider) => (
+                  <label
+                    key={provider}
+                    className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30"
+                  >
+                    <input
+                      required
+                      checked={selectedPaymentProvider === provider}
+                      onChange={() => {
+                        paymentChoiceMade.current = true;
+                        setSelectedPaymentProvider(provider);
+                      }}
+                      type="radio"
+                      name="paymentProvider"
+                      value={provider}
+                    />
+                    <span className="min-w-0">
+                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.08em] text-ink/65">
+                        {provider === recommendedPaymentProvider
+                          ? provider === "paystack"
+                            ? "Recommended for Nigeria"
+                            : "Recommended for your location"
+                          : "Another payment option"}
+                      </span>
+                      {provider === "stripe" ? (
+                        <>
+                          <strong className="sr-only">Stripe</strong>
+                          <StripeLogo className="h-7 w-[4.25rem]" />
+                          <span className="mt-1 block text-xs leading-relaxed text-ink/70">
+                            Cards, Apple Pay, Google Pay, Link and other eligible payment methods
+                          </span>
+                          <StripePaymentMethodLogos />
+                        </>
+                      ) : (
+                        <>
+                          <strong className="sr-only">Paystack</strong>
+                          <PaystackLogo />
+                          <span className="mt-1 block text-xs leading-relaxed text-ink/70">
+                            Cards, bank transfer and other eligible local payment methods
+                          </span>
+                        </>
+                      )}
+                    </span>
+                  </label>
+                ))}
+                {!showOtherPaymentMethod && (
+                  <button
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="payment-method-options"
+                    onClick={() => setShowOtherPaymentMethod(true)}
+                    className="min-h-11 justify-self-start border-b border-ink pb-1 text-sm font-semibold"
+                  >
+                    Try another payment method
+                  </button>
+                )}
+              </div>
+            )}
           </fieldset>
           <fieldset>
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
@@ -311,7 +375,7 @@ export default function CheckoutPage() {
             </label>
           </fieldset>
           <button
-            disabled={isLoading || !activeQuote}
+            disabled={isLoading || !activeQuote || !selectedPaymentProvider}
             className="flex min-h-14 items-center justify-center gap-2 bg-ink px-6 font-bold text-cream hover:bg-leaf disabled:opacity-60"
           >
             <LockSimple />{" "}
