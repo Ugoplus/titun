@@ -7,8 +7,8 @@ const config: Config = {
       colors: {
         ink: "#181511",
         cream: "#f8f6f1",
-        leaf: "#6b4736",
-        walnut: "#6b4736",
+        leaf: "#3b241c",
+        walnut: "#3b241c",
         citron: "#d8ff3e",
         clay: "#c77452",
         clayInk: "#8f452f",

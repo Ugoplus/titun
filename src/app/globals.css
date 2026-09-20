@@ -125,7 +125,7 @@ footer :where(a, button, input, textarea, select, [tabindex]):focus-visible {
 }
 
 :where(input, textarea) {
-  caret-color: #6b4736;
+  caret-color: #3b241c;
 }
 
 ::placeholder {
