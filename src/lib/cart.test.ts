@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Product } from "@/lib/db/schema";
-import { createCartQuote, getCartUnitCount, mergeCartItems } from "./cart";
+import {
+  createCartQuote,
+  getCartUnitCount,
+  mergeCartItems,
+  removeCartItem,
+} from "./cart";
 import type { GiftBoxSelection } from "./gift-box";
 
 const product = (overrides: Partial<Product> = {}): Product => ({
@@ -79,6 +84,28 @@ describe("cart merging", () => {
     };
 
     expect(createCartQuote([giftBox], [boxItem]).subtotal).toBe(6_250_000);
+  });
+});
+
+describe("cart removal", () => {
+  it("removes only the selected product or event admission", () => {
+    const towel = product({ id: "11111111-1111-4111-8111-111111111111" });
+    const eventAdmission = product({
+      id: "22222222-2222-4222-8222-222222222222",
+      slug: "demo-event-admission",
+      category: "Community event",
+    });
+    const items = [
+      { product: towel, quantity: 1 },
+      { product: eventAdmission, quantity: 2 },
+    ];
+
+    expect(removeCartItem(items, eventAdmission.id)).toEqual([
+      { product: towel, quantity: 1 },
+    ]);
+    expect(removeCartItem(items, towel.id)).toEqual([
+      { product: eventAdmission, quantity: 2 },
+    ]);
   });
 });
 

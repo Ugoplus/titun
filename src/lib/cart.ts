@@ -42,6 +42,9 @@ const acceptedQuantity = (
 export const getCartUnitCount = (items: Pick<CartItem, "quantity">[]) =>
   items.reduce((total, item) => total + item.quantity, 0);
 
+export const removeCartItem = (items: CartItem[], productId: string) =>
+  items.filter((item) => item.product.id !== productId);
+
 export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
   const replacesGiftBox = incomingItems.some(({ product }) =>
     isDiscoveryGiftBox(product)

@@ -17,6 +17,7 @@ import {
 import {
   getCartUnitCount,
   mergeCartItems,
+  removeCartItem,
   type CartConfiguration,
   type CartItem,
 } from "@/lib/cart";
@@ -138,9 +139,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ),
     [],
   );
-  const removeItem = useCallback((productId: string) => setItems((current) => {
-    return current.filter((item) => item.product.id !== productId);
-  }), []);
+  const removeItem = useCallback(
+    (productId: string) =>
+      setItems((current) => removeCartItem(current, productId)),
+    [],
+  );
   const clear = useCallback(() => setItems([]), []);
   const value = useMemo<CartContextValue>(() => ({
     items,

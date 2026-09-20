@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, LockSimple } from "@phosphor-icons/react";
+import { ArrowLeft, LockSimple, Trash } from "@phosphor-icons/react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart-provider";
@@ -28,7 +28,7 @@ import {
 } from "@/lib/product-pricing";
 
 export default function CheckoutPage() {
-  const { items, addItems, replaceItems } = useCart();
+  const { items, addItems, replaceItems, removeItem } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [recommendedPaymentProvider, setRecommendedPaymentProvider] =
     useState<PaymentProvider | null>(null);
@@ -334,7 +334,7 @@ export default function CheckoutPage() {
                       value={provider}
                     />
                     <span className="min-w-0">
-                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-[.08em] text-ink/65">
+                      <span className="mb-2 block text-xs font-bold uppercase tracking-[.08em] text-ink/65">
                         {provider === recommendedPaymentProvider
                           ? provider === "paystack"
                             ? "Recommended for Nigeria"
@@ -433,15 +433,26 @@ export default function CheckoutPage() {
                   </div>
                 ) : null}
               </div>
-              <p className="text-sm font-bold">
-                {formatMoney(
-                  getConfiguredLinePricing(
-                    item.product,
-                    item.quantity,
-                    item.configuration,
-                  ).total,
-                )}
-              </p>
+              <div className="flex flex-col items-end gap-2">
+                <p className="text-sm font-bold">
+                  {formatMoney(
+                    getConfiguredLinePricing(
+                      item.product,
+                      item.quantity,
+                      item.configuration,
+                    ).total,
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.product.id)}
+                  className="inline-flex min-h-11 items-center gap-1.5 border-b border-ink/40 text-xs font-semibold hover:border-ink"
+                  aria-label={`Remove ${item.product.name} from checkout`}
+                >
+                  <Trash size={15} aria-hidden="true" />
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
