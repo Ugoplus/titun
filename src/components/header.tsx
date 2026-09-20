@@ -97,7 +97,7 @@ export function Header() {
             aria-label="TITUN home"
           >
             <Image
-              src="/brand/titun-logo-black.png"
+              src="/brand/titun-logo-gold.png"
               alt=""
               width={720}
               height={662}
