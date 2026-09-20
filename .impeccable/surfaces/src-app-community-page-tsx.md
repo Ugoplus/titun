@@ -27,7 +27,7 @@ Use only administrator-authored event stories, dates, venues, pricing and suppli
 
 **STORY:** The visitor enters a quiet journal index, scans image-led event stories, opens one story, reads the full account and reaches its attendance section in the same uninterrupted page. Free events register directly; paid events continue through checkout.
 
-**FIRST VIEWPORT:** A breadcrumb and centered TITUN Journal masthead establish the reading mode before a two-column desktop story grid. Each 4:3 image leads into an offset white text sheet containing date, admission, venue, excerpt and both story and attendance actions. Mobile becomes one linear, fully contained column.
+**FIRST VIEWPORT:** A centered TITUN Journal masthead establishes the reading mode before a two-column desktop story grid. Each 4:3 image leads into an offset white text sheet containing date, admission, venue, excerpt and both story and attendance actions. Mobile becomes one linear, fully contained column.
 
 **FORM:** User-pinned editorial journal, code-led. Direction key: `brief-pinned:leluxe-community-2026-09-20`. The signature composition is the image-to-offset-story-sheet handoff; the signature interaction is the event card’s paired reading and attendance path.
 

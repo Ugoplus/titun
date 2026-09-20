@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CaretRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { getUpcomingEvents } from "@/lib/community";
 import { formatMoney } from "@/lib/money";
 
@@ -17,20 +17,7 @@ export default async function CommunityPage() {
   return (
     <main className="min-w-0 overflow-x-clip bg-white">
       <header className="mx-auto max-w-[1440px] px-5 pb-14 pt-10 md:px-8 md:pb-20 md:pt-14 lg:px-12">
-        <nav
-          aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.08em] text-ink/70"
-        >
-          <Link href="/" className="min-h-11 content-center hover:text-ink">
-            Home
-          </Link>
-          <CaretRight size={12} aria-hidden="true" />
-          <span aria-current="page" className="text-ink">
-            Community
-          </span>
-        </nav>
-
-        <div className="mx-auto mt-16 max-w-3xl text-center md:mt-24">
+        <div className="mx-auto mt-10 max-w-3xl text-center md:mt-16">
           <h1 className="font-display text-[clamp(3.25rem,13vw,6rem)] leading-[.88] tracking-[-.035em]">
             The TITUN Journal
           </h1>
