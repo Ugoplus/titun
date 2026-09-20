@@ -7,7 +7,7 @@ import { formatMoney } from "@/lib/money";
 import {
   GIFT_BOX_ITEMS,
   GIFT_BOX_SIZES,
-  GIFT_BOX_WIPE_UPSELL_SIZE,
+  GIFT_BOX_WIPE_ADD_ON_PRICE,
   adjustGiftBoxQuantity,
   getGiftBoxPrice,
   getGiftBoxRemaining,
@@ -27,19 +27,17 @@ import { useCart } from "./cart-provider";
 export function AddToCart({
   product,
   compact = false,
-  wipeAddOns = [],
 }: {
   product: Product;
   compact?: boolean;
-  wipeAddOns?: Product[];
 }) {
   const options = useMemo(() => getPackOptions(product), [product]);
   const [quantity, setQuantity] = useState(getDefaultPurchaseQuantity(product));
   const [giftBoxSize, setGiftBoxSize] = useState<GiftBoxSize>(25);
   const [selectedContents, setSelectedContents] = useState<GiftBoxSelection[]>([]);
-  const [wipeAddOnId, setWipeAddOnId] = useState("");
+  const [includeWipeAddOn, setIncludeWipeAddOn] = useState(false);
   const isGiftBox = isDiscoveryGiftBox(product);
-  const { addItem, addItems } = useCart();
+  const { addItem } = useCart();
   const available = product.stockOnHand - product.stockReserved;
   const selected =
     options.find((option) => option.quantity === quantity) ?? options[0];
@@ -50,12 +48,9 @@ export function AddToCart({
     giftBoxSize,
   );
   const giftBoxComplete = isCompleteGiftBox(selectedContents, giftBoxSize);
-  const selectedWipeAddOn = wipeAddOns.find(({ id }) => id === wipeAddOnId);
-  const wipeAddOnPrice = selectedWipeAddOn
-    ? selectedWipeAddOn.price * GIFT_BOX_WIPE_UPSELL_SIZE
-    : 0;
   const displayedPrice = isGiftBox
-    ? getGiftBoxPrice(giftBoxSize) + wipeAddOnPrice
+    ? getGiftBoxPrice(giftBoxSize) +
+      (includeWipeAddOn ? GIFT_BOX_WIPE_ADD_ON_PRICE : 0)
     : selected.total;
 
   const addToBasket = () => {
@@ -64,25 +59,14 @@ export function AddToCart({
       return;
     }
     if (!giftBoxComplete) return;
-    addItems(
-      [
-        {
-          product,
-          quantity: 1,
-          configuration: {
-            giftBoxSize,
-            giftBoxContents: selectedContents,
-          },
-        },
-        ...(selectedWipeAddOn
-          ? [{
-              product: selectedWipeAddOn,
-              quantity: GIFT_BOX_WIPE_UPSELL_SIZE,
-              configuration: { giftBoxUpsell: true as const },
-            }]
-          : []),
-      ],
-      true,
+    addItem(
+      product,
+      1,
+      {
+        giftBoxSize,
+        giftBoxContents: selectedContents,
+        ...(includeWipeAddOn ? { giftBoxWipeAddOn: true } : {}),
+      },
     );
   };
 
@@ -126,6 +110,33 @@ export function AddToCart({
                 );
               })}
             </div>
+          </fieldset>
+
+          <fieldset>
+            <legend className="mb-2 text-lg font-semibold">Wet-wipe add-on</legend>
+            <label
+              className={`flex min-h-16 cursor-pointer items-center justify-between gap-4 border p-4 transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ink ${
+                includeWipeAddOn
+                  ? "border-ink bg-ink text-white"
+                  : "border-ink/25 bg-white hover:border-gold"
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={includeWipeAddOn}
+                onChange={(event) => setIncludeWipeAddOn(event.target.checked)}
+                className="h-5 w-5 shrink-0 accent-gold"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">Add 25 matching wet wipes</span>
+                <span className={`mt-1 block text-xs leading-relaxed ${includeWipeAddOn ? "text-white/75" : "text-ink/65"}`}>
+                  We’ll match the wipe fragrances to your selected towel scents.
+                </span>
+              </span>
+              <span className="shrink-0 text-sm font-semibold tabular-nums">
+                +{formatMoney(GIFT_BOX_WIPE_ADD_ON_PRICE)}
+              </span>
+            </label>
           </fieldset>
 
           <fieldset>
@@ -206,48 +217,6 @@ export function AddToCart({
             </div>
           </fieldset>
 
-          {wipeAddOns.length > 0 && (
-            <fieldset>
-              <legend className="mb-2 text-lg font-semibold">Add 25 wet wipes</legend>
-              <p className="mb-4 max-w-lg text-xs leading-relaxed text-ink/65">
-                Add one 25-piece wipe batch in a single fragrance for {formatMoney(wipeAddOns[0].price * GIFT_BOX_WIPE_UPSELL_SIZE)}.
-              </p>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <label className={`cursor-pointer border p-3 text-sm font-semibold ${!wipeAddOnId ? "border-ink bg-ink text-white" : "border-ink/25 bg-white"}`}>
-                  <input
-                    type="radio"
-                    name="wipeAddOn"
-                    value=""
-                    checked={!wipeAddOnId}
-                    onChange={() => setWipeAddOnId("")}
-                    className="sr-only"
-                  />
-                  No add-on
-                </label>
-                {wipeAddOns.map((wipe) => {
-                  const inStock = wipe.stockOnHand - wipe.stockReserved >= GIFT_BOX_WIPE_UPSELL_SIZE;
-                  const checked = wipe.id === wipeAddOnId;
-                  return (
-                    <label
-                      key={wipe.id}
-                      className={`cursor-pointer border p-3 text-sm font-semibold ${checked ? "border-ink bg-ink text-white" : "border-ink/25 bg-white"} ${!inStock ? "cursor-not-allowed opacity-40" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="wipeAddOn"
-                        value={wipe.id}
-                        checked={checked}
-                        disabled={!inStock}
-                        onChange={() => setWipeAddOnId(wipe.id)}
-                        className="sr-only"
-                      />
-                      {wipe.name.replace(" Refreshing Wipes", "")}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-          )}
         </div>
       )}
 

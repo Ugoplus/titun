@@ -5,7 +5,7 @@ export const GIFT_BOX_ITEMS = [
   "Lemongrass towel",
   "Sandalwood towel",
 ] as const;
-export const GIFT_BOX_WIPE_UPSELL_SIZE = 25;
+export const GIFT_BOX_WIPE_ADD_ON_PRICE = 1_250_000;
 
 export type GiftBoxSize = (typeof GIFT_BOX_SIZES)[number];
 export type GiftBoxItem = (typeof GIFT_BOX_ITEMS)[number];
@@ -16,7 +16,7 @@ export type GiftBoxSelection = {
 export type GiftBoxCartConfiguration = {
   giftBoxSize?: GiftBoxSize;
   giftBoxContents?: GiftBoxSelection[];
-  giftBoxUpsell?: true;
+  giftBoxWipeAddOn?: true;
 };
 
 const giftBoxPrices: Record<GiftBoxSize, number> = {

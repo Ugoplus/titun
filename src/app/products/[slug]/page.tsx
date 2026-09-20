@@ -128,12 +128,6 @@ export default async function ProductPage({
         .map((productSlug) => products.find((candidate) => candidate.slug === productSlug))
         .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
     : [];
-  const wipeAddOns = isGiftBox
-    ? products.filter(
-        (candidate) =>
-          candidate.category === "Refreshing wet wipes" && candidate.active,
-      )
-    : [];
   const scentStory = scentStoryKey
     ? {
         tagline: homepageCopy[scentStoryKey.tagline],
@@ -191,7 +185,7 @@ export default async function ProductPage({
                 <div><dt className="text-xs text-ink/70">Availability</dt><dd className="mt-1 font-bold">{inStock ? "In stock" : "Sold out"}</dd></div>
               </dl>
               <p className="mb-6 text-xl font-bold tabular-nums">{offerOptions.length > 1 ? "From " : ""}{formatMoney(offerOptions[0].total, product.currency)}</p>
-              <AddToCart product={product} wipeAddOns={wipeAddOns} />
+              <AddToCart product={product} />
             </div>
           </div>
         </>

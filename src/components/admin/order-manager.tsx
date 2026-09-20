@@ -92,9 +92,12 @@ export function OrderManager({
                       </p>
                       <p className="mt-1 text-xs text-ink/60">{item.packSize}</p>
                       {item.configuration.giftBoxContents?.length ? (
-                        <p className="mt-3 text-xs leading-relaxed text-ink/75">
-                          {formatGiftBoxContents(item.configuration.giftBoxContents)}
-                        </p>
+                        <div className="mt-3 text-xs leading-relaxed text-ink/75">
+                          <p>{formatGiftBoxContents(item.configuration.giftBoxContents)}</p>
+                          {item.configuration.giftBoxWipeAddOn ? (
+                            <p className="mt-1 font-semibold">Add 25 wet wipes matching the selected towel scents</p>
+                          ) : null}
+                        </div>
                       ) : null}
                     </div>
                   ))}

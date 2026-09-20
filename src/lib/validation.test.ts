@@ -61,14 +61,18 @@ describe("checkoutSchema payment providers", () => {
     expect(parse([{ item: "Green Tea wet wipes", quantity: 25 }])).toBe(false);
   });
 
-  it("accepts the explicit gift-box wipe upsell marker", () => {
+  it("accepts the matching-wipes add-on inside a complete gift box", () => {
     const result = checkoutSchema.safeParse({
       ...validCheckout,
       paymentProvider: "paystack",
       items: [{
         productId: "11111111-1111-4111-8111-111111111111",
-        quantity: 25,
-        configuration: { giftBoxUpsell: true },
+        quantity: 1,
+        configuration: {
+          giftBoxSize: 25,
+          giftBoxContents: [{ item: "Green Tea towel", quantity: 25 }],
+          giftBoxWipeAddOn: true,
+        },
       }],
     });
 

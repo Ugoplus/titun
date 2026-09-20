@@ -29,12 +29,9 @@ const availableStock = (product: Product) =>
 const acceptedQuantity = (
   product: Product,
   quantity: number,
-  configuration?: CartConfiguration,
 ) => {
   if (!Number.isInteger(quantity) || quantity < 1) return null;
   const available = availableStock(product);
-  if (configuration?.giftBoxUpsell)
-    return quantity === 25 && quantity <= available ? quantity : null;
   if (hasPackOptions(product)) {
     const valid = getPackOptions(product).some((option) => option.quantity === quantity);
     return valid && quantity <= available ? quantity : null;
@@ -50,11 +47,7 @@ export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
     isDiscoveryGiftBox(product)
   );
   const startingItems = replacesGiftBox
-    ? current.filter(
-        (item) =>
-          !isDiscoveryGiftBox(item.product) &&
-          !item.configuration?.giftBoxUpsell,
-      )
+    ? current.filter((item) => !isDiscoveryGiftBox(item.product))
     : current;
   return incomingItems.reduce<CartItem[]>((next, incoming) => {
     if (
@@ -68,11 +61,7 @@ export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
     const requested = hasPackOptions(incoming.product)
       ? incoming.quantity
       : (existing?.quantity ?? 0) + incoming.quantity;
-    const quantity = acceptedQuantity(
-      incoming.product,
-      requested,
-      incoming.configuration,
-    );
+    const quantity = acceptedQuantity(incoming.product, requested);
     if (quantity === null) return next;
     if (!existing) return [...next, { ...incoming, quantity }];
     return next.map((item) =>
@@ -93,14 +82,6 @@ function assertCartRelationships(
   requestedItems: CartRequestItem[],
 ) {
   const byId = new Map(catalog.map((product) => [product.id, product]));
-  const hasGiftBox = requestedItems.some((item) =>
-    isDiscoveryGiftBox(byId.get(item.productId) ?? {})
-  );
-  const upsells = requestedItems.filter(
-    ({ configuration }) => configuration?.giftBoxUpsell,
-  );
-  if (upsells.length > 1)
-    throw new Error("Choose only one 25-piece wet-wipe add-on");
   for (const requested of requestedItems) {
     const product = byId.get(requested.productId);
     if (!product) throw new Error("One or more products are unavailable");
@@ -108,16 +89,9 @@ function assertCartRelationships(
     if (
       !isDiscoveryGiftBox(product) &&
       (requested.configuration?.giftBoxSize ||
-        requested.configuration?.giftBoxContents)
+        requested.configuration?.giftBoxContents ||
+        requested.configuration?.giftBoxWipeAddOn)
     ) throw new Error("Choose a valid Discovery Gift Box configuration");
-    if (requested.configuration?.giftBoxUpsell) {
-      if (!hasGiftBox)
-        throw new Error("The 25-piece wet-wipe add-on requires a Discovery Gift Box");
-      if (
-        product.category !== "Refreshing wet wipes" ||
-        requested.quantity !== 25
-      ) throw new Error("Choose a valid 25-piece wet-wipe add-on");
-    }
   }
 }
 

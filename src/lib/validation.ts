@@ -12,7 +12,7 @@ export const giftBoxContentsSchema = z.array(z.object({
 const giftBoxConfigurationSchema = z.object({
   giftBoxSize: z.union([z.literal(25), z.literal(50), z.literal(100)]).optional(),
   giftBoxContents: giftBoxContentsSchema.optional(),
-  giftBoxUpsell: z.literal(true).optional(),
+  giftBoxWipeAddOn: z.literal(true).optional(),
 }).strict().superRefine((configuration, context) => {
   const hasBoxConfiguration =
     configuration.giftBoxSize !== undefined ||
@@ -33,10 +33,10 @@ const giftBoxConfigurationSchema = z.object({
       });
     }
   }
-  if (configuration.giftBoxUpsell && hasBoxConfiguration) {
+  if (configuration.giftBoxWipeAddOn && !hasBoxConfiguration) {
     context.addIssue({
       code: "custom",
-      message: "Keep the wipe add-on separate from the gift-box selection",
+      message: "The matching-wipes add-on requires a configured gift box",
     });
   }
 });

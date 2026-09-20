@@ -419,15 +419,18 @@ export default function CheckoutPage() {
                 <p className="mt-1 text-xs text-ink/70">
                   {getConfiguredLinePricing(item.product, item.quantity, item.configuration).label}
                 </p>
-                {!hasPackOptions(item.product) && !item.configuration?.giftBoxSize && !item.configuration?.giftBoxUpsell && (
+                {!hasPackOptions(item.product) && !item.configuration?.giftBoxSize && (
                   <p className="mt-1 text-xs font-semibold tabular-nums">
                     Quantity: {item.quantity}
                   </p>
                 )}
                 {item.configuration?.giftBoxContents?.length ? (
-                  <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                    {formatGiftBoxContents(item.configuration.giftBoxContents)}
-                  </p>
+                  <div className="mt-1 text-xs leading-relaxed text-ink/70">
+                    <p>{formatGiftBoxContents(item.configuration.giftBoxContents)}</p>
+                    {item.configuration.giftBoxWipeAddOn ? (
+                      <p className="mt-1 font-semibold">Includes 25 matching wet wipes</p>
+                    ) : null}
+                  </div>
                 ) : null}
               </div>
               <p className="text-sm font-bold">

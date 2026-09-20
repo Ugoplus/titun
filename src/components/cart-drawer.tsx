@@ -80,13 +80,16 @@ export function CartDrawer() {
                       {getConfiguredLinePricing(item.product, item.quantity, item.configuration).label}
                     </p>
                     {item.configuration?.giftBoxContents?.length ? (
-                      <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                        {formatGiftBoxContents(item.configuration.giftBoxContents)}
-                      </p>
+                      <div className="mt-1 text-xs leading-relaxed text-ink/70">
+                        <p>{formatGiftBoxContents(item.configuration.giftBoxContents)}</p>
+                        {item.configuration.giftBoxWipeAddOn ? (
+                          <p className="mt-1 font-semibold">Includes 25 matching wet wipes</p>
+                        ) : null}
+                      </div>
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between">
-                    {!item.configuration?.giftBoxSize && !item.configuration?.giftBoxUpsell ? (
+                    {!item.configuration?.giftBoxSize ? (
                       <div className="flex items-center border border-ink/25">
                       <button
                         aria-label="Reduce quantity"
@@ -128,7 +131,7 @@ export function CartDrawer() {
                         <Plus />
                       </button>
                       </div>
-                    ) : item.configuration.giftBoxSize ? (
+                    ) : (
                       <Link
                         href={`/products/${item.product.slug}`}
                         onClick={() => setIsOpen(false)}
@@ -136,7 +139,7 @@ export function CartDrawer() {
                       >
                         Edit box
                       </Link>
-                    ) : <span className="text-xs text-ink/65">25-piece add-on</span>}
+                    )}
                     <button
                       className="grid h-11 w-11 place-content-center"
                       aria-label={`Remove ${item.product.name}`}

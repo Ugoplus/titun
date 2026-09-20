@@ -44,8 +44,8 @@ type CartContextValue = {
   clear: () => void;
 };
 const CartContext = createContext<CartContextValue | null>(null);
-const CART_STORAGE_KEY = "titun-cart-v4";
-const LEGACY_CART_STORAGE_KEYS = ["titun-cart-v3", "titun-cart-v2", "titun-cart"];
+const CART_STORAGE_KEY = "titun-cart-v5";
+const LEGACY_CART_STORAGE_KEYS = ["titun-cart-v4", "titun-cart-v3", "titun-cart-v2", "titun-cart"];
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -62,7 +62,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             configuration?: {
               giftBoxContents?: unknown;
               giftBoxSize?: unknown;
-              giftBoxUpsell?: unknown;
+              giftBoxWipeAddOn?: unknown;
               giftBoxScents?: string[];
             };
           }
@@ -80,10 +80,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           return {
             ...item,
             configuration: isDiscoveryGiftBox(item.product)
-              ? { giftBoxSize, giftBoxContents }
-              : item.configuration?.giftBoxUpsell === true
-                ? { giftBoxUpsell: true }
-                : undefined,
+              ? {
+                  giftBoxSize,
+                  giftBoxContents,
+                  ...(item.configuration?.giftBoxWipeAddOn === true
+                    ? { giftBoxWipeAddOn: true as const }
+                    : {}),
+                }
+              : undefined,
             quantity:
               hasPackOptions(item.product) &&
               !getPackOptions(item.product).some((option) => option.quantity === item.quantity)
@@ -135,14 +139,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [],
   );
   const removeItem = useCallback((productId: string) => setItems((current) => {
-    const removingGiftBox = current.some(
-      (item) => item.product.id === productId && isDiscoveryGiftBox(item.product),
-    );
-    return current.filter(
-      (item) =>
-        item.product.id !== productId &&
-        !(removingGiftBox && item.configuration?.giftBoxUpsell),
-    );
+    return current.filter((item) => item.product.id !== productId);
   }), []);
   const clear = useCallback(() => setItems([]), []);
   const value = useMemo<CartContextValue>(() => ({

@@ -73,14 +73,6 @@ describe("refreshing wipe pricing", () => {
     expect(() => getLinePricing(wipe, 49)).toThrow("Choose an available pack size");
   });
 
-  it("allows a 25-piece wipe batch only as a gift-box upsell", () => {
-    expect(getConfiguredLinePricing(wipe, 25, { giftBoxUpsell: true })).toMatchObject({
-      total: 1_250_000,
-      unitPrice: 50_000,
-      label: "25 wet wipes · Gift-box add-on",
-    });
-    expect(() => getConfiguredLinePricing(wipe, 25)).toThrow("Choose an available pack size");
-  });
 });
 
 describe("standard product pricing", () => {
@@ -89,6 +81,18 @@ describe("standard product pricing", () => {
       giftBoxSize: 100,
       giftBoxContents: [{ item: "Green Tea towel", quantity: 100 }],
     })).toMatchObject({ total: 18_000_000, unitPrice: 18_000_000 });
+  });
+
+  it("adds a fixed 25-piece matching-wipes add-on to a gift box", () => {
+    expect(getConfiguredLinePricing(giftBox, 1, {
+      giftBoxSize: 25,
+      giftBoxContents: [{ item: "Green Tea towel", quantity: 25 }],
+      giftBoxWipeAddOn: true,
+    })).toMatchObject({
+      total: 6_250_000,
+      unitPrice: 6_250_000,
+      label: "25-piece custom gift box + 25 matching wet wipes",
+    });
   });
 
   it("supports more than one unit without crashing the basket", () => {

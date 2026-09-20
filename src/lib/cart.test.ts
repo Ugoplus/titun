@@ -66,42 +66,19 @@ describe("cart merging", () => {
     }])).toHaveLength(1);
   });
 
-  it("adds one 25-piece wipe upsell only alongside a Discovery Gift Box", () => {
+  it("adds the fixed matching-wipes price to a configured Discovery Gift Box", () => {
     const giftBox = product({ slug: "titun-discovery-gift-box" });
-    const wipe = product({
-      id: "22222222-2222-4222-8222-222222222222",
-      slug: "green-tea-refreshing-wipes",
-      category: "Refreshing wet wipes",
-      price: 50_000,
-      stockOnHand: 100,
-    });
     const boxItem = {
-      product: giftBox,
+      productId: giftBox.id,
       quantity: 1,
       configuration: {
         giftBoxSize: 25 as const,
         giftBoxContents: [{ item: "Green Tea towel" as const, quantity: 25 }],
+        giftBoxWipeAddOn: true as const,
       },
     };
-    const upsell = {
-      product: wipe,
-      quantity: 25,
-      configuration: { giftBoxUpsell: true as const },
-    };
 
-    const boxRequest = {
-      productId: boxItem.product.id,
-      quantity: boxItem.quantity,
-      configuration: boxItem.configuration,
-    };
-    const upsellRequest = {
-      productId: upsell.product.id,
-      quantity: upsell.quantity,
-      configuration: upsell.configuration,
-    };
-
-    expect(() => createCartQuote([wipe], [upsellRequest])).toThrow("Discovery Gift Box");
-    expect(createCartQuote([giftBox, wipe], [boxRequest, upsellRequest]).subtotal).toBe(6_250_000);
+    expect(createCartQuote([giftBox], [boxItem]).subtotal).toBe(6_250_000);
   });
 });
 
