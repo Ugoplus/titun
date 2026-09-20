@@ -15,8 +15,8 @@ export default async function AboutPage() {
   const siteImages = await getSiteAssetMap();
   return (
     <ContentPage
-      title="A quieter way to care."
-      introduction="TITUN creates premium refreshment essentials for the small moments that shape how an experience is remembered."
+      title="Care, thoughtfully given."
+      introduction="TITUN was created from a simple belief: the smallest gestures can leave the most lasting impression."
       headerAlign="center"
     >
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
@@ -24,10 +24,26 @@ export default async function AboutPage() {
           <Image src={siteImages["about.hero"]} alt="TITUN refreshing towel presented during a dining experience" fill className="object-cover" />
         </div>
         <div className="flex flex-col justify-center">
-          <h2 className="font-display text-5xl leading-[.95] tracking-[-.03em]">Renewal is a gesture.</h2>
           <div className="mt-7 grid max-w-xl gap-5 text-base leading-relaxed text-ink/65">
-            <p>We believe care often arrives through details: a welcome offered before it is requested, a pause between one moment and the next, a sense that someone considered how the experience should feel.</p>
-            <p>TITUN brings that thinking to refreshing towels and wipes designed for hospitality, dining, travel, wellness, events and everyday movement.</p>
+            <p>
+              Inspired by the art of hospitality, we create premium refreshing
+              towels and wipes for moments that deserve a little more thought.
+              A welcome at the table, a pause between journeys or simply a
+              moment to reset.
+            </p>
+            <p>
+              Through thoughtful design, considered fragrance and everyday
+              function, TITUN brings comfort, cleanliness and care to the
+              experiences that shape how we feel and what we remember.
+            </p>
+            <p>
+              Because true hospitality is rarely about the grand gesture. It
+              lives in the little things, thoughtfully given and quietly
+              remembered.
+            </p>
+            <p className="font-display text-3xl leading-tight tracking-[-.025em] text-ink">
+              TITUN. A little moment of renewal.
+            </p>
           </div>
           <Link href="/shop" className="mt-8 inline-flex w-fit items-center gap-4 border-b border-ink pb-2 text-sm font-semibold">Shop TITUN <ArrowRight /></Link>
         </div>
