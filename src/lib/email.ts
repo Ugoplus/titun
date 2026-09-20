@@ -51,7 +51,10 @@ const escapeHtml = (value: string) =>
 
 export const sendOrderConfirmation = async (order: Order) => {
   const summary = `Order ${order.reference} · ${formatMoney(order.total, order.currency)}`;
-  const html = `<div style="font-family:Arial,sans-serif;color:#17251e;max-width:560px;margin:auto"><p style="letter-spacing:.08em;text-transform:uppercase">TITUN</p><h1 style="font-family:Georgia,serif;font-weight:400">Your refresh is on its way.</h1><p>Thank you, ${order.customerName}. We’ve received your payment.</p><p><strong>${summary}</strong></p><p>We’ll send another update when your order is ready for delivery.</p></div>`;
+  const delivery = order.deliveryMethod
+    ? `<p><strong>Delivery:</strong> ${escapeHtml(order.deliveryMethod)}${order.deliveryTimeframe ? ` · ${escapeHtml(order.deliveryTimeframe)}` : ""}<br>${formatMoney(order.deliveryFee, order.currency)}</p>`
+    : "";
+  const html = `<div style="font-family:Arial,sans-serif;color:#17251e;max-width:560px;margin:auto"><p style="letter-spacing:.08em;text-transform:uppercase">TITUN</p><h1 style="font-family:Georgia,serif;font-weight:400">Your refresh is on its way.</h1><p>Thank you, ${escapeHtml(order.customerName)}. We’ve received your payment.</p><p><strong>${escapeHtml(summary)}</strong></p>${delivery}<p>We’ll send another update when your order is ready for delivery.</p></div>`;
   await Promise.all([
     sendEmail(order.customerEmail, `TITUN order confirmed · ${order.reference}`, html),
     process.env.ORDER_NOTIFICATION_EMAIL

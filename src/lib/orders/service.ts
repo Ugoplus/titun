@@ -16,6 +16,7 @@ import { sendLowStockAlert, sendOrderConfirmation } from "@/lib/email";
 import type { PaymentProvider } from "@/lib/payments";
 import { getConfiguredLinePricing } from "@/lib/product-pricing";
 import { createCartQuote, type CartConfiguration } from "@/lib/cart";
+import { findDeliveryOption, getDeliveryContent } from "@/lib/delivery-content";
 
 export type CheckoutInput = {
   customer: {
@@ -32,6 +33,8 @@ export type CheckoutInput = {
     configuration?: CartConfiguration;
   }[];
   expectedSubtotal: number;
+  deliveryOptionId: string;
+  expectedDeliveryFee: number;
   discountCode?: string;
   paymentProvider: PaymentProvider;
 };
@@ -40,11 +43,30 @@ const makeReference = () =>
   `TIT-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString("hex").toUpperCase()}`;
 
 export const createPendingOrder = async (input: CheckoutInput) => {
+  const deliveryContent = await getDeliveryContent();
   const db = getDb();
   return db.transaction(async (tx) => {
     const requestedIds = [...new Set(input.items.map((item) => item.productId))];
     const catalog = await tx.select().from(products).where(and(inArray(products.id, requestedIds), eq(products.active, true)));
     if (catalog.length !== requestedIds.length) throw new Error("One or more products are unavailable");
+    const ticketProducts = await tx
+      .select({ productId: events.ticketProductId })
+      .from(events)
+      .where(inArray(events.ticketProductId, requestedIds));
+    const ticketProductIds = new Set(ticketProducts.map(({ productId }) => productId));
+    const requiresDelivery = requestedIds.some((id) => !ticketProductIds.has(id));
+    const deliveryOption = requiresDelivery
+      ? findDeliveryOption(deliveryContent, input.deliveryOptionId)
+      : {
+          id: "event-ticket-email",
+          name: "Event ticket",
+          timeframe: "Confirmation by email",
+          price: 0,
+        };
+    if (!deliveryOption) throw new Error("Choose an available delivery destination");
+    if (deliveryOption.id !== input.deliveryOptionId || deliveryOption.price !== input.expectedDeliveryFee) {
+      throw new Error("The delivery price changed. Review the updated amount and try again.");
+    }
     const quote = createCartQuote(catalog, input.items);
 
     const quantityById = new Map(input.items.map((item) => [item.productId, item.quantity]));
@@ -69,7 +91,7 @@ export const createPendingOrder = async (input: CheckoutInput) => {
       discountCode = discount.code;
     }
 
-    const totals = calculateOrder(pricedItems, appliedDiscount);
+    const totals = calculateOrder(pricedItems, appliedDiscount, deliveryOption.price);
     assertExpectedTotal(totals.subtotal, input.expectedSubtotal);
     const reference = makeReference();
     const [order] = await tx.insert(orders).values({
@@ -79,6 +101,10 @@ export const createPendingOrder = async (input: CheckoutInput) => {
       customerPhone: input.customer.phone,
       deliveryAddress: input.customer.address,
       deliveryCity: input.customer.city,
+      deliveryOptionId: deliveryOption.id,
+      deliveryMethod: deliveryOption.name,
+      deliveryTimeframe: deliveryOption.timeframe,
+      deliveryFee: totals.deliveryFee,
       notes: input.customer.notes,
       subtotal: totals.subtotal,
       discountAmount: totals.discount,

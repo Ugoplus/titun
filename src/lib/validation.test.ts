@@ -9,6 +9,8 @@ const validCheckout = {
   customer: { name: "TITUN Customer", email: "customer@example.com", phone: "+2348000000000", address: "12 Sample Street", city: "Lagos" },
   items: [{ productId: "11111111-1111-4111-8111-111111111111", quantity: 1 }],
   expectedSubtotal: 100_000,
+  deliveryOptionId: "lagos-island",
+  expectedDeliveryFee: 300_000,
 };
 
 describe("checkoutSchema payment providers", () => {
@@ -23,6 +25,19 @@ describe("checkoutSchema payment providers", () => {
   it("requires a positive displayed total", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 100_000 }).success).toBe(true);
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 0 }).success).toBe(false);
+  });
+
+  it("requires a valid delivery option and expected fee", () => {
+    expect(checkoutSchema.safeParse({
+      ...validCheckout,
+      paymentProvider: "paystack",
+      deliveryOptionId: "<script>",
+    }).success).toBe(false);
+    expect(checkoutSchema.safeParse({
+      ...validCheckout,
+      paymentProvider: "paystack",
+      expectedDeliveryFee: -1,
+    }).success).toBe(false);
   });
 
   it("accepts a Discovery Gift Box matching its selected size", () => {

@@ -19,6 +19,7 @@ import {
 } from "@/lib/gift-box";
 import type { CartConfiguration } from "@/lib/cart";
 import type { PaymentProvider } from "@/lib/payments";
+import type { CheckoutDeliveryGroup, DeliveryRegion } from "@/lib/delivery-content";
 import { getAlternativePaymentProvider } from "@/lib/payment-recommendation";
 import {
   getDefaultPurchaseQuantity,
@@ -36,6 +37,7 @@ export default function CheckoutPage() {
     useState<PaymentProvider | null>(null);
   const [showOtherPaymentMethod, setShowOtherPaymentMethod] = useState(false);
   const paymentChoiceMade = useRef(false);
+  const [selectedDeliveryOptionId, setSelectedDeliveryOptionId] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [quote, setQuote] = useState<{
     items: Array<{
@@ -46,6 +48,11 @@ export default function CheckoutPage() {
     subtotal: number;
     cartKey: string;
     version: number;
+    delivery: {
+      required: boolean;
+      groups: CheckoutDeliveryGroup[];
+      disclaimer: string;
+    };
   } | null>(null);
   const [quoteError, setQuoteError] = useState<{
     message: string;
@@ -75,6 +82,20 @@ export default function CheckoutPage() {
     0,
   );
   const subtotal = activeQuote?.subtotal ?? localSubtotal;
+  const selectedDeliveryOption: DeliveryRegion | undefined = activeQuote
+    ? activeQuote.delivery.required
+      ? activeQuote.delivery.groups
+          .flatMap((group) => group.options)
+          .find((option) => option.id === selectedDeliveryOptionId)
+      : {
+          id: "event-ticket-email",
+          name: "Event ticket",
+          timeframe: "Confirmation by email",
+          price: 0,
+        }
+    : undefined;
+  const deliveryFee = selectedDeliveryOption?.price ?? 0;
+  const orderTotal = subtotal + deliveryFee;
   const fieldClass =
     "h-12 w-full border-b border-ink/35 bg-transparent px-0 text-base outline-none transition-colors focus:border-ink";
 
@@ -128,10 +149,19 @@ export default function CheckoutPage() {
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error ?? "Your basket could not be refreshed");
-        return payload as Pick<NonNullable<typeof quote>, "items" | "subtotal">;
+        return payload as Pick<NonNullable<typeof quote>, "items" | "subtotal" | "delivery">;
       })
       .then((nextQuote) => {
         setQuote({ ...nextQuote, cartKey, version: quoteVersion });
+        const availableOptionIds = new Set(
+          nextQuote.delivery.groups.flatMap((group) =>
+            group.options.map((option) => option.id),
+          ),
+        );
+        setSelectedDeliveryOptionId((current) => {
+          if (!nextQuote.delivery.required) return "event-ticket-email";
+          return current && availableOptionIds.has(current) ? current : null;
+        });
         setQuoteError(null);
         replaceItems(nextQuote.items.map((item) => ({
           product: item.product,
@@ -157,7 +187,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!items.length || !activeQuote) return;
+    if (!items.length || !activeQuote || !selectedDeliveryOption) return;
     setIsLoading(true);
     const form = new FormData(event.currentTarget);
     try {
@@ -179,6 +209,8 @@ export default function CheckoutPage() {
             configuration: item.configuration,
           })),
           expectedSubtotal: activeQuote.subtotal,
+          deliveryOptionId: selectedDeliveryOption.id,
+          expectedDeliveryFee: selectedDeliveryOption.price,
           discountCode: form.get("discountCode") || undefined,
           paymentProvider: form.get("paymentProvider"),
         }),
@@ -303,6 +335,57 @@ export default function CheckoutPage() {
             </label>
           </fieldset>
           <fieldset>
+            <legend className="mb-5 font-display text-3xl tracking-[-.025em]">
+              Choose your delivery
+            </legend>
+            {!activeQuote ? (
+              <p role="status" className="max-w-2xl border border-ink/20 bg-linen p-4 text-sm">
+                Loading delivery destinations…
+              </p>
+            ) : !activeQuote.delivery.required ? (
+              <p className="max-w-2xl border-y border-ink/20 py-4 text-sm">
+                No delivery charge is needed for event tickets. Your confirmation will be sent by email.
+              </p>
+            ) : (
+              <div className="grid max-w-2xl gap-8">
+                {activeQuote.delivery.groups.map((group) => (
+                  <div key={group.heading}>
+                    <h2 className="text-sm font-bold">{group.heading}</h2>
+                    <div className="mt-3 border-t border-ink/25">
+                      {group.options.map((option) => (
+                        <label
+                          key={option.id}
+                          className="grid min-h-16 cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-ink/20 py-3 has-[:checked]:bg-gold/15"
+                        >
+                          <input
+                            required
+                            type="radio"
+                            name="deliveryOption"
+                            value={option.id}
+                            checked={selectedDeliveryOptionId === option.id}
+                            onChange={() => setSelectedDeliveryOptionId(option.id)}
+                            className="ml-2 accent-gold"
+                          />
+                          <span className="min-w-0">
+                            <strong className="block text-sm">{option.name}</strong>
+                            <span className="mt-1 block text-xs text-ink/70">{option.timeframe}</span>
+                          </span>
+                          <strong className="pr-2 text-sm tabular-nums">{formatMoney(option.price)}</strong>
+                        </label>
+                      ))}
+                    </div>
+                    {group.note ? (
+                      <p className="mt-3 max-w-[65ch] text-xs leading-relaxed text-ink/70">{group.note}</p>
+                    ) : null}
+                  </div>
+                ))}
+                <p className="max-w-[65ch] text-xs leading-relaxed text-ink/70">
+                  {activeQuote.delivery.disclaimer}
+                </p>
+              </div>
+            )}
+          </fieldset>
+          <fieldset>
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
               Payment method
             </legend>
@@ -320,7 +403,7 @@ export default function CheckoutPage() {
                 ].map((provider) => (
                   <label
                     key={provider}
-                    className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-ink has-[:checked]:bg-citron/30"
+                    className="flex min-h-20 cursor-pointer items-center gap-4 border border-ink/25 p-4 has-[:checked]:border-2 has-[:checked]:border-walnut has-[:checked]:bg-gold/15"
                   >
                     <input
                       required
@@ -332,6 +415,7 @@ export default function CheckoutPage() {
                       type="radio"
                       name="paymentProvider"
                       value={provider}
+                      className="accent-gold"
                     />
                     <span className="min-w-0">
                       <span className="mb-2 block text-xs font-bold uppercase tracking-[.08em] text-ink/65">
@@ -386,13 +470,15 @@ export default function CheckoutPage() {
             </label>
           </fieldset>
           <button
-            disabled={isLoading || !activeQuote || !selectedPaymentProvider}
+            disabled={isLoading || !activeQuote || !selectedPaymentProvider || !selectedDeliveryOption}
             className="flex min-h-14 items-center justify-center gap-2 bg-ink px-6 font-bold text-cream hover:bg-leaf disabled:opacity-60"
           >
             <LockSimple />{" "}
             {isLoading
               ? "Opening secure payment…"
-              : `Pay ${formatMoney(subtotal)}`}
+              : selectedDeliveryOption
+                ? `Pay ${formatMoney(orderTotal)}`
+                : "Choose delivery to continue"}
           </button>
           <p className="text-xs leading-relaxed text-ink/70">
             Payment details are entered directly on your selected provider’s
@@ -400,7 +486,7 @@ export default function CheckoutPage() {
           </p>
         </form>
       </section>
-      <aside className="bg-sand p-5 md:p-8">
+      <aside className="self-start bg-sand p-5 md:p-8 lg:sticky lg:top-8">
         <h2 className="font-display text-3xl">Order summary</h2>
         <div className="mt-6 grid gap-5">
           {displayItems.map((item, index) => (
@@ -463,11 +549,17 @@ export default function CheckoutPage() {
           </div>
           <div className="flex justify-between text-ink/70">
             <span>Delivery</span>
-            <span>Calculated after order</span>
+            <span>
+              {activeQuote && !activeQuote.delivery.required
+                ? "No charge"
+                : selectedDeliveryOption
+                  ? formatMoney(deliveryFee)
+                  : "Choose a destination"}
+            </span>
           </div>
           <div className="mt-2 flex justify-between border-t border-ink/20 pt-5 text-lg">
             <strong>Total</strong>
-            <strong>{formatMoney(subtotal)}</strong>
+            <strong>{formatMoney(orderTotal)}</strong>
           </div>
         </div>
         {recommendations.length > 0 && (

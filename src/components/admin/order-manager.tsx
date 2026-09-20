@@ -65,7 +65,7 @@ export function OrderManager({
         {visible.map((order) => (
           <article key={order.id} className="border border-ink/20 bg-white p-5">
             <div className="grid gap-5 lg:grid-cols-[1fr_1fr_auto]">
-              <div><p className="text-xs font-bold uppercase tracking-[.06em] text-ink/60">{order.reference}</p><h2 className="mt-2 font-display text-3xl">{order.customerName}</h2><p className="mt-2 text-sm text-ink/70">{order.customerEmail} · {order.customerPhone}</p><p className="mt-1 text-sm text-ink/70">{order.deliveryAddress}, {order.deliveryCity}</p></div>
+              <div><p className="text-xs font-bold uppercase tracking-[.06em] text-ink/60">{order.reference}</p><h2 className="mt-2 font-display text-3xl">{order.customerName}</h2><p className="mt-2 text-sm text-ink/70">{order.customerEmail} · {order.customerPhone}</p><p className="mt-1 text-sm text-ink/70">{order.deliveryAddress}, {order.deliveryCity}</p>{order.deliveryMethod ? <p className="mt-2 text-xs font-semibold text-ink/70">{order.deliveryMethod}{order.deliveryTimeframe ? ` · ${order.deliveryTimeframe}` : ""}</p> : null}</div>
               <dl className="grid grid-cols-2 gap-x-5 gap-y-3 text-xs">
                 <div><dt className="text-ink/55">Placed</dt><dd className="mt-1 font-semibold">{formatDate(order.createdAt)}</dd></div>
                 <div><dt className="text-ink/55">Paid</dt><dd className="mt-1 font-semibold">{formatDate(order.paidAt)}</dd></div>
@@ -77,7 +77,7 @@ export function OrderManager({
                 {order.cancelledAt ? <div><dt className="text-ink/55">Cancelled</dt><dd className="mt-1 font-semibold">{formatDate(order.cancelledAt)}</dd></div> : null}
                 {order.refundedAt ? <div><dt className="text-ink/55">Refunded</dt><dd className="mt-1 font-semibold">{formatDate(order.refundedAt)}</dd></div> : null}
               </dl>
-              <div className="lg:text-right"><span className="inline-flex border border-ink/20 px-3 py-2 text-xs font-bold capitalize">{order.status}</span>{canViewFinancials && order.total !== undefined ? <p className="mt-3 font-display text-3xl tabular-nums">{formatMoney(order.total, order.currency)}</p> : null}</div>
+              <div className="lg:text-right"><span className="inline-flex border border-ink/20 px-3 py-2 text-xs font-bold capitalize">{order.status}</span>{canViewFinancials && order.total !== undefined ? <><p className="mt-3 font-display text-3xl tabular-nums">{formatMoney(order.total, order.currency)}</p>{order.deliveryFee !== undefined ? <p className="mt-1 text-xs text-ink/60">Includes {formatMoney(order.deliveryFee, order.currency)} delivery</p> : null}</> : null}</div>
             </div>
             {order.items.length > 0 && (
               <section className="mt-5 border-t border-ink/15 pt-5">

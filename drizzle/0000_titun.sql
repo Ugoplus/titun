@@ -77,6 +77,10 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancelled_at timestamptz;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS refunded_at timestamptz;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS courier text;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_number text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_option_id text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_method text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_timeframe text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee integer NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS "order_items" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),

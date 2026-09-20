@@ -35,7 +35,12 @@ function RegionEditor({
     }
     onChange([
       ...regions,
-      { id: crypto.randomUUID(), name: "New destination", timeframe: "Add timeframe" },
+      {
+        id: crypto.randomUUID(),
+        name: "New destination",
+        timeframe: "Add timeframe",
+        price: 100_000,
+      },
     ]);
   };
 
@@ -43,7 +48,7 @@ function RegionEditor({
     <div>
       <div className="border-t border-ink/20">
         {regions.map((region, index) => (
-          <div key={region.id} className="grid gap-3 border-b border-ink/20 py-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem] sm:items-end">
+          <div key={region.id} className="grid gap-3 border-b border-ink/20 py-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(9rem,.55fr)_3rem] lg:items-end">
             <label className="grid gap-2 text-sm font-semibold">
               Destination
               <input
@@ -59,6 +64,19 @@ function RegionEditor({
                 value={region.timeframe}
                 maxLength={80}
                 onChange={(event) => updateRegion(index, { timeframe: event.target.value })}
+                className="min-h-12 border border-ink/30 bg-white px-4 font-normal tabular-nums focus:border-ink"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold">
+              Price (NGN)
+              <input
+                type="number"
+                min={1}
+                step={100}
+                value={region.price / 100}
+                onChange={(event) => updateRegion(index, {
+                  price: Math.max(0, Math.round(Number(event.target.value) * 100)),
+                })}
                 className="min-h-12 border border-ink/30 bg-white px-4 font-normal tabular-nums focus:border-ink"
               />
             </label>
@@ -129,38 +147,11 @@ export function DeliveryContentManager({ initialContent }: { initialContent: Del
       <div className="border-b border-ink/20 pb-7">
         <h2 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Delivery information</h2>
         <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-ink/70">
-          Update delivery destinations, timeframes, courier information and the note shown on the Shipping page.
+          Update the destinations, prices and timeframes customers choose during checkout.
         </p>
-      </div>
-
-      <div className="grid gap-5 border-b border-ink/20 py-8 lg:grid-cols-[minmax(13rem,.55fr)_minmax(24rem,1.45fr)] lg:gap-12">
-        <div>
-          <h3 className="font-display text-3xl">Page introduction</h3>
-          <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink/65">
-            Keep this short so visitors reach the delivery estimates quickly.
-          </p>
-        </div>
-        <div className="grid gap-5">
-          <label className="grid gap-2 text-sm font-semibold">
-            Page heading
-            <input
-              value={content.pageTitle}
-              maxLength={90}
-              onChange={(event) => updateText("pageTitle", event.target.value)}
-              className="min-h-12 border border-ink/30 bg-white px-4 font-normal focus:border-ink"
-            />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold">
-            Introduction
-            <textarea
-              value={content.introduction}
-              maxLength={500}
-              rows={3}
-              onChange={(event) => updateText("introduction", event.target.value)}
-              className="resize-y border border-ink/30 bg-white px-4 py-3 font-normal leading-relaxed focus:border-ink"
-            />
-          </label>
-        </div>
+        <p className="mt-4 max-w-[68ch] border-y border-walnut/35 py-3 text-sm font-semibold leading-relaxed text-walnut">
+          These placeholder prices are live checkout charges. Replace them with your confirmed delivery fees before accepting orders.
+        </p>
       </div>
 
       <div className="grid gap-5 border-b border-ink/20 py-8 lg:grid-cols-[minmax(13rem,.55fr)_minmax(24rem,1.45fr)] lg:gap-12">

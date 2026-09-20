@@ -9,42 +9,87 @@ export const deliveryRegionSchema = z.object({
   id: z.string().min(1).max(80).regex(/^[a-zA-Z0-9_-]+$/, "The destination identifier is invalid"),
   name: z.string().trim().min(1, "Add a destination").max(80, "Keep destination names under 80 characters"),
   timeframe: z.string().trim().min(1, "Add a delivery timeframe").max(80, "Keep timeframes under 80 characters"),
+  price: z.int().min(100, "Add a delivery price of at least ₦1"),
 });
 
 const heading = z.string().trim().min(1, "Add a heading").max(90, "Keep headings under 90 characters");
 const paragraph = z.string().trim().min(1, "Add the supporting text").max(500, "Keep supporting text under 500 characters");
 
 export const deliveryContentSchema = z.object({
-  pageTitle: heading,
-  introduction: paragraph,
   nigeriaHeading: heading,
   nigeriaRegions: z.array(deliveryRegionSchema).min(1, "Add at least one Nigerian destination").max(12),
   nigeriaCourierNote: paragraph,
   internationalHeading: heading,
   internationalRegions: z.array(deliveryRegionSchema).min(1, "Add at least one international destination").max(12),
   disclaimer: paragraph,
+}).superRefine((content, context) => {
+  const ids = [...content.nigeriaRegions, ...content.internationalRegions]
+    .map((region) => region.id);
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({
+      code: "custom",
+      message: "Every delivery destination must have a unique identifier",
+    });
+  }
 });
 
 export type DeliveryRegion = z.infer<typeof deliveryRegionSchema>;
 export type DeliveryContent = z.infer<typeof deliveryContentSchema>;
 
 export const defaultDeliveryContent: DeliveryContent = {
-  pageTitle: "Delivery",
-  introduction: "Clear delivery estimates for Nigeria, the UK and destinations worldwide.",
   nigeriaHeading: "Nigeria",
   nigeriaRegions: [
-    { id: "lagos-island", name: "Lagos Island", timeframe: "2–3 working days" },
-    { id: "lagos-mainland", name: "Lagos Mainland", timeframe: "2–3 working days" },
-    { id: "other-nigerian-states", name: "Other States in Nigeria", timeframe: "5–10 working days" },
+    { id: "lagos-island", name: "Lagos Island", timeframe: "2–3 working days", price: 300_000 },
+    { id: "lagos-mainland", name: "Lagos Mainland", timeframe: "2–3 working days", price: 300_000 },
+    { id: "other-nigerian-states", name: "Other States in Nigeria", timeframe: "5–10 working days", price: 700_000 },
   ],
   nigeriaCourierNote: "For deliveries outside Lagos, TITUN currently uses GIG Logistics as its dispatch courier.",
   internationalHeading: "UK and international",
   internationalRegions: [
-    { id: "england", name: "England", timeframe: "5–10 working days" },
-    { id: "rest-of-world", name: "Rest of the World", timeframe: "10–20 working days" },
+    { id: "england", name: "England", timeframe: "5–10 working days", price: 2_500_000 },
+    { id: "rest-of-world", name: "Rest of the World", timeframe: "10–20 working days", price: 4_000_000 },
   ],
   disclaimer: "Delivery times are estimated from the date your order is dispatched and may vary slightly depending on the destination, courier operations and circumstances outside of TITUN’s control.",
 };
+
+export type CheckoutDeliveryGroup = {
+  heading: string;
+  options: DeliveryRegion[];
+  note?: string;
+};
+
+export function getCheckoutDeliveryGroups(content: DeliveryContent): CheckoutDeliveryGroup[] {
+  return [
+    {
+      heading: content.nigeriaHeading,
+      options: content.nigeriaRegions,
+      note: content.nigeriaCourierNote,
+    },
+    {
+      heading: content.internationalHeading,
+      options: content.internationalRegions,
+    },
+  ];
+}
+
+export function findDeliveryOption(content: DeliveryContent, id: string) {
+  return [...content.nigeriaRegions, ...content.internationalRegions]
+    .find((region) => region.id === id);
+}
+
+function addMissingPrices(
+  regions: unknown,
+  defaults: DeliveryRegion[],
+): unknown {
+  if (!Array.isArray(regions)) return regions;
+  return regions.map((region) => {
+    if (!region || typeof region !== "object") return region;
+    const candidate = region as Partial<DeliveryRegion>;
+    if (typeof candidate.price === "number") return candidate;
+    const fallback = defaults.find(({ id }) => id === candidate.id)?.price ?? 100_000;
+    return { ...candidate, price: fallback };
+  });
+}
 
 export async function getDeliveryContent(): Promise<DeliveryContent> {
   if (!isDatabaseConfigured()) return defaultDeliveryContent;
@@ -57,6 +102,18 @@ export async function getDeliveryContent(): Promise<DeliveryContent> {
   const stored = record.content && typeof record.content === "object"
     ? record.content as Partial<DeliveryContent>
     : {};
-  const parsed = deliveryContentSchema.safeParse({ ...defaultDeliveryContent, ...stored });
+  const normalized = {
+    ...defaultDeliveryContent,
+    ...stored,
+    nigeriaRegions: addMissingPrices(
+      stored.nigeriaRegions ?? defaultDeliveryContent.nigeriaRegions,
+      defaultDeliveryContent.nigeriaRegions,
+    ),
+    internationalRegions: addMissingPrices(
+      stored.internationalRegions ?? defaultDeliveryContent.internationalRegions,
+      defaultDeliveryContent.internationalRegions,
+    ),
+  };
+  const parsed = deliveryContentSchema.safeParse(normalized);
   return parsed.success ? parsed.data : defaultDeliveryContent;
 }

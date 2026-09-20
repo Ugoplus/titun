@@ -25,7 +25,6 @@ const columns = [
     title: "Help",
     links: [
       ["FAQ", "/faqs"],
-      ["Shipping", "/shipping"],
       ["Returns", "/returns"],
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],

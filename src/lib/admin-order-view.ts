@@ -9,6 +9,7 @@ export type AdminOrderView = Omit<
   Order,
   | "subtotal"
   | "discountAmount"
+  | "deliveryFee"
   | "total"
   | "currency"
   | "discountCode"
@@ -17,6 +18,7 @@ export type AdminOrderView = Omit<
 > & {
   subtotal?: number;
   discountAmount?: number;
+  deliveryFee?: number;
   total?: number;
   currency?: string;
   discountCode?: string | null;
@@ -47,6 +49,9 @@ export function toAdminOrderView(
     customerPhone: order.customerPhone,
     deliveryAddress: order.deliveryAddress,
     deliveryCity: order.deliveryCity,
+    deliveryOptionId: order.deliveryOptionId,
+    deliveryMethod: order.deliveryMethod,
+    deliveryTimeframe: order.deliveryTimeframe,
     notes: order.notes,
     reservationExpiresAt: order.reservationExpiresAt,
     paidAt: order.paidAt,

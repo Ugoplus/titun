@@ -62,6 +62,8 @@ export const checkoutSchema = z.object({
   }),
   items: z.array(cartItemSchema).min(1).max(20),
   expectedSubtotal: z.int().positive(),
+  deliveryOptionId: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/),
+  expectedDeliveryFee: z.int().min(0),
   discountCode: z.string().trim().max(40).optional(),
   paymentProvider: z.enum(["paystack", "stripe"]),
 });

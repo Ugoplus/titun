@@ -11,7 +11,7 @@ describe("calculateOrder", () => {
       { type: "percentage", value: 10 },
     );
 
-    expect(result).toEqual({ subtotal: 9000, discount: 900, total: 8100 });
+    expect(result).toEqual({ subtotal: 9000, discount: 900, deliveryFee: 0, total: 8100 });
   });
 
   it("never lets a fixed discount make the total negative", () => {
@@ -21,6 +21,31 @@ describe("calculateOrder", () => {
         { type: "fixed", value: 5000 },
       ).total,
     ).toBe(0);
+  });
+
+  it("adds delivery after applying the product discount", () => {
+    expect(
+      calculateOrder(
+        [{ productId: "a", unitPrice: 10_000, quantity: 1 }],
+        { type: "percentage", value: 10 },
+        2_500,
+      ),
+    ).toEqual({
+      subtotal: 10_000,
+      discount: 1_000,
+      deliveryFee: 2_500,
+      total: 11_500,
+    });
+  });
+
+  it("rejects invalid delivery fees", () => {
+    expect(() =>
+      calculateOrder(
+        [{ productId: "a", unitPrice: 1000, quantity: 1 }],
+        null,
+        -1,
+      ),
+    ).toThrow("Delivery fee");
   });
 
   it("rejects invalid quantities", () => {

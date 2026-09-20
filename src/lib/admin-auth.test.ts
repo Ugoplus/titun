@@ -46,6 +46,10 @@ describe("order financial redaction", () => {
       customerPhone: "+2348000000000",
       deliveryAddress: "12 Sample Street",
       deliveryCity: "Lagos",
+      deliveryOptionId: "lagos-island",
+      deliveryMethod: "Lagos Island",
+      deliveryTimeframe: "2–3 working days",
+      deliveryFee: 3_000,
       notes: null,
       subtotal: 100_000,
       discountAmount: 10_000,
@@ -71,6 +75,7 @@ describe("order financial redaction", () => {
     expect(redacted).not.toHaveProperty("total");
     expect(redacted).not.toHaveProperty("paymentProvider");
     expect(redacted).not.toHaveProperty("paymentReference");
+    expect(redacted).not.toHaveProperty("deliveryFee");
     expect(redacted).toMatchObject({ reference: "TITUN-1", status: "paid" });
   });
 });

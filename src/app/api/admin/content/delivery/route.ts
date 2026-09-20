@@ -20,7 +20,7 @@ export async function PUT(request: Request) {
     const content = deliveryContentSchema.parse(input.content);
     await getDb()
       .insert(siteContent)
-      .values({ key: deliveryContentKey, label: "Delivery page", content })
+      .values({ key: deliveryContentKey, label: "Checkout delivery options", content })
       .onConflictDoUpdate({
         target: siteContent.key,
         set: { content, updatedAt: new Date() },
@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
       });
     }
 
-    revalidatePath("/shipping");
+    revalidatePath("/checkout");
     return NextResponse.json({ content });
   } catch (error) {
     if (!(error instanceof ZodError)) {
