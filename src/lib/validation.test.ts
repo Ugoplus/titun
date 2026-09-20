@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { checkoutSchema, eventSchema } from "./validation";
+import {
+  checkoutSchema,
+  eventSchema,
+  freeEventRegistrationSchema,
+} from "./validation";
 
 const validCheckout = {
   customer: { name: "TITUN Customer", email: "customer@example.com", phone: "+2348000000000", address: "12 Sample Street", city: "Lagos" },
@@ -85,6 +89,7 @@ describe("eventSchema", () => {
     title: "The Renewal Table",
     slug: "the-renewal-table",
     description: "A considered afternoon of conversation, dining and everyday renewal.",
+    story: "A longer editorial account of the gathering, the intention behind it and what guests can expect when they arrive.\n\nThe afternoon makes room for conversation, food and an unhurried ritual of renewal.",
     venue: "Lagos",
     startsAt: "2026-10-24T13:00:00+01:00",
     ticketPrice: 3500000,
@@ -100,5 +105,34 @@ describe("eventSchema", () => {
 
   it("rejects an invalid event capacity", () => {
     expect(eventSchema.safeParse({ ...validEvent, capacity: 0 }).success).toBe(false);
+  });
+
+  it("supports both free and paid events", () => {
+    expect(eventSchema.safeParse({ ...validEvent, ticketPrice: 0 }).success).toBe(true);
+    expect(eventSchema.safeParse({ ...validEvent, ticketPrice: 3_500_000 }).success).toBe(true);
+  });
+
+  it("requires a substantial event story", () => {
+    expect(eventSchema.safeParse({ ...validEvent, story: "Too short." }).success).toBe(false);
+  });
+});
+
+describe("freeEventRegistrationSchema", () => {
+  it("accepts a complete free-event registration", () => {
+    expect(freeEventRegistrationSchema.safeParse({
+      name: "TITUN Guest",
+      email: "guest@example.com",
+      phone: "+2348000000000",
+      quantity: 2,
+    }).success).toBe(true);
+  });
+
+  it("rejects excessive quantities and invalid contact details", () => {
+    expect(freeEventRegistrationSchema.safeParse({
+      name: "T",
+      email: "not-an-email",
+      phone: "12",
+      quantity: 21,
+    }).success).toBe(false);
   });
 });

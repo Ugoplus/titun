@@ -85,6 +85,7 @@ export const eventSchema = z.object({
   title: z.string().trim().min(2).max(140),
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   description: z.string().trim().min(20).max(2400),
+  story: z.string().trim().min(80).max(12000),
   venue: z.string().trim().min(2).max(240),
   startsAt: z.string().datetime({ offset: true }),
   image: z.string().trim().optional().default(""),
@@ -93,6 +94,13 @@ export const eventSchema = z.object({
   lowStockThreshold: z.int().min(0),
   recommendedProductIds: z.array(z.uuid()).max(8).default([]),
   published: z.boolean().default(false),
+});
+
+export const freeEventRegistrationSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  email: z.email().max(254).transform((value) => value.trim().toLowerCase()),
+  phone: z.string().trim().min(7).max(30),
+  quantity: z.int().min(1).max(20),
 });
 
 export const newsletterSchema = z.object({

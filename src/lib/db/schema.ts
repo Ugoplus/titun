@@ -184,6 +184,7 @@ export const events = pgTable(
     slug: text("slug").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    story: text("story").notNull().default(""),
     venue: text("venue").notNull(),
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     image: text("image"),
@@ -243,6 +244,10 @@ export const eventAttendees = pgTable(
     uniqueIndex("event_attendees_order_event_unique").on(
       table.orderId,
       table.eventId,
+    ),
+    uniqueIndex("event_attendees_event_member_unique").on(
+      table.eventId,
+      table.memberId,
     ),
   ],
 );

@@ -5,6 +5,7 @@ import { CalendarBlank, MapPin } from "@phosphor-icons/react/dist/ssr";
 import { EventBookingPanel } from "@/components/event-booking-panel";
 import { StructuredData } from "@/components/structured-data";
 import { getCommunityEventBySlug } from "@/lib/community";
+import { formatMoney } from "@/lib/money";
 import { absoluteUrl } from "@/lib/site";
 
 export async function generateMetadata({
@@ -38,8 +39,16 @@ export default async function CommunityEventPage({
   const event = await getCommunityEventBySlug(slug);
   if (!event) notFound();
 
+  const available =
+    event.ticketProduct.stockOnHand - event.ticketProduct.stockReserved;
+  const storyParagraphs = (event.story || event.description)
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+  const isFree = event.ticketProduct.price === 0;
+
   return (
-    <div className="mx-auto max-w-[1440px] px-5 py-10 md:px-8 md:py-16">
+    <article>
       <StructuredData
         data={{
           "@context": "https://schema.org",
@@ -56,68 +65,92 @@ export default async function CommunityEventPage({
             name: "TITUN",
             url: absoluteUrl("/"),
           },
+          isAccessibleForFree: isFree,
           offers: {
             "@type": "Offer",
             url: absoluteUrl(`/community/events/${event.slug}`),
             priceCurrency: event.ticketProduct.currency,
             price: (event.ticketProduct.price / 100).toFixed(2),
             availability:
-              event.ticketProduct.stockOnHand - event.ticketProduct.stockReserved > 0
+              available > 0
                 ? "https://schema.org/InStock"
                 : "https://schema.org/SoldOut",
           },
         }}
       />
-      <div className="grid gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-14">
-        <div>
-          <div className="relative aspect-[4/3] overflow-hidden bg-oat">
-            {event.image && (
-              <Image
-                src={event.image}
-                alt={`${event.title} event setting`}
-                fill
-                priority
-                className="object-cover"
-              />
-            )}
+
+      <header className="mx-auto max-w-[1200px] px-5 pb-10 pt-12 md:px-8 md:pb-14 md:pt-20">
+        <div className="grid gap-8 lg:grid-cols-[1fr_.45fr] lg:items-end">
+          <div>
+            <h1 className="max-w-4xl font-display text-[clamp(3.75rem,8vw,7.5rem)] leading-[.84] tracking-[-.04em]">
+              {event.title}
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-ink/70">
+              {event.description}
+            </p>
           </div>
-          <div className="mt-7 flex flex-wrap gap-x-7 gap-y-3 border-b border-ink/20 pb-7 text-sm font-bold">
-            <span className="flex items-center gap-2">
-              <CalendarBlank />
-              {event.startsAt.toLocaleDateString("en-NG", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}{" "}
-              ·{" "}
-              {event.startsAt.toLocaleTimeString("en-NG", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </span>
-            <span className="flex items-center gap-2">
-              <MapPin />
-              {event.venue}
-            </span>
+          <div className="grid gap-4 border-t border-ink/20 pt-5 text-sm font-semibold lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <p className="flex items-start gap-3">
+              <CalendarBlank className="mt-0.5 shrink-0" aria-hidden="true" />
+              <span>
+                {event.startsAt.toLocaleDateString("en-NG", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+                <br />
+                {event.startsAt.toLocaleTimeString("en-NG", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </span>
+            </p>
+            <p className="flex items-start gap-3">
+              <MapPin className="mt-0.5 shrink-0" aria-hidden="true" />
+              <span>{event.venue}</span>
+            </p>
+            <p className="font-bold text-clayInk">
+              {isFree ? "Free event" : `${formatMoney(event.ticketProduct.price)} per guest`}
+            </p>
           </div>
-          <p className="mt-7 max-w-2xl text-base leading-relaxed text-ink/70">
-            {event.description}
-          </p>
         </div>
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-clayInk">
-            TITUN community experience
-          </p>
-          <h1 className="mb-8 mt-3 font-display text-[clamp(4rem,7vw,7rem)] leading-[.84] tracking-[-.04em]">
-            {event.title}
-          </h1>
+      </header>
+
+      <div className="relative mx-auto aspect-[16/9] w-full max-w-[1440px] overflow-hidden bg-oat md:aspect-[16/7]">
+        {event.image && (
+          <Image
+            src={event.image}
+            alt={`${event.title} event setting`}
+            fill
+            priority
+            sizes="(max-width: 1440px) 100vw, 1440px"
+            className="object-cover"
+          />
+        )}
+      </div>
+
+      <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-14 md:px-8 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(360px,.62fr)] lg:gap-16">
+        <section aria-labelledby="event-story-title" className="max-w-[72ch]">
+          <h2 id="event-story-title" className="font-display text-5xl tracking-[-.03em] md:text-6xl">
+            The story
+          </h2>
+          <div className="mt-7 grid gap-6 text-base leading-[1.75] text-ink/75 md:text-lg">
+            {storyParagraphs.map((paragraph, index) => (
+              <p key={`${event.id}-story-${index}`}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
+
+        <aside id="attend" className="scroll-mt-28 lg:sticky lg:top-28 lg:self-start">
           <EventBookingPanel
+            eventId={event.id}
+            eventTitle={event.title}
             ticket={event.ticketProduct}
             recommendations={event.recommendedProducts}
           />
-        </div>
+        </aside>
       </div>
-    </div>
+    </article>
   );
 }

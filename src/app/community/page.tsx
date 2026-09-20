@@ -56,14 +56,14 @@ export default async function CommunityPage() {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-ink/70">
-            A paid booking reserves your place and welcomes you into the
-            continuing TITUN community.
+            Read the story behind each gathering, then reserve a free place or
+            purchase admission without leaving the event experience.
           </p>
         </div>
         <div className="mt-8 grid gap-5 lg:grid-cols-2">
           {events.map((event) => (
-            <article key={event.id} className="group border border-ink/20">
-              <Link href={`/community/events/${event.slug}`} className="block">
+            <article key={event.id} className="group grid border border-ink/20 bg-white">
+              <Link href={`/community/events/${event.slug}`} className="block overflow-hidden">
                 <div className="relative aspect-[4/3] overflow-hidden bg-oat">
                   {event.image && (
                     <Image
@@ -74,27 +74,39 @@ export default async function CommunityPage() {
                     />
                   )}
                 </div>
-                <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:items-end md:p-7">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[.08em] text-clayInk">
-                      {event.startsAt.toLocaleDateString("en-NG", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <h3 className="mt-2 font-display text-4xl">
-                      {event.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-ink/70">{event.venue}</p>
-                  </div>
-                  <div className="flex items-center gap-3 font-bold">
-                    <span>{formatMoney(event.ticketProduct.price)}</span>
-                    <ArrowRight />
-                  </div>
-                </div>
               </Link>
+              <div className="flex flex-col p-5 md:p-7">
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold uppercase tracking-[.08em] text-clayInk">
+                  <p>
+                    {event.startsAt.toLocaleDateString("en-NG", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                  <p>{event.ticketProduct.price === 0 ? "Free event" : formatMoney(event.ticketProduct.price)}</p>
+                </div>
+                <h3 className="mt-3 font-display text-4xl">{event.title}</h3>
+                <p className="mt-2 text-sm font-semibold text-ink/70">{event.venue}</p>
+                <p className="mt-5 line-clamp-3 text-sm leading-relaxed text-ink/70">
+                  {event.description}
+                </p>
+                <div className="mt-7 grid grid-cols-2 gap-2 border-t border-ink/15 pt-5">
+                  <Link
+                    href={`/community/events/${event.slug}`}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 border border-ink px-4 text-sm font-bold"
+                  >
+                    Read the story <ArrowRight aria-hidden="true" />
+                  </Link>
+                  <Link
+                    href={`/community/events/${event.slug}#attend`}
+                    className="inline-flex min-h-12 items-center justify-center bg-ink px-4 text-sm font-bold text-white"
+                  >
+                    Attend the event
+                  </Link>
+                </div>
+              </div>
             </article>
           ))}
           {events.length === 0 && (

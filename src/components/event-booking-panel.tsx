@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Minus, Plus } from "@phosphor-icons/react";
 import type { Product } from "@/lib/db/schema";
@@ -13,9 +13,13 @@ import {
 } from "@/lib/product-pricing";
 
 export function EventBookingPanel({
+  eventId,
+  eventTitle,
   ticket,
   recommendations,
 }: {
+  eventId: string;
+  eventTitle: string;
   ticket: Product;
   recommendations: Product[];
 }) {
@@ -23,17 +27,23 @@ export function EventBookingPanel({
   const { addItems } = useCart();
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
+  const [registrationReference, setRegistrationReference] = useState("");
   const available = ticket.stockOnHand - ticket.stockReserved;
+  const isFree = ticket.price === 0;
   const selectedProducts = useMemo(
     () => recommendations.filter((product) => selected.includes(product.id)),
     [recommendations, selected],
   );
-  const total =
-    ticket.price * ticketQuantity +
-    selectedProducts.reduce(
-      (sum, product) => sum + getPackOptions(product)[0].total,
-      0,
-    );
+  const productTotal = selectedProducts.reduce(
+    (sum, product) => sum + getPackOptions(product)[0].total,
+    0,
+  );
+  const total = ticket.price * ticketQuantity + productTotal;
+  const usesCheckout = !isFree || selectedProducts.length > 0;
+  const fieldClass =
+    "h-11 w-full border-b border-ink/35 bg-transparent text-base outline-none focus:border-ink";
 
   const continueToCheckout = () => {
     addItems([
@@ -46,16 +56,65 @@ export function EventBookingPanel({
     router.push("/checkout");
   };
 
+  const handleSubmit = async (submitEvent: FormEvent<HTMLFormElement>) => {
+    submitEvent.preventDefault();
+    if (usesCheckout) {
+      continueToCheckout();
+      return;
+    }
+
+    setIsRegistering(true);
+    setRegistrationError("");
+    const form = new FormData(submitEvent.currentTarget);
+    try {
+      const response = await fetch(`/api/community/events/${eventId}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          phone: form.get("phone"),
+          quantity: ticketQuantity,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Registration could not be completed");
+      setRegistrationReference(payload.reference);
+    } catch (error) {
+      setRegistrationError(
+        error instanceof Error
+          ? error.message
+          : "Registration could not be completed. Try again.",
+      );
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  if (registrationReference) {
+    return (
+      <section className="border border-ink bg-ink p-6 text-white md:p-8" aria-live="polite">
+        <h2 className="font-display text-4xl">Your place is confirmed.</h2>
+        <p className="mt-4 text-sm leading-relaxed text-white/75">
+          You’re registered for {eventTitle}. We’ve sent the event details to your email address.
+        </p>
+        <p className="mt-6 border-t border-white/20 pt-5 text-xs font-semibold uppercase tracking-[.08em] text-white/70">
+          Reference {registrationReference}
+        </p>
+      </section>
+    );
+  }
+
   return (
-    <section className="border border-ink/20 bg-cream p-5 md:p-8">
-      <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
-        Reserve your place
-      </p>
-      <div className="mt-4 flex items-center justify-between gap-5 border-b border-ink/20 pb-6">
+    <form onSubmit={handleSubmit} className="border border-ink/20 bg-cream p-5 md:p-8">
+      <h2 className="font-display text-4xl">
+        {isFree ? "Register to attend" : "Reserve your place"}
+      </h2>
+      <div className="mt-5 flex items-center justify-between gap-5 border-b border-ink/20 pb-6">
         <div>
-          <h2 className="font-display text-3xl">Guest admission</h2>
+          <p className="text-sm font-semibold">Guest admission</p>
           <p className="mt-1 text-sm text-ink/70">
-            {formatMoney(ticket.price)} per guest · {available} places left
+            {isFree ? "Free" : `${formatMoney(ticket.price)} per guest`} · {available} places left
           </p>
         </div>
         <div className="flex items-center border border-ink/25">
@@ -65,9 +124,9 @@ export function EventBookingPanel({
             onClick={() => setTicketQuantity((value) => Math.max(1, value - 1))}
             className="grid h-11 w-11 place-content-center"
           >
-            <Minus />
+            <Minus aria-hidden="true" />
           </button>
-          <span className="w-9 text-center text-sm font-bold">
+          <span className="w-9 text-center text-sm font-bold tabular-nums">
             {ticketQuantity}
           </span>
           <button
@@ -80,22 +139,36 @@ export function EventBookingPanel({
             }
             className="grid h-11 w-11 place-content-center"
           >
-            <Plus />
+            <Plus aria-hidden="true" />
           </button>
         </div>
       </div>
 
+      {isFree && selectedProducts.length === 0 && (
+        <fieldset className="grid gap-5 py-7">
+          <legend className="mb-1 text-sm font-semibold">Your details</legend>
+          <label className="grid gap-1 text-xs font-semibold">
+            Name
+            <input required name="name" autoComplete="name" className={fieldClass} />
+          </label>
+          <label className="grid gap-1 text-xs font-semibold">
+            Email address
+            <input required name="email" type="email" autoComplete="email" className={fieldClass} />
+          </label>
+          <label className="grid gap-1 text-xs font-semibold">
+            Phone number
+            <input required name="phone" type="tel" autoComplete="tel" className={fieldClass} />
+          </label>
+        </fieldset>
+      )}
+
       {recommendations.length > 0 && (
-        <div className="py-7">
-          <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
-            Recommended for your experience
-          </p>
-          <h3 className="mt-2 font-display text-4xl">Complete the ritual.</h3>
+        <div className={isFree ? "border-t border-ink/20 py-7" : "py-7"}>
+          <h3 className="font-display text-3xl">Complete the ritual.</h3>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/70">
-            Choose any TITUN products you would like to receive with your
-            booking. They will be added to the same secure checkout.
+            Add TITUN products to your booking, or continue with admission only.
           </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="mt-5 grid gap-3">
             {recommendations.map((product, index) => {
               const isSelected = selected.includes(product.id);
               const productAvailable =
@@ -114,7 +187,7 @@ export function EventBookingPanel({
                         : [...current, product.id],
                     )
                   }
-                  className={`grid grid-cols-[76px_1fr_auto] items-center gap-3 border p-2 text-left transition-colors disabled:opacity-45 ${isSelected ? "border-ink bg-citron/20" : "border-ink/20"}`}
+                  className={`grid grid-cols-[64px_1fr_auto] items-center gap-3 border p-2 text-left transition-colors disabled:opacity-45 ${isSelected ? "border-ink bg-gold/10" : "border-ink/20"}`}
                 >
                   <ProductVisual
                     images={product.images}
@@ -123,42 +196,61 @@ export function EventBookingPanel({
                     className="aspect-square"
                   />
                   <span>
-                    <span className="block font-display text-xl leading-tight">
+                    <span className="block font-display text-lg leading-tight">
                       {product.name}
                     </span>
                     <span className="mt-1 block text-xs text-ink/70">
-                      {product.scent} · From {formatMoney(getPackOptions(product)[0].total)}
+                      From {formatMoney(getPackOptions(product)[0].total)}
                     </span>
                   </span>
                   <span
                     className={`grid h-7 w-7 place-content-center border ${isSelected ? "border-ink bg-ink text-cream" : "border-ink/30"}`}
                   >
-                    {isSelected && <Check weight="bold" />}
+                    {isSelected && <Check weight="bold" aria-hidden="true" />}
                   </span>
                 </button>
               );
             })}
           </div>
+          {isFree && selectedProducts.length > 0 && (
+            <p className="mt-4 text-xs leading-relaxed text-ink/65">
+              Your free admission and selected products will continue together to checkout.
+            </p>
+          )}
         </div>
+      )}
+
+      {registrationError && (
+        <p role="alert" className="mb-4 border border-red-700 p-3 text-sm text-red-800">
+          {registrationError}
+        </p>
       )}
 
       <div className="flex items-center justify-between gap-4 border-t border-ink/20 pt-6">
         <div>
-          <p className="text-xs text-ink/70">Total before delivery</p>
-          <p className="mt-1 text-xl font-bold">{formatMoney(total)}</p>
+          <p className="text-xs text-ink/70">{usesCheckout ? "Total before delivery" : "Admission total"}</p>
+          <p className="mt-1 text-xl font-bold tabular-nums">
+            {total === 0 ? "Free" : formatMoney(total)}
+          </p>
         </div>
         <button
-          disabled={available < 1}
-          onClick={continueToCheckout}
+          disabled={available < 1 || isRegistering}
           className="min-h-12 bg-ink px-6 text-sm font-bold text-cream disabled:cursor-not-allowed disabled:opacity-45"
         >
-          {available > 0 ? "Continue to checkout" : "Event sold out"}
+          {available < 1
+            ? "Event sold out"
+            : isRegistering
+              ? "Confirming…"
+              : usesCheckout
+                ? "Continue to checkout"
+                : "Register free"}
         </button>
       </div>
-      <p className="mt-4 text-xs text-ink/70">
-        Secure payment with Paystack or Stripe. Your place is confirmed after
-        payment.
+      <p className="mt-4 text-xs leading-relaxed text-ink/70">
+        {usesCheckout
+          ? "Secure payment with Paystack or Stripe. Your place is confirmed after payment."
+          : "Your registration is confirmed immediately. No payment details are required."}
       </p>
-    </section>
+    </form>
   );
 }

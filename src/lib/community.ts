@@ -28,6 +28,7 @@ const sampleEvent: CommunityEvent = {
   slug: "the-renewal-table",
   title: "The Renewal Table",
   description: "An intimate afternoon for the TITUN community—thoughtful conversation, beautiful dining and a shared ritual of renewal.",
+  story: "The Renewal Table begins with a simple belief: gathering well can change the texture of an ordinary week. Around one considered table, guests share food, thoughtful conversation and the small rituals that help us return to ourselves.\n\nThis is an unhurried afternoon shaped around welcome. Expect a calm setting, a shared meal and space to meet people who value care, curiosity and renewal.",
   venue: "Lagos · Venue shared with confirmed guests",
   startsAt: new Date("2026-10-24T13:00:00+01:00"),
   image: "/images/titun/hero-lounge.jpg",

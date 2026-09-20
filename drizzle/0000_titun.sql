@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS "events" (
   "slug" text NOT NULL UNIQUE,
   "title" text NOT NULL,
   "description" text NOT NULL,
+  "story" text NOT NULL DEFAULT '',
   "venue" text NOT NULL,
   "starts_at" timestamptz NOT NULL,
   "image" text,
@@ -130,6 +131,8 @@ CREATE TABLE IF NOT EXISTS "events" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE events ADD COLUMN IF NOT EXISTS story text NOT NULL DEFAULT '';
 
 CREATE TABLE IF NOT EXISTS "event_products" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -148,6 +151,9 @@ CREATE TABLE IF NOT EXISTS "event_attendees" (
   "created_at" timestamptz NOT NULL DEFAULT now(),
   UNIQUE (order_id, event_id)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS event_attendees_event_member_unique
+ON event_attendees(event_id, member_id);
 
 CREATE TABLE IF NOT EXISTS "rate_limit_events" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),

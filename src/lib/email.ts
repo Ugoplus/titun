@@ -69,6 +69,34 @@ export const sendLowStockAlert = async (productName: string, stock: number, thre
   );
 };
 
+export const sendFreeEventConfirmation = async (registration: {
+  name: string;
+  email: string;
+  title: string;
+  startsAt: Date;
+  venue: string;
+  quantity: number;
+  reference: string;
+}) => {
+  const date = new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(registration.startsAt);
+  const html = `<div style="font-family:Arial,sans-serif;color:#181511;max-width:560px;margin:auto;padding:32px 20px">
+    <p style="letter-spacing:.08em;text-transform:uppercase;font-size:12px">TITUN Community</p>
+    <h1 style="font-family:Georgia,serif;font-size:38px;line-height:1;font-weight:400">Your place is confirmed.</h1>
+    <p>Hello ${escapeHtml(registration.name)}, you’re registered for <strong>${escapeHtml(registration.title)}</strong>.</p>
+    <p><strong>${escapeHtml(date)}</strong><br>${escapeHtml(registration.venue)}</p>
+    <p>${registration.quantity} ${registration.quantity === 1 ? "place" : "places"} · Reference ${escapeHtml(registration.reference)}</p>
+  </div>`;
+  await sendEmail(
+    registration.email,
+    `You’re registered · ${registration.title}`,
+    html,
+  );
+};
+
 export const sendCorporateEnquiryAlert = async (enquiry: {
   name: string;
   company: string;

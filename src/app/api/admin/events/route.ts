@@ -64,6 +64,7 @@ export async function POST(request: Request) {
           slug: input.slug,
           title: input.title,
           description: input.description,
+          story: input.story,
           venue: input.venue,
           startsAt: new Date(input.startsAt),
           image: input.image || null,

@@ -27,6 +27,7 @@ export function EventManager({
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isFreeEvent, setIsFreeEvent] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const field =
     "h-11 w-full border-b border-ink/35 bg-transparent text-base font-normal outline-none focus:border-ink";
@@ -65,10 +66,13 @@ export function EventManager({
       title: form.get("title"),
       slug: form.get("slug"),
       description: form.get("description"),
+      story: form.get("story"),
       venue: form.get("venue"),
       startsAt: new Date(startsAt).toISOString(),
       image: imageUrl,
-      ticketPrice: Math.round(Number(form.get("ticketPrice")) * 100),
+      ticketPrice: isFreeEvent
+        ? 0
+        : Math.round(Number(form.get("ticketPrice")) * 100),
       capacity: Number(form.get("capacity")),
       lowStockThreshold: Number(form.get("lowStockThreshold")),
       recommendedProductIds: form.getAll("recommendedProductIds"),
@@ -94,6 +98,7 @@ export function EventManager({
         ...current,
       ]);
       setImageUrl("");
+      setIsFreeEvent(false);
       setIsAdding(false);
       toast.success(
         input.published ? "Event published" : "Event saved as a draft",
@@ -178,17 +183,42 @@ export function EventManager({
                 Venue
                 <input required name="venue" className={field} />
               </label>
-              <label className="grid gap-1 text-xs font-bold">
-                Ticket price (₦)
-                <input
-                  required
-                  min="0"
-                  step="0.01"
-                  name="ticketPrice"
-                  type="number"
-                  className={field}
-                />
-              </label>
+              <fieldset className="sm:col-span-2">
+                <legend className="mb-3 text-xs font-bold">Event access</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { free: false, label: "Paid event" },
+                    { free: true, label: "Free event" },
+                  ].map((option) => (
+                    <label
+                      key={option.label}
+                      className={`cursor-pointer border p-4 text-sm font-semibold ${isFreeEvent === option.free ? "border-ink bg-ink text-white" : "border-ink/25"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="eventAccess"
+                        checked={isFreeEvent === option.free}
+                        onChange={() => setIsFreeEvent(option.free)}
+                        className="sr-only"
+                      />
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              {!isFreeEvent && (
+                <label className="grid gap-1 text-xs font-bold">
+                  Ticket price (₦)
+                  <input
+                    required
+                    min="0.01"
+                    step="0.01"
+                    name="ticketPrice"
+                    type="number"
+                    className={field}
+                  />
+                </label>
+              )}
               <label className="grid gap-1 text-xs font-bold">
                 Guest capacity
                 <input
@@ -212,14 +242,27 @@ export function EventManager({
               </label>
             </div>
             <label className="grid gap-1 text-xs font-bold">
-              Event description
+              Story excerpt
               <textarea
                 required
                 minLength={20}
                 name="description"
-                rows={5}
+                rows={3}
                 className="w-full resize-none border-b border-ink/35 bg-transparent py-3 text-base font-normal outline-none"
               />
+              <span className="font-normal text-ink/60">A short introduction used on the Community page and in search results.</span>
+            </label>
+            <label className="grid gap-1 text-xs font-bold">
+              Full event story
+              <textarea
+                required
+                minLength={80}
+                maxLength={12000}
+                name="story"
+                rows={10}
+                className="w-full resize-y border border-ink/25 bg-white p-4 text-base font-normal leading-relaxed outline-none focus:border-ink"
+              />
+              <span className="font-normal text-ink/60">Separate paragraphs with a blank line. This appears above the attendance section.</span>
             </label>
             <label className="flex min-h-28 cursor-pointer items-center justify-center gap-3 border border-dashed border-ink/40 text-sm font-bold">
               <ImageSquare />
@@ -317,7 +360,10 @@ export function EventManager({
                 })}
               </p>
               <p className="mt-2 text-xs font-bold">
-                {formatMoney(event.ticketPrice)} · {event.available} of{" "}
+                {event.ticketPrice === 0
+                  ? "Free"
+                  : formatMoney(event.ticketPrice)}{" "}
+                · {event.available} of{" "}
                 {event.capacity} places available
               </p>
             </div>
