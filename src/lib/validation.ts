@@ -89,6 +89,35 @@ export const eventSchema = z.object({
   venue: z.string().trim().min(2).max(240),
   startsAt: z.string().datetime({ offset: true }),
   image: z.string().trim().optional().default(""),
+  galleryImages: z
+    .array(
+      z.string().trim().max(2048).refine(
+        (value) => value.startsWith("/") || value.startsWith("https://"),
+        "Use a secure image URL",
+      ),
+    )
+    .max(12)
+    .default([]),
+  videoUrl: z
+    .string()
+    .trim()
+    .max(2048)
+    .refine(
+      (value) =>
+        value === "" || value.startsWith("/") || value.startsWith("https://"),
+      "Use a secure video URL",
+    )
+    .default(""),
+  registrationUrl: z
+    .string()
+    .trim()
+    .max(2048)
+    .refine(
+      (value) => value === "" || value.startsWith("https://"),
+      "Registration links must use HTTPS",
+    )
+    .default(""),
+  ctaLabel: z.string().trim().max(40).default(""),
   ticketPrice: z.int().min(0),
   capacity: z.int().min(1).max(10000),
   lowStockThreshold: z.int().min(0),

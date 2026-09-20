@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { asc, inArray } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import {
   eventProducts,
@@ -8,29 +8,30 @@ import {
   inventoryEvents,
   products,
 } from "@/lib/db/schema";
-import { eventSchema } from "@/lib/validation";
 import { protectAdminRequest } from "@/lib/rate-limit";
+import { eventSchema } from "@/lib/validation";
 
-export async function GET(request: Request) {
-  const blocked = await protectAdminRequest(request, "admin-events-read", {
-    permission: "events:view",
-  });
-  if (blocked) return blocked;
-  const db = getDb();
-  const records = await db.select().from(events).orderBy(asc(events.startsAt));
-  return NextResponse.json(records);
-}
-
-export async function POST(request: Request) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const blocked = await protectAdminRequest(request, "admin-events-write", {
     permission: "events:manage",
   });
   if (blocked) return blocked;
 
   try {
+    const { id } = await params;
     const input = eventSchema.parse(await request.json());
     const db = getDb();
-    const created = await db.transaction(async (tx) => {
+    const updated = await db.transaction(async (tx) => {
+      const [currentEvent] = await tx
+        .select()
+        .from(events)
+        .where(eq(events.id, id))
+        .limit(1);
+      if (!currentEvent) throw new Error("Event not found");
+
       const recommendedIds = [...new Set(input.recommendedProductIds)];
       if (recommendedIds.length > 0) {
         const eligible = await tx
@@ -42,26 +43,33 @@ export async function POST(request: Request) {
       }
 
       const [ticket] = await tx
-        .insert(products)
-        .values({
+        .select()
+        .from(products)
+        .where(eq(products.id, currentEvent.ticketProductId))
+        .limit(1);
+      if (!ticket) throw new Error("Event admission product not found");
+      if (input.capacity < ticket.stockReserved)
+        throw new Error(
+          `Capacity cannot be lower than the ${ticket.stockReserved} places currently reserved`,
+        );
+
+      await tx
+        .update(products)
+        .set({
           slug: `${input.slug}-admission`,
           name: `${input.title} — Admission`,
-          scent: "Community experience",
           description: input.description,
-          category: "Community event",
-          packSize: "1 guest admission",
           price: input.ticketPrice,
           stockOnHand: input.capacity,
           lowStockThreshold: input.lowStockThreshold,
           images: input.image ? [input.image] : [],
-          featured: false,
-          active: true,
+          updatedAt: new Date(),
         })
-        .returning();
+        .where(eq(products.id, currentEvent.ticketProductId));
 
-      const [communityEvent] = await tx
-        .insert(events)
-        .values({
+      const [event] = await tx
+        .update(events)
+        .set({
           slug: input.slug,
           title: input.title,
           description: input.description,
@@ -73,37 +81,43 @@ export async function POST(request: Request) {
           videoUrl: input.videoUrl || null,
           registrationUrl: input.registrationUrl || null,
           ctaLabel: input.ctaLabel || null,
-          ticketProductId: ticket.id,
           published: input.published,
+          updatedAt: new Date(),
         })
+        .where(eq(events.id, id))
         .returning();
 
+      await tx.delete(eventProducts).where(eq(eventProducts.eventId, id));
       if (recommendedIds.length > 0) {
         await tx.insert(eventProducts).values(
           recommendedIds.map((productId, displayOrder) => ({
-            eventId: communityEvent.id,
+            eventId: id,
             productId,
             displayOrder,
           })),
         );
       }
-      await tx.insert(inventoryEvents).values({
-        productId: ticket.id,
-        type: "restock",
-        quantityChange: input.capacity,
-        stockAfter: input.capacity,
-        note: "Event capacity",
-      });
-      return communityEvent;
+
+      if (input.capacity !== ticket.stockOnHand) {
+        await tx.insert(inventoryEvents).values({
+          productId: currentEvent.ticketProductId,
+          type: "adjustment",
+          quantityChange: input.capacity - ticket.stockOnHand,
+          stockAfter: input.capacity,
+          note: "Event capacity updated",
+        });
+      }
+      return event;
     });
+
     revalidatePath("/events");
-    revalidatePath(`/events/${created.slug}`);
-    return NextResponse.json(created, { status: 201 });
+    revalidatePath(`/events/${updated.slug}`);
+    return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "Event could not be created",
+          error instanceof Error ? error.message : "Event could not be updated",
       },
       { status: 400 },
     );

@@ -10,7 +10,7 @@ export function AdminNavigation({ identity }: { identity: AdminIdentity }) {
   const links = [
     { href: "/admin", label: "Dashboard", permission: "dashboard:view" as const },
     { href: "/admin/orders", label: "Orders", permission: "orders:view" as const },
-    { href: "/admin/events", label: "Community", permission: "events:view" as const },
+    { href: "/admin/events", label: "Events", permission: "events:view" as const },
     { href: "/admin/content", label: "Website content", permission: "site_assets:manage" as const },
     { href: "/admin/team", label: "Team access", permission: "team:manage" as const },
   ].filter(({ permission }) =>

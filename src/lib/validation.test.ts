@@ -92,6 +92,11 @@ describe("eventSchema", () => {
     story: "A longer editorial account of the gathering, the intention behind it and what guests can expect when they arrive.\n\nThe afternoon makes room for conversation, food and an unhurried ritual of renewal.",
     venue: "Lagos",
     startsAt: "2026-10-24T13:00:00+01:00",
+    image: "/uploads/event-cover.jpg",
+    galleryImages: ["/uploads/event-one.jpg", "/uploads/event-two.jpg"],
+    videoUrl: "/uploads/event-film.mp4",
+    registrationUrl: "https://tickets.example.com/titun",
+    ctaLabel: "Join us",
     ticketPrice: 3500000,
     capacity: 40,
     lowStockThreshold: 5,
@@ -114,6 +119,18 @@ describe("eventSchema", () => {
 
   it("requires a substantial event story", () => {
     expect(eventSchema.safeParse({ ...validEvent, story: "Too short." }).success).toBe(false);
+  });
+
+  it("accepts optional event archive media and registration details", () => {
+    expect(eventSchema.safeParse(validEvent).success).toBe(true);
+  });
+
+  it("rejects unsafe registration URLs and oversized galleries", () => {
+    expect(eventSchema.safeParse({ ...validEvent, registrationUrl: "javascript:alert(1)" }).success).toBe(false);
+    expect(eventSchema.safeParse({
+      ...validEvent,
+      galleryImages: Array.from({ length: 13 }, (_, index) => `/uploads/${index}.jpg`),
+    }).success).toBe(false);
   });
 });
 

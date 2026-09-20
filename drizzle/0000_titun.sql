@@ -126,6 +126,10 @@ CREATE TABLE IF NOT EXISTS "events" (
   "venue" text NOT NULL,
   "starts_at" timestamptz NOT NULL,
   "image" text,
+  "gallery_images" jsonb NOT NULL DEFAULT '[]'::jsonb,
+  "video_url" text,
+  "registration_url" text,
+  "cta_label" text,
   "ticket_product_id" uuid NOT NULL UNIQUE REFERENCES products(id),
   "published" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT now(),
@@ -133,6 +137,10 @@ CREATE TABLE IF NOT EXISTS "events" (
 );
 
 ALTER TABLE events ADD COLUMN IF NOT EXISTS story text NOT NULL DEFAULT '';
+ALTER TABLE events ADD COLUMN IF NOT EXISTS gallery_images jsonb NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS video_url text;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS registration_url text;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS cta_label text;
 
 CREATE TABLE IF NOT EXISTS "event_products" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),

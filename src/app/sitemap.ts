@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getProducts } from "@/lib/catalog";
-import { getUpcomingEvents } from "@/lib/community";
+import { getPublishedEvents } from "@/lib/community";
 import { absoluteUrl } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -10,7 +10,7 @@ const publicPages = [
   "/shop",
   "/about",
   "/corporate",
-  "/community",
+  "/events",
   "/contact",
   "/faqs",
 ];
@@ -18,7 +18,7 @@ const publicPages = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, events] = await Promise.all([
     getProducts(),
-    getUpcomingEvents(),
+    getPublishedEvents(),
   ]);
 
   return [
@@ -36,11 +36,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       images: product.images.map((image) => absoluteUrl(image)),
     })),
     ...events.map((event) => ({
-      url: absoluteUrl(`/community/events/${event.slug}`),
+      url: absoluteUrl(`/events/${event.slug}`),
       lastModified: event.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
-      images: event.image ? [absoluteUrl(event.image)] : undefined,
+      images: [event.image, ...event.galleryImages]
+        .filter((image): image is string => Boolean(image))
+        .map(absoluteUrl),
     })),
   ];
 }

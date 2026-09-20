@@ -9,7 +9,7 @@ const columns = [
     links: [
       ["Refreshing towels", "/shop?category=Refreshing%20towels"],
       ["Wet wipes", "/shop#wipes"],
-      ["Community events", "/community"],
+      ["Events", "/events"],
     ],
   },
   {
@@ -17,7 +17,7 @@ const columns = [
     links: [
       ["About TITUN", "/about"],
       ["Corporate and hospitality", "/corporate"],
-      ["Community events", "/community"],
+      ["Events", "/events"],
       ["Contact", "/contact"],
     ],
   },

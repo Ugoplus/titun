@@ -3,7 +3,12 @@ import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { adminCan, getAdminIdentity } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { communityMembers, events, products } from "@/lib/db/schema";
+import {
+  communityMembers,
+  eventProducts,
+  events,
+  products,
+} from "@/lib/db/schema";
 import {
   EventManager,
   type AdminEventSummary,
@@ -17,29 +22,36 @@ export default async function AdminEventsPage() {
   if (!adminCan(identity, "events:view")) redirect("/admin?error=forbidden");
   const canManage = adminCan(identity, "events:manage");
   const db = getDb();
-  const [records, catalog, memberCount, recentMembers] = await Promise.all([
-    db
-      .select({ event: events, ticket: products })
-      .from(events)
-      .innerJoin(products, eq(events.ticketProductId, products.id))
-      .orderBy(asc(events.startsAt)),
-    db
-      .select()
-      .from(products)
-      .where(ne(products.category, "Community event"))
-      .orderBy(asc(products.name)),
-    db.select({ count: count() }).from(communityMembers),
-    db
-      .select()
-      .from(communityMembers)
-      .orderBy(desc(communityMembers.joinedAt))
-      .limit(12),
-  ]);
+  const [records, catalog, recommendations, memberCount, recentMembers] =
+    await Promise.all([
+      db
+        .select({ event: events, ticket: products })
+        .from(events)
+        .innerJoin(products, eq(events.ticketProductId, products.id))
+        .orderBy(asc(events.startsAt)),
+      db
+        .select()
+        .from(products)
+        .where(ne(products.category, "Community event"))
+        .orderBy(asc(products.name)),
+      db.select().from(eventProducts),
+      db.select({ count: count() }).from(communityMembers),
+      db
+        .select()
+        .from(communityMembers)
+        .orderBy(desc(communityMembers.joinedAt))
+        .limit(12),
+    ]);
   const summaries: AdminEventSummary[] = records.map(({ event, ticket }) => ({
     ...event,
     ticketPrice: ticket.price,
     capacity: ticket.stockOnHand,
     available: ticket.stockOnHand - ticket.stockReserved,
+    lowStockThreshold: ticket.lowStockThreshold,
+    recommendedProductIds: recommendations
+      .filter((item) => item.eventId === event.id)
+      .sort((left, right) => left.displayOrder - right.displayOrder)
+      .map((item) => item.productId),
   }));
 
   return (
@@ -47,10 +59,7 @@ export default async function AdminEventsPage() {
       <AdminNavigation identity={identity} />
       <div className="mt-10 flex flex-wrap items-end justify-between gap-5 border-b border-ink/20 pb-8">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
-            Community control
-          </p>
-          <h1 className="mt-2 font-display text-6xl tracking-[-.04em] md:text-8xl">
+          <h1 className="font-display text-6xl tracking-[-.04em] md:text-8xl">
             Gatherings.
           </h1>
         </div>
@@ -72,20 +81,21 @@ export default async function AdminEventsPage() {
         </div>
         <div className="border-b border-r border-ink/20 p-5">
           <p className="text-xs uppercase tracking-[.08em] text-ink/70">
-            Community members
+            Event guests
           </p>
           <p className="mt-4 font-display text-5xl">
             {memberCount[0]?.count ?? 0}
           </p>
         </div>
       </section>
-      <EventManager initialEvents={summaries} products={catalog} canManage={canManage} />
+      <EventManager
+        initialEvents={summaries}
+        products={catalog}
+        canManage={canManage}
+      />
       <section className="mt-16">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.09em] text-ink/70">
-            Paid attendees
-          </p>
-          <h2 className="mt-2 font-display text-5xl">Community members</h2>
+          <h2 className="font-display text-5xl">Event guests</h2>
         </div>
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
@@ -110,7 +120,8 @@ export default async function AdminEventsPage() {
           </table>
           {recentMembers.length === 0 && (
             <p className="border-b border-ink/15 py-8 text-sm text-ink/70">
-              Members will appear here after a successful event payment.
+              Guests will appear here after a successful registration or event
+              payment.
             </p>
           )}
         </div>

@@ -20,7 +20,7 @@ export async function PATCH(request: Request) {
     revalidatePath("/");
     revalidatePath("/about");
     revalidatePath("/corporate");
-    revalidatePath("/community");
+    revalidatePath("/events");
     return NextResponse.json(asset);
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Image could not be updated" }, { status: 400 });

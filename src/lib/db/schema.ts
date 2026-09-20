@@ -188,6 +188,10 @@ export const events = pgTable(
     venue: text("venue").notNull(),
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     image: text("image"),
+    galleryImages: jsonb("gallery_images").$type<string[]>().notNull().default([]),
+    videoUrl: text("video_url"),
+    registrationUrl: text("registration_url"),
+    ctaLabel: text("cta_label"),
     ticketProductId: uuid("ticket_product_id")
       .notNull()
       .references(() => products.id),

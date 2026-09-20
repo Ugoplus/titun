@@ -1,6 +1,6 @@
 # TITUN storefront
 
-A mobile-first storefront, community events area and operations dashboard for TITUN refreshing towels. The app includes product browsing, search, a persistent basket, Stripe and Paystack checkout, inventory reservations, signed payment webhooks, discount support, product-image uploads, order emails and low-stock alerts.
+A mobile-first storefront, editorial events archive and operations dashboard for TITUN refreshing towels. The app includes product browsing, search, a persistent basket, Stripe and Paystack checkout, inventory reservations, signed payment webhooks, discount support, product-image uploads, order emails and low-stock alerts.
 
 ## Stack
 
@@ -52,22 +52,22 @@ Customers choose Paystack or Stripe at checkout. Both gateways use the same serv
 Add the Paystack live or test secret key as `PAYSTACK_SECRET_KEY`. In Paystack, register this webhook URL:
 
 ```text
-https://shop.titun.co/api/payments/paystack/webhook
+https://titunrenewal.com/api/payments/paystack/webhook
 ```
 
 Add `STRIPE_SECRET_KEY` and the endpoint signing secret as `STRIPE_WEBHOOK_SECRET`. In Stripe, register:
 
 ```text
-https://shop.titun.co/api/payments/stripe/webhook
+https://titunrenewal.com/api/payments/stripe/webhook
 ```
 
 Subscribe the Stripe endpoint to `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
 
 Stock is reserved for 35 minutes when checkout starts. Only a successful payment verified using the selected gateway’s signed webhook reduces physical stock. Replayed webhooks do not double-charge inventory. The five-minute cron in `deploy/release-stock.cron` releases abandoned reservations.
 
-## Community events
+## Events journal
 
-The public Community tab lists published upcoming events. Each event has capacity-controlled admission and an admin-selected set of recommended TITUN products that guests see before entering checkout. Tickets and optional products share one order and one Stripe or Paystack payment.
+The public Events tab provides an image-led archive with All, Upcoming and Past views. Status is derived from the event date, so completed gatherings remain discoverable without manual recategorisation. Each event supports a main image, gallery, optional video, full editorial story, and either an external registration link or capacity-controlled on-site admission. Admin-selected TITUN products can be recommended before checkout; tickets and optional products share one Stripe or Paystack payment.
 
 Create and review events at `/admin/events`. After a successful event payment, the purchaser is saved or updated as a community member and linked to that event and order. Event capacity uses the same reservation and low-stock system as physical products, which prevents overselling while a payment is in progress.
 
@@ -99,4 +99,4 @@ npm run lint
 npm run build
 ```
 
-The shop dashboard is at `/admin`, website content is at `/admin/content`, order fulfilment is at `/admin/orders`, community administration is at `/admin/events`, and roles and revocation are at `/admin/team`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.
+The shop dashboard is at `/admin`, website content is at `/admin/content`, order fulfilment is at `/admin/orders`, event administration is at `/admin/events`, and roles and revocation are at `/admin/team`. Update the placeholder WhatsApp number, Instagram URL, domain and delivery wording before launch.

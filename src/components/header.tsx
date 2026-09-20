@@ -18,7 +18,7 @@ const navigation = [
   ["Wet wipes", "/shop#wipes"],
   ["Corporate orders", "/corporate"],
   ["Gift boxes", "/products/titun-discovery-gift-box"],
-  ["Community", "/community"],
+  ["Events", "/events"],
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
