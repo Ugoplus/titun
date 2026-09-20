@@ -10,17 +10,18 @@ import {
 } from "react";
 import type { Product } from "@/lib/db/schema";
 import {
+  getCartUnitCount,
+  mergeCartItems,
+  type CartConfiguration,
+  type CartItem,
+} from "@/lib/cart";
+import {
   getDefaultPurchaseQuantity,
   getPackOptions,
   hasPackOptions,
 } from "@/lib/product-pricing";
 
-export type CartConfiguration = { giftBoxContents?: string[] };
-export type CartItem = {
-  product: Product;
-  quantity: number;
-  configuration?: CartConfiguration;
-};
+export type { CartConfiguration, CartItem } from "@/lib/cart";
 type CartContextValue = {
   items: CartItem[];
   count: number;
@@ -32,6 +33,7 @@ type CartContextValue = {
     configuration?: CartConfiguration,
   ) => void;
   addItems: (items: CartItem[], openDrawer?: boolean) => void;
+  replaceItems: (items: CartItem[]) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   clear: () => void;
@@ -80,50 +82,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, hasLoaded]);
   const addItem = useCallback((product: Product, suppliedQuantity?: number, configuration?: CartConfiguration) => {
     const quantity = suppliedQuantity ?? getDefaultPurchaseQuantity(product);
-    const available = Math.max(0, product.stockOnHand - product.stockReserved);
-    setItems((current) => {
-      const existing = current.find((item) => item.product.id === product.id);
-      return existing
-        ? current.map((item) =>
-            item.product.id === product.id
-              ? {
-                  ...item,
-                  product,
-                  quantity: hasPackOptions(product)
-                    ? quantity
-                    : Math.min(20, available, item.quantity + quantity),
-                  configuration: configuration ?? item.configuration,
-                }
-              : item,
-          )
-        : [...current, {
-            product,
-            quantity: hasPackOptions(product)
-              ? quantity
-              : Math.min(available, quantity),
-            configuration,
-          }];
-    });
+    setItems((current) => mergeCartItems(current, [{ product, quantity, configuration }]));
     setIsOpen(true);
   }, []);
   const addItems = useCallback((newItems: CartItem[], openDrawer = false) => {
-    setItems((current) => newItems.reduce((next, incoming) => {
-      const incomingQuantity = hasPackOptions(incoming.product)
-        ? getDefaultPurchaseQuantity(incoming.product)
-        : incoming.quantity;
-      const existing = next.find((item) => item.product.id === incoming.product.id);
-      return existing
-        ? next.map((item) => item.product.id === incoming.product.id ? {
-            ...item,
-            quantity: hasPackOptions(incoming.product)
-              ? incomingQuantity
-              : Math.min(20, item.quantity + incomingQuantity),
-            configuration: incoming.configuration ?? item.configuration,
-          } : item)
-        : [...next, { ...incoming, quantity: incomingQuantity }];
-    }, current));
+    setItems((current) => mergeCartItems(current, newItems));
     setIsOpen(openDrawer);
   }, []);
+  const replaceItems = useCallback((nextItems: CartItem[]) => setItems(nextItems), []);
   const updateQuantity = useCallback(
     (productId: string, quantity: number) =>
       setItems((current) =>
@@ -149,15 +115,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clear = useCallback(() => setItems([]), []);
   const value = useMemo<CartContextValue>(() => ({
     items,
-    count: items.length,
+    count: getCartUnitCount(items),
     isOpen,
     setIsOpen,
     addItem,
     addItems,
+    replaceItems,
     updateQuantity,
     removeItem,
     clear,
-  }), [items, isOpen, addItem, addItems, updateQuantity, removeItem, clear]);
+  }), [items, isOpen, addItem, addItems, replaceItems, updateQuantity, removeItem, clear]);
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 export const useCart = () => {

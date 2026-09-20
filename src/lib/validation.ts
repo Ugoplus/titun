@@ -1,5 +1,24 @@
 import { z } from "zod";
 
+export const cartItemSchema = z.object({
+  productId: z.uuid(),
+  quantity: z.int().min(1).max(200),
+  configuration: z.object({
+    giftBoxContents: z.array(z.enum([
+      "Green Tea towel",
+      "Lemongrass towel",
+      "Sandalwood towel",
+      "Green Tea wet wipes",
+      "Lemongrass wet wipes",
+      "Sandalwood wet wipes",
+    ])).min(1).max(6).optional(),
+  }).optional(),
+});
+
+export const cartQuoteSchema = z.object({
+  items: z.array(cartItemSchema).min(1).max(20),
+});
+
 export const checkoutSchema = z.object({
   customer: z.object({
     name: z.string().trim().min(2).max(100),
@@ -9,20 +28,8 @@ export const checkoutSchema = z.object({
     city: z.string().trim().min(2).max(80),
     notes: z.string().trim().max(500).optional(),
   }),
-  items: z.array(z.object({
-    productId: z.uuid(),
-    quantity: z.int().min(1).max(200),
-    configuration: z.object({
-      giftBoxContents: z.array(z.enum([
-        "Green Tea towel",
-        "Lemongrass towel",
-        "Sandalwood towel",
-        "Green Tea wet wipes",
-        "Lemongrass wet wipes",
-        "Sandalwood wet wipes",
-      ])).min(1).max(6).optional(),
-    }).optional(),
-  })).min(1).max(20),
+  items: z.array(cartItemSchema).min(1).max(20),
+  expectedSubtotal: z.int().positive(),
   discountCode: z.string().trim().max(40).optional(),
   paymentProvider: z.enum(["paystack", "stripe"]),
 });

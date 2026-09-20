@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, LockSimple } from "@phosphor-icons/react";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart-provider";
 import { ProductVisual } from "@/components/product-visual";
@@ -21,13 +21,41 @@ import {
 } from "@/lib/product-pricing";
 
 export default function CheckoutPage() {
-  const { items, addItems } = useCart();
+  const { items, addItems, replaceItems } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Product[]>([]);
-  const subtotal = items.reduce(
+  const [quote, setQuote] = useState<{
+    items: Array<{
+      product: Product;
+      quantity: number;
+      configuration?: { giftBoxContents?: string[] };
+    }>;
+    subtotal: number;
+    cartKey: string;
+    version: number;
+  } | null>(null);
+  const [quoteError, setQuoteError] = useState<{
+    message: string;
+    cartKey: string;
+    version: number;
+  } | null>(null);
+  const [quoteVersion, setQuoteVersion] = useState(0);
+  const cartKey = useMemo(
+    () => items.map((item) => `${item.product.id}:${item.quantity}:${item.configuration?.giftBoxContents?.join("|") ?? ""}`).join(","),
+    [items],
+  );
+  const activeQuote =
+    quote?.cartKey === cartKey && quote.version === quoteVersion ? quote : null;
+  const activeQuoteError =
+    quoteError?.cartKey === cartKey && quoteError.version === quoteVersion
+      ? quoteError.message
+      : null;
+  const displayItems = activeQuote?.items ?? items;
+  const localSubtotal = items.reduce(
     (sum, item) => sum + getLinePricing(item.product, item.quantity).total,
     0,
   );
+  const subtotal = activeQuote?.subtotal ?? localSubtotal;
   const fieldClass =
     "h-12 w-full border-b border-ink/35 bg-transparent px-0 text-base outline-none transition-colors focus:border-ink";
 
@@ -39,9 +67,54 @@ export default function CheckoutPage() {
       .catch(() => setRecommendations([]));
   }, [items]);
 
+  useEffect(() => {
+    if (!items.length) return;
+    const controller = new AbortController();
+    fetch("/api/cart/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: items.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          configuration: item.configuration,
+        })),
+      }),
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error ?? "Your basket could not be refreshed");
+        return payload as Pick<NonNullable<typeof quote>, "items" | "subtotal">;
+      })
+      .then((nextQuote) => {
+        setQuote({ ...nextQuote, cartKey, version: quoteVersion });
+        setQuoteError(null);
+        replaceItems(nextQuote.items.map((item) => ({
+          product: item.product,
+          quantity: item.quantity,
+          configuration: item.configuration,
+        })));
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setQuoteError({
+          message:
+            error instanceof Error
+              ? error.message
+              : "Your basket could not be refreshed",
+          cartKey,
+          version: quoteVersion,
+        });
+      });
+    return () => controller.abort();
+  // cartKey represents the customer-visible cart; replacing stale product snapshots does not refetch.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartKey, quoteVersion, replaceItems]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!items.length) return;
+    if (!items.length || !activeQuote) return;
     setIsLoading(true);
     const form = new FormData(event.currentTarget);
     try {
@@ -57,11 +130,12 @@ export default function CheckoutPage() {
             city: form.get("city"),
             notes: form.get("notes") || undefined,
           },
-          items: items.map((item) => ({
+          items: activeQuote.items.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,
             configuration: item.configuration,
           })),
+          expectedSubtotal: activeQuote.subtotal,
           discountCode: form.get("discountCode") || undefined,
           paymentProvider: form.get("paymentProvider"),
         }),
@@ -106,6 +180,23 @@ export default function CheckoutPage() {
           Checkout
         </h1>
         <form onSubmit={handleSubmit} className="mt-10 grid gap-8">
+          {!activeQuote && !activeQuoteError && (
+            <p role="status" className="border border-ink/20 bg-linen p-4 text-sm">
+              Confirming current prices and availability…
+            </p>
+          )}
+          {activeQuoteError && (
+            <div role="alert" className="border border-red-800 bg-red-50 p-4 text-sm text-red-900">
+              <p>{activeQuoteError}</p>
+              <button
+                type="button"
+                onClick={() => setQuoteVersion((version) => version + 1)}
+                className="mt-3 min-h-11 border border-red-900 px-4 font-semibold"
+              >
+                Refresh basket
+              </button>
+            </div>
+          )}
           <fieldset className="grid gap-5">
             <legend className="mb-5 text-xs font-bold uppercase tracking-[.09em]">
               Contact and delivery
@@ -220,7 +311,7 @@ export default function CheckoutPage() {
             </label>
           </fieldset>
           <button
-            disabled={isLoading}
+            disabled={isLoading || !activeQuote}
             className="flex min-h-14 items-center justify-center gap-2 bg-ink px-6 font-bold text-cream hover:bg-leaf disabled:opacity-60"
           >
             <LockSimple />{" "}
@@ -237,7 +328,7 @@ export default function CheckoutPage() {
       <aside className="bg-sand p-5 md:p-8">
         <h2 className="font-display text-3xl">Order summary</h2>
         <div className="mt-6 grid gap-5">
-          {items.map((item, index) => (
+          {displayItems.map((item, index) => (
             <div
               key={item.product.id}
               className="grid grid-cols-[72px_1fr_auto] items-center gap-4"

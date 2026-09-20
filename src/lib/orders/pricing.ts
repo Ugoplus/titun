@@ -9,6 +9,11 @@ export type Discount = {
   value: number;
 };
 
+export const assertExpectedTotal = (actual: number, expected: number) => {
+  if (actual !== expected)
+    throw new Error("Your basket total changed. Review the updated amount and try again.");
+};
+
 export const calculateOrder = (items: PricedItem[], discount?: Discount | null) => {
   for (const item of items) {
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 100) {

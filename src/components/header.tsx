@@ -9,7 +9,7 @@ import {
   UserCircle,
   X,
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "./cart-provider";
 import { CartDrawer } from "./cart-drawer";
 
@@ -25,7 +25,45 @@ const navigation = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { count, setIsOpen } = useCart();
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const menuButton = menuButtonRef.current;
+    document.body.style.overflow = "hidden";
+    const menu = menuRef.current;
+    menu?.querySelector<HTMLElement>("a[href]")?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsMenuOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !menu) return;
+      const focusable = Array.from(menu.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      menuButton?.focus();
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -38,6 +76,7 @@ export function Header() {
       <header className="sticky top-0 z-40 border-b border-ink/15 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-[5.25rem] max-w-[1440px] items-center justify-between px-4 md:px-8 lg:h-[5.75rem]">
           <button
+            ref={menuButtonRef}
             onClick={() => setIsMenuOpen((open) => !open)}
             className="flex h-11 w-11 items-center justify-center lg:hidden"
             aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
@@ -104,22 +143,28 @@ export function Header() {
           ))}
         </nav>
         {isMenuOpen && (
-          <nav
+          <div
+            ref={menuRef}
             id="mobile-navigation"
-            aria-label="Mobile navigation"
-            className="grid border-t border-ink/15 bg-white px-5 py-6 font-display text-2xl lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-navigation-title"
+            className="border-t border-ink/15 bg-white px-5 py-6 lg:hidden"
           >
-            {navigation.map(([label, href]) => (
-              <Link
-                key={href}
-                onClick={() => setIsMenuOpen(false)}
-                className="border-b border-ink/10 py-3"
-                href={href}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
+            <p id="mobile-navigation-title" className="sr-only">Site navigation</p>
+            <nav aria-label="Mobile navigation" className="grid font-display text-2xl">
+              {navigation.map(([label, href]) => (
+                <Link
+                  key={href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="border-b border-ink/10 py-3"
+                  href={href}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
         )}
       </header>
       <CartDrawer />

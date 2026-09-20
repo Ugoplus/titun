@@ -4,6 +4,7 @@ import { checkoutSchema, eventSchema } from "./validation";
 const validCheckout = {
   customer: { name: "TITUN Customer", email: "customer@example.com", phone: "+2348000000000", address: "12 Sample Street", city: "Lagos" },
   items: [{ productId: "11111111-1111-4111-8111-111111111111", quantity: 1 }],
+  expectedSubtotal: 100_000,
 };
 
 describe("checkoutSchema payment providers", () => {
@@ -13,6 +14,11 @@ describe("checkoutSchema payment providers", () => {
 
   it("rejects an unknown payment provider", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "other" }).success).toBe(false);
+  });
+
+  it("requires a positive displayed total", () => {
+    expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 100_000 }).success).toBe(true);
+    expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 0 }).success).toBe(false);
   });
 });
 

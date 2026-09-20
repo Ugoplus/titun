@@ -11,7 +11,7 @@ import {
   orders,
   products,
 } from "@/lib/db/schema";
-import { calculateOrder } from "./pricing";
+import { assertExpectedTotal, calculateOrder } from "./pricing";
 import { sendLowStockAlert, sendOrderConfirmation } from "@/lib/email";
 import type { PaymentProvider } from "@/lib/payments";
 import { getLinePricing } from "@/lib/product-pricing";
@@ -30,6 +30,7 @@ export type CheckoutInput = {
     quantity: number;
     configuration?: { giftBoxContents?: string[] };
   }[];
+  expectedSubtotal: number;
   discountCode?: string;
   paymentProvider: PaymentProvider;
 };
@@ -77,6 +78,7 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     }
 
     const totals = calculateOrder(pricedItems, appliedDiscount);
+    assertExpectedTotal(totals.subtotal, input.expectedSubtotal);
     const reference = makeReference();
     const [order] = await tx.insert(orders).values({
       reference,
@@ -131,7 +133,15 @@ export const attachPaymentReference = async (reference: string, paymentReference
 export const releasePendingOrder = async (reference: string, status: "failed" | "cancelled" = "failed") => {
   const db = getDb();
   await db.transaction(async (tx) => {
-    const [order] = await tx.select().from(orders).where(and(eq(orders.reference, reference), eq(orders.status, "pending"))).limit(1);
+    const now = new Date();
+    const [order] = await tx.update(orders).set({
+      status,
+      ...(status === "failed" ? { failedAt: now } : { cancelledAt: now }),
+      updatedAt: now,
+    }).where(and(
+      eq(orders.reference, reference),
+      eq(orders.status, "pending"),
+    )).returning();
     if (!order) return;
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
     for (const item of items) {
@@ -141,22 +151,30 @@ export const releasePendingOrder = async (reference: string, status: "failed" | 
         .returning();
       await tx.insert(inventoryEvents).values({ productId: item.productId, orderId: order.id, type: "reservation_release", quantityChange: 0, stockAfter: product.stockOnHand, note: `Released ${item.quantity} reserved units` });
     }
-    const now = new Date();
-    await tx.update(orders).set({
-      status,
-      ...(status === "failed" ? { failedAt: now } : { cancelledAt: now }),
-      updatedAt: now,
-    }).where(eq(orders.id, order.id));
   });
 };
 
 export const completePaidOrder = async (reference: string, paymentReference: string) => {
   const db = getDb();
   const completed = await db.transaction(async (tx) => {
-    const [order] = await tx.select().from(orders).where(eq(orders.reference, reference)).limit(1);
-    if (!order) throw new Error("Order not found");
-    if (["paid", "processing", "shipped", "fulfilled"].includes(order.status)) return { order, changed: false, lowStock: [] };
-    if (order.status !== "pending") throw new Error("Order cannot be paid in its current state");
+    const now = new Date();
+    const [claimedOrder] = await tx.update(orders).set({
+      status: "paid",
+      paymentReference,
+      paidAt: now,
+      updatedAt: now,
+    }).where(and(
+      eq(orders.reference, reference),
+      eq(orders.status, "pending"),
+    )).returning();
+    if (!claimedOrder) {
+      const [existing] = await tx.select().from(orders).where(eq(orders.reference, reference)).limit(1);
+      if (!existing) throw new Error("Order not found");
+      if (["paid", "processing", "shipped", "fulfilled"].includes(existing.status))
+        return { order: existing, changed: false, lowStock: [] };
+      throw new Error("Order cannot be paid in its current state");
+    }
+    const order = claimedOrder;
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
     const lowStock: { id: string; name: string; stock: number; threshold: number }[] = [];
     for (const item of items) {
@@ -204,8 +222,7 @@ export const completePaidOrder = async (reference: string, paymentReference: str
       }
     }
     if (order.discountCode) await tx.update(discounts).set({ usedCount: sql`${discounts.usedCount} + 1` }).where(eq(discounts.code, order.discountCode));
-    const [paidOrder] = await tx.update(orders).set({ status: "paid", paymentReference, paidAt: new Date(), updatedAt: new Date() }).where(eq(orders.id, order.id)).returning();
-    return { order: paidOrder, changed: true, lowStock };
+    return { order, changed: true, lowStock };
   });
 
   if (completed.changed) {

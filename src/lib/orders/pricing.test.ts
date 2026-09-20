@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateOrder } from "./pricing";
+import { assertExpectedTotal, calculateOrder } from "./pricing";
 
 describe("calculateOrder", () => {
   it("uses server prices and applies a percentage discount", () => {
@@ -27,5 +27,12 @@ describe("calculateOrder", () => {
     expect(() =>
       calculateOrder([{ productId: "a", unitPrice: 1000, quantity: 0 }]),
     ).toThrow("Quantity must be between 1 and 100");
+  });
+
+  it("stops checkout when the displayed total is stale", () => {
+    expect(() => assertExpectedTotal(12_000, 10_000)).toThrow(
+      "Your basket total changed",
+    );
+    expect(() => assertExpectedTotal(12_000, 12_000)).not.toThrow();
   });
 });
