@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   defaultHomepageCopy,
+  defaultSiteSettings,
   homepageCopySchema,
   homepageHeroSlidesSchema,
+  siteSettingsSchema,
 } from "./site-content";
 
 const slide = {
@@ -36,6 +38,19 @@ describe("homepage content", () => {
   it("rejects missing homepage headings", () => {
     expect(() =>
       homepageCopySchema.parse({ ...defaultHomepageCopy, storyHeading: "" }),
+    ).toThrow();
+  });
+
+  it("accepts the editable site details", () => {
+    expect(siteSettingsSchema.parse(defaultSiteSettings)).toEqual(defaultSiteSettings);
+  });
+
+  it("rejects unsafe social account values", () => {
+    expect(() =>
+      siteSettingsSchema.parse({
+        ...defaultSiteSettings,
+        instagramHandle: "https://malicious.example/account",
+      }),
     ).toThrow();
   });
 });

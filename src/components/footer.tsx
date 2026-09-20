@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { NewsletterForm } from "./newsletter-form";
-import { contactDetails } from "@/lib/contact";
+import type { ContactDetails } from "@/lib/contact";
 
 const columns = [
   {
@@ -33,7 +33,7 @@ const columns = [
   },
 ] as const;
 
-export function Footer() {
+export function Footer({ contactDetails }: { contactDetails: ContactDetails }) {
   return (
     <footer className="bg-walnut px-5 py-14 text-white md:px-8 md:py-20">
       <div className="mx-auto max-w-[1440px]">

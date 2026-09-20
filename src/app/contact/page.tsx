@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
-import { contactDetails } from "@/lib/contact";
+import { getContactDetails } from "@/lib/contact";
+import { getSiteSettings } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const contactDetails = getContactDetails(await getSiteSettings());
   return (
     <ContentPage
       title="Let’s talk about the moment."

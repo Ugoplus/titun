@@ -3,6 +3,8 @@ import { Manrope, Newsreader } from "next/font/google";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/components/cart-provider";
 import { SiteShell } from "@/components/site-shell";
+import { getContactDetails } from "@/lib/contact";
+import { getSiteSettings } from "@/lib/site-content";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -54,14 +56,22 @@ export const viewport: Viewport = {
   themeColor: "#f8f6f1",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const siteSettings = await getSiteSettings();
+  const contactDetails = getContactDetails(siteSettings);
+
   return (
     <html lang="en" className={`${manrope.variable} ${newsreader.variable}`}>
       <body className="min-h-screen font-sans antialiased">
         <CartProvider>
-          <SiteShell>{children}</SiteShell>
+          <SiteShell
+            announcementText={siteSettings.announcementText}
+            contactDetails={contactDetails}
+          >
+            {children}
+          </SiteShell>
           <Toaster richColors position="top-center" />
         </CartProvider>
       </body>

@@ -6,6 +6,7 @@ import { getSiteAssetMap, type SiteAssetKey } from "@/lib/site-assets";
 
 export const homepageHeroKey = "home.hero.slides";
 export const homepageCopyKey = "home.copy";
+export const siteSettingsKey = "site.settings";
 
 const localMediaPath = /^\/(?:uploads|images|videos)\/[a-zA-Z0-9_./-]+$/;
 
@@ -61,6 +62,43 @@ export const homepageCopySchema = z.object({
 });
 
 export type HomepageCopy = z.infer<typeof homepageCopySchema>;
+
+const socialHandle = z
+  .string()
+  .trim()
+  .min(1, "Add the social account name")
+  .max(31, "Keep the social account name under 31 characters")
+  .regex(/^@?[a-zA-Z0-9._]+$/, "Enter an account name, such as @Titunrenewal");
+
+export const siteSettingsSchema = z.object({
+  announcementText: z.string().trim().min(1, "Add an announcement").max(140, "Keep the announcement under 140 characters"),
+  aboutHeading: shortHeading,
+  aboutIntroduction: shortCopy,
+  aboutParagraphOne: z.string().trim().min(1, "Add the first About paragraph").max(600, "Keep this paragraph under 600 characters"),
+  aboutParagraphTwo: z.string().trim().min(1, "Add the second About paragraph").max(600, "Keep this paragraph under 600 characters"),
+  aboutParagraphThree: z.string().trim().min(1, "Add the third About paragraph").max(600, "Keep this paragraph under 600 characters"),
+  aboutClosing: z.string().trim().min(1, "Add the closing line").max(140, "Keep the closing line under 140 characters"),
+  contactEmail: z.union([z.literal(""), z.string().trim().email("Enter a valid email address").max(254)]),
+  whatsappNumber: z.string().trim().regex(/^\+?[0-9 ()-]{7,24}$/, "Enter a valid WhatsApp number"),
+  instagramHandle: socialHandle,
+  tiktokHandle: socialHandle,
+});
+
+export type SiteSettings = z.infer<typeof siteSettingsSchema>;
+
+export const defaultSiteSettings: SiteSettings = {
+  announcementText: "Register your email address to receive upcoming sales promotions",
+  aboutHeading: "Care, thoughtfully given.",
+  aboutIntroduction: "TITUN was created from a simple belief: the smallest gestures can leave the most lasting impression.",
+  aboutParagraphOne: "Inspired by the art of hospitality, we create premium refreshing towels and wipes for moments that deserve a little more thought. A welcome at the table, a pause between journeys or simply a moment to reset.",
+  aboutParagraphTwo: "Through thoughtful design, considered fragrance and everyday function, TITUN brings comfort, cleanliness and care to the experiences that shape how we feel and what we remember.",
+  aboutParagraphThree: "Because true hospitality is rarely about the grand gesture. It lives in the little things, thoughtfully given and quietly remembered.",
+  aboutClosing: "TITUN. A little moment of renewal.",
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "",
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim() || "07069310085",
+  instagramHandle: "@Titunrenewal",
+  tiktokHandle: "@Titunrenewal",
+};
 
 export const defaultHomepageCopy: HomepageCopy = {
   collectionHeading: "Shop the collection",
@@ -163,4 +201,19 @@ export async function getHomepageCopy(): Promise<HomepageCopy> {
     : {};
   const parsed = homepageCopySchema.safeParse({ ...defaultHomepageCopy, ...stored });
   return parsed.success ? parsed.data : defaultHomepageCopy;
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  if (!isDatabaseConfigured()) return defaultSiteSettings;
+  const [record] = await getDb()
+    .select({ content: siteContent.content })
+    .from(siteContent)
+    .where(eq(siteContent.key, siteSettingsKey))
+    .limit(1);
+  if (!record) return defaultSiteSettings;
+  const stored = record.content && typeof record.content === "object"
+    ? record.content as Partial<SiteSettings>
+    : {};
+  const parsed = siteSettingsSchema.safeParse({ ...defaultSiteSettings, ...stored });
+  return parsed.success ? parsed.data : defaultSiteSettings;
 }

@@ -5,11 +5,10 @@ import { useEffect, useState } from "react";
 import { NewsletterForm } from "./newsletter-form";
 import { DialogShell } from "./dialog-shell";
 import Image from "next/image";
-import { contactDetails } from "@/lib/contact";
 
 type Consent = "all" | "essential";
 
-export function SitePrompts() {
+export function SitePrompts({ whatsappHref }: { whatsappHref: string }) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
@@ -135,9 +134,9 @@ export function SitePrompts() {
         </aside>
       )}
 
-      {contactDetails.whatsappHref && (
+      {whatsappHref && (
         <a
-          href={`${contactDetails.whatsappHref}?text=Hello%20TITUN%2C%20I%E2%80%99d%20like%20to%20learn%20more.`}
+          href={`${whatsappHref}?text=Hello%20TITUN%2C%20I%E2%80%99d%20like%20to%20learn%20more.`}
           aria-label="Chat with TITUN on WhatsApp"
           className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-content-center rounded-full bg-walnut text-white shadow-[0_10px_32px_rgba(24,21,17,.24)] transition-transform hover:-translate-y-1"
         >

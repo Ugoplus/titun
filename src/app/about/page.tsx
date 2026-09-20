@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { ContentPage } from "@/components/content-page";
 import { getSiteAssetMap } from "@/lib/site-assets";
+import { getSiteSettings } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "About TITUN",
@@ -12,11 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const siteImages = await getSiteAssetMap();
+  const [siteImages, siteSettings] = await Promise.all([
+    getSiteAssetMap(),
+    getSiteSettings(),
+  ]);
   return (
     <ContentPage
-      title="Care, thoughtfully given."
-      introduction="TITUN was created from a simple belief: the smallest gestures can leave the most lasting impression."
+      title={siteSettings.aboutHeading}
+      introduction={siteSettings.aboutIntroduction}
       headerAlign="center"
     >
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
@@ -25,24 +29,11 @@ export default async function AboutPage() {
         </div>
         <div className="flex flex-col justify-center">
           <div className="mt-7 grid max-w-xl gap-5 text-base leading-relaxed text-ink/65">
-            <p>
-              Inspired by the art of hospitality, we create premium refreshing
-              towels and wipes for moments that deserve a little more thought.
-              A welcome at the table, a pause between journeys or simply a
-              moment to reset.
-            </p>
-            <p>
-              Through thoughtful design, considered fragrance and everyday
-              function, TITUN brings comfort, cleanliness and care to the
-              experiences that shape how we feel and what we remember.
-            </p>
-            <p>
-              Because true hospitality is rarely about the grand gesture. It
-              lives in the little things, thoughtfully given and quietly
-              remembered.
-            </p>
+            <p>{siteSettings.aboutParagraphOne}</p>
+            <p>{siteSettings.aboutParagraphTwo}</p>
+            <p>{siteSettings.aboutParagraphThree}</p>
             <p className="font-display text-3xl leading-tight tracking-[-.025em] text-ink">
-              TITUN. A little moment of renewal.
+              {siteSettings.aboutClosing}
             </p>
           </div>
           <Link href="/shop" className="mt-8 inline-flex w-fit items-center gap-4 border-b border-ink pb-2 text-sm font-semibold">Shop TITUN <ArrowRight /></Link>

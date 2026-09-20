@@ -23,7 +23,7 @@ const navigation = [
   ["Contact", "/contact"],
 ] as const;
 
-export function Header() {
+export function Header({ announcementText }: { announcementText: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,7 @@ export function Header() {
         href="/#welcome-offer"
         className="block bg-walnut px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[.09em] text-white focus-visible:outline-white"
       >
-        Register your email address to receive upcoming sales promotions
+        {announcementText}
       </Link>
       <header className="sticky top-0 z-40 border-b border-ink/15 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-[5.25rem] max-w-[1440px] items-center justify-between px-4 md:px-8 lg:h-[5.75rem]">
