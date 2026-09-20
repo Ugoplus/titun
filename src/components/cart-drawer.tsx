@@ -9,14 +9,20 @@ import { ProductVisual } from "./product-visual";
 import { useCart } from "./cart-provider";
 import {
   getAdjacentPackQuantity,
-  getLinePricing,
+  getConfiguredLinePricing,
   hasPackOptions,
 } from "@/lib/product-pricing";
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem } = useCart();
   const subtotal = items.reduce(
-    (sum, item) => sum + getLinePricing(item.product, item.quantity).total,
+    (sum, item) =>
+      sum +
+      getConfiguredLinePricing(
+        item.product,
+        item.quantity,
+        item.configuration,
+      ).total,
     0,
   );
   if (!isOpen) return null;
@@ -71,7 +77,7 @@ export function CartDrawer() {
                   <div>
                     <p className="font-display text-xl">{item.product.name}</p>
                     <p className="text-xs text-ink/70">
-                      {getLinePricing(item.product, item.quantity).label}
+                      {getConfiguredLinePricing(item.product, item.quantity, item.configuration).label}
                     </p>
                     {item.configuration?.giftBoxContents?.length ? (
                       <p className="mt-1 text-xs leading-relaxed text-ink/70">
@@ -80,7 +86,8 @@ export function CartDrawer() {
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center border border-ink/25">
+                    {!item.configuration?.giftBoxSize && !item.configuration?.giftBoxUpsell ? (
+                      <div className="flex items-center border border-ink/25">
                       <button
                         aria-label="Reduce quantity"
                         className="grid h-11 w-11 place-content-center"
@@ -120,7 +127,16 @@ export function CartDrawer() {
                       >
                         <Plus />
                       </button>
-                    </div>
+                      </div>
+                    ) : item.configuration.giftBoxSize ? (
+                      <Link
+                        href={`/products/${item.product.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="text-xs font-semibold underline decoration-1 underline-offset-4"
+                      >
+                        Edit box
+                      </Link>
+                    ) : <span className="text-xs text-ink/65">25-piece add-on</span>}
                     <button
                       className="grid h-11 w-11 place-content-center"
                       aria-label={`Remove ${item.product.name}`}
@@ -131,7 +147,11 @@ export function CartDrawer() {
                   </div>
                   <p className="text-sm font-bold">
                     {formatMoney(
-                      getLinePricing(item.product, item.quantity).total,
+                      getConfiguredLinePricing(
+                        item.product,
+                        item.quantity,
+                        item.configuration,
+                      ).total,
                     )}
                   </p>
                 </div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Product } from "@/lib/db/schema";
 import {
   getAdjacentPackQuantity,
+  getConfiguredLinePricing,
   getDefaultPurchaseQuantity,
   getLinePricing,
   getPackOptions,
@@ -20,6 +21,7 @@ const wipe = {
 } as Product;
 
 const giftBox = {
+  slug: "titun-discovery-gift-box",
   category: "Boxes and multipacks",
   price: 1_450_000,
   packSize: "One gift box",
@@ -70,9 +72,25 @@ describe("refreshing wipe pricing", () => {
   it("rejects an order below the minimum", () => {
     expect(() => getLinePricing(wipe, 49)).toThrow("Choose an available pack size");
   });
+
+  it("allows a 25-piece wipe batch only as a gift-box upsell", () => {
+    expect(getConfiguredLinePricing(wipe, 25, { giftBoxUpsell: true })).toMatchObject({
+      total: 1_250_000,
+      unitPrice: 50_000,
+      label: "25 wet wipes · Gift-box add-on",
+    });
+    expect(() => getConfiguredLinePricing(wipe, 25)).toThrow("Choose an available pack size");
+  });
 });
 
 describe("standard product pricing", () => {
+  it("prices the configured gift-box size on the server", () => {
+    expect(getConfiguredLinePricing(giftBox, 1, {
+      giftBoxSize: 100,
+      giftBoxContents: [{ item: "Green Tea towel", quantity: 100 }],
+    })).toMatchObject({ total: 18_000_000, unitPrice: 18_000_000 });
+  });
+
   it("supports more than one unit without crashing the basket", () => {
     expect(getLinePricing(giftBox, 2)).toEqual({
       total: 2_900_000,

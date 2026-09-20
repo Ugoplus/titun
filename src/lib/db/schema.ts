@@ -10,7 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { GiftBoxSelection } from "@/lib/gift-box";
+import type { GiftBoxCartConfiguration } from "@/lib/gift-box";
 
 export const orderStatus = pgEnum("order_status", [
   "pending",
@@ -132,7 +132,7 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   lineTotal: integer("line_total").notNull(),
   configuration: jsonb("configuration")
-    .$type<{ giftBoxContents?: GiftBoxSelection[] }>()
+    .$type<GiftBoxCartConfiguration>()
     .notNull()
     .default({}),
 });

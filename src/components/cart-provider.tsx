@@ -11,6 +11,7 @@ import {
 import type { Product } from "@/lib/db/schema";
 import {
   isDiscoveryGiftBox,
+  isGiftBoxSize,
   normalizeStoredGiftBoxContents,
 } from "@/lib/gift-box";
 import {
@@ -43,8 +44,8 @@ type CartContextValue = {
   clear: () => void;
 };
 const CartContext = createContext<CartContextValue | null>(null);
-const CART_STORAGE_KEY = "titun-cart-v3";
-const LEGACY_CART_STORAGE_KEYS = ["titun-cart-v2", "titun-cart"];
+const CART_STORAGE_KEY = "titun-cart-v4";
+const LEGACY_CART_STORAGE_KEYS = ["titun-cart-v3", "titun-cart-v2", "titun-cart"];
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -60,6 +61,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           Omit<CartItem, "configuration"> & {
             configuration?: {
               giftBoxContents?: unknown;
+              giftBoxSize?: unknown;
+              giftBoxUpsell?: unknown;
               giftBoxScents?: string[];
             };
           }
@@ -67,12 +70,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const migrated = stored.map((item): CartItem => {
           const storedContents = item.configuration?.giftBoxContents
             ?? item.configuration?.giftBoxScents?.map((scent) => `${scent} towel`);
-          const giftBoxContents = normalizeStoredGiftBoxContents(storedContents);
+          const giftBoxSize = isGiftBoxSize(item.configuration?.giftBoxSize)
+            ? item.configuration.giftBoxSize
+            : 25;
+          const giftBoxContents = normalizeStoredGiftBoxContents(
+            storedContents,
+            giftBoxSize,
+          );
           return {
             ...item,
             configuration: isDiscoveryGiftBox(item.product)
-              ? { giftBoxContents }
-              : undefined,
+              ? { giftBoxSize, giftBoxContents }
+              : item.configuration?.giftBoxUpsell === true
+                ? { giftBoxUpsell: true }
+                : undefined,
             quantity:
               hasPackOptions(item.product) &&
               !getPackOptions(item.product).some((option) => option.quantity === item.quantity)
@@ -123,7 +134,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ),
     [],
   );
-  const removeItem = useCallback((productId: string) => setItems((current) => current.filter((item) => item.product.id !== productId)), []);
+  const removeItem = useCallback((productId: string) => setItems((current) => {
+    const removingGiftBox = current.some(
+      (item) => item.product.id === productId && isDiscoveryGiftBox(item.product),
+    );
+    return current.filter(
+      (item) =>
+        item.product.id !== productId &&
+        !(removingGiftBox && item.configuration?.giftBoxUpsell),
+    );
+  }), []);
   const clear = useCallback(() => setItems([]), []);
   const value = useMemo<CartContextValue>(() => ({
     items,

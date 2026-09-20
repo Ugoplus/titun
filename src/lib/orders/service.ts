@@ -14,8 +14,8 @@ import {
 import { assertExpectedTotal, calculateOrder } from "./pricing";
 import { sendLowStockAlert, sendOrderConfirmation } from "@/lib/email";
 import type { PaymentProvider } from "@/lib/payments";
-import { getLinePricing } from "@/lib/product-pricing";
-import { assertCompleteGiftBox, type GiftBoxSelection } from "@/lib/gift-box";
+import { getConfiguredLinePricing } from "@/lib/product-pricing";
+import { createCartQuote, type CartConfiguration } from "@/lib/cart";
 
 export type CheckoutInput = {
   customer: {
@@ -29,7 +29,7 @@ export type CheckoutInput = {
   items: {
     productId: string;
     quantity: number;
-    configuration?: { giftBoxContents?: GiftBoxSelection[] };
+    configuration?: CartConfiguration;
   }[];
   expectedSubtotal: number;
   discountCode?: string;
@@ -45,19 +45,13 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     const requestedIds = [...new Set(input.items.map((item) => item.productId))];
     const catalog = await tx.select().from(products).where(and(inArray(products.id, requestedIds), eq(products.active, true)));
     if (catalog.length !== requestedIds.length) throw new Error("One or more products are unavailable");
+    const quote = createCartQuote(catalog, input.items);
 
     const quantityById = new Map(input.items.map((item) => [item.productId, item.quantity]));
     const configurationById = new Map(input.items.map((item) => [item.productId, item.configuration]));
-    const pricedItems = catalog.map((product) => {
-      const quantity = quantityById.get(product.id) ?? 0;
-      const configuration = configurationById.get(product.id);
-      assertCompleteGiftBox(product, configuration?.giftBoxContents);
-      const pricing = getLinePricing(product, quantity);
-      return {
-        productId: product.id,
-        unitPrice: pricing.unitPrice,
-        quantity,
-      };
+    const pricedItems = quote.items.map(({ product, quantity, configuration }) => {
+      const pricing = getConfiguredLinePricing(product, quantity, configuration);
+      return { productId: product.id, unitPrice: pricing.unitPrice, quantity };
     });
 
     let appliedDiscount: { type: "percentage" | "fixed"; value: number } | null = null;
@@ -105,7 +99,11 @@ export const createPendingOrder = async (input: CheckoutInput) => {
 
     await tx.insert(orderItems).values(catalog.map((product) => {
       const quantity = quantityById.get(product.id) ?? 0;
-      const pricing = getLinePricing(product, quantity);
+      const pricing = getConfiguredLinePricing(
+        product,
+        quantity,
+        configurationById.get(product.id),
+      );
       return {
         orderId: order.id,
         productId: product.id,

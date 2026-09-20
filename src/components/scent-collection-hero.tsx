@@ -29,14 +29,14 @@ export function ScentCollectionHero({
   );
 
   return (
-    <section className="grid lg:col-span-2 lg:grid-cols-[1.05fr_.95fr]">
+    <section className="grid lg:col-span-2 lg:grid-cols-[1fr_1fr]">
       <ProductVisual
         images={selectedProduct.images}
         name={selectedProduct.name}
-        className="min-h-[50svh] lg:min-h-full"
+        className="aspect-[4/3] lg:aspect-square lg:self-start"
         priority
       />
-      <div className="flex items-center px-5 py-12 md:px-12 lg:px-[10%] lg:py-16">
+      <div className="flex items-start px-5 py-10 md:px-12 lg:px-[8%] lg:py-12">
         <div className="w-full max-w-xl">
           <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">
             {name} collection

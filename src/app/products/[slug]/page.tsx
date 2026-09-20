@@ -9,6 +9,11 @@ import { formatMoney } from "@/lib/money";
 import { getPackOptions, isRefreshingTowel } from "@/lib/product-pricing";
 import { absoluteUrl } from "@/lib/site";
 import { getHomepageCopy, type HomepageCopy } from "@/lib/site-content";
+import {
+  GIFT_BOX_SIZES,
+  getGiftBoxPrice,
+  isDiscoveryGiftBox,
+} from "@/lib/gift-box";
 
 const scentStoryKeys = {
   "green-tea-refreshing-towel": {
@@ -106,6 +111,14 @@ export default async function ProductPage({
   if (!product) notFound();
   const available = product.stockOnHand - product.stockReserved;
   const packOptions = getPackOptions(product);
+  const isGiftBox = isDiscoveryGiftBox(product);
+  const offerOptions = isGiftBox
+    ? GIFT_BOX_SIZES.map((size) => ({
+        quantity: 1,
+        total: getGiftBoxPrice(size),
+        label: `${size}-piece custom gift box`,
+      }))
+    : packOptions;
   const isTowel = isRefreshingTowel(product);
   const inStock = available >= packOptions[0].quantity;
   const scentStoryKey = scentStoryKeys[slug as keyof typeof scentStoryKeys];
@@ -115,6 +128,12 @@ export default async function ProductPage({
         .map((productSlug) => products.find((candidate) => candidate.slug === productSlug))
         .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
     : [];
+  const wipeAddOns = isGiftBox
+    ? products.filter(
+        (candidate) =>
+          candidate.category === "Refreshing wet wipes" && candidate.active,
+      )
+    : [];
   const scentStory = scentStoryKey
     ? {
         tagline: homepageCopy[scentStoryKey.tagline],
@@ -123,7 +142,7 @@ export default async function ProductPage({
     : null;
 
   return (
-    <div className="grid min-h-[75svh] lg:grid-cols-[1.1fr_.9fr]">
+    <div className="mx-auto grid w-full max-w-[1200px] lg:grid-cols-[1fr_1fr]">
       <StructuredData
         data={{
           "@context": "https://schema.org",
@@ -133,7 +152,7 @@ export default async function ProductPage({
           image: product.images.map((image) => absoluteUrl(image)),
           sku: product.slug,
           brand: { "@type": "Brand", name: "TITUN" },
-          offers: packOptions.map((option) => ({
+          offers: offerOptions.map((option) => ({
             "@type": "Offer",
             name: option.label,
             url: absoluteUrl(`/products/${product.slug}`),
@@ -158,10 +177,10 @@ export default async function ProductPage({
           <ProductVisual
             images={product.images}
             name={product.name}
-            className="min-h-[55svh] lg:min-h-full"
+            className="aspect-[4/3] lg:aspect-square lg:self-start"
             priority
           />
-          <div className="flex items-center px-5 py-12 md:px-12 lg:px-[10%]">
+          <div className="flex items-start px-5 py-10 md:px-12 lg:px-[8%] lg:py-12">
             <div className="w-full max-w-xl">
               <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/70">{product.category}</p>
               <h1 className="mt-4 whitespace-nowrap font-display text-[clamp(1.625rem,6vw,2.625rem)] leading-none tracking-[-.03em]">{product.name}</h1>
@@ -171,8 +190,8 @@ export default async function ProductPage({
                 <div><dt className="text-xs text-ink/70">Pack size</dt><dd className="mt-1 font-bold">{product.packSize}</dd></div>
                 <div><dt className="text-xs text-ink/70">Availability</dt><dd className="mt-1 font-bold">{inStock ? "In stock" : "Sold out"}</dd></div>
               </dl>
-              <p className="mb-6 text-xl font-bold tabular-nums">{packOptions.length > 1 ? "From " : ""}{formatMoney(packOptions[0].total, product.currency)}</p>
-              <AddToCart product={product} />
+              <p className="mb-6 text-xl font-bold tabular-nums">{offerOptions.length > 1 ? "From " : ""}{formatMoney(offerOptions[0].total, product.currency)}</p>
+              <AddToCart product={product} wipeAddOns={wipeAddOns} />
             </div>
           </div>
         </>

@@ -21,7 +21,7 @@ describe("checkoutSchema payment providers", () => {
     expect(checkoutSchema.safeParse({ ...validCheckout, paymentProvider: "stripe", expectedSubtotal: 0 }).success).toBe(false);
   });
 
-  it("accepts a Discovery Gift Box containing exactly 25 pieces", () => {
+  it("accepts a Discovery Gift Box matching its selected size", () => {
     const result = checkoutSchema.safeParse({
       ...validCheckout,
       paymentProvider: "paystack",
@@ -29,9 +29,10 @@ describe("checkoutSchema payment providers", () => {
         productId: "11111111-1111-4111-8111-111111111111",
         quantity: 1,
         configuration: {
+          giftBoxSize: 50,
           giftBoxContents: [
-            { item: "Green Tea towel", quantity: 15 },
-            { item: "Sandalwood wet wipes", quantity: 10 },
+            { item: "Green Tea towel", quantity: 30 },
+            { item: "Sandalwood towel", quantity: 20 },
           ],
         },
       }],
@@ -41,13 +42,13 @@ describe("checkoutSchema payment providers", () => {
   });
 
   it("rejects incomplete or duplicate gift-box selections", () => {
-    const parse = (giftBoxContents: unknown[]) => checkoutSchema.safeParse({
+    const parse = (giftBoxContents: unknown[], giftBoxSize: number = 25) => checkoutSchema.safeParse({
       ...validCheckout,
       paymentProvider: "stripe",
       items: [{
         productId: "11111111-1111-4111-8111-111111111111",
         quantity: 1,
-        configuration: { giftBoxContents },
+        configuration: { giftBoxSize, giftBoxContents },
       }],
     }).success;
 
@@ -56,6 +57,22 @@ describe("checkoutSchema payment providers", () => {
       { item: "Green Tea towel", quantity: 10 },
       { item: "Green Tea towel", quantity: 15 },
     ])).toBe(false);
+    expect(parse([{ item: "Green Tea towel", quantity: 25 }], 30)).toBe(false);
+    expect(parse([{ item: "Green Tea wet wipes", quantity: 25 }])).toBe(false);
+  });
+
+  it("accepts the explicit gift-box wipe upsell marker", () => {
+    const result = checkoutSchema.safeParse({
+      ...validCheckout,
+      paymentProvider: "paystack",
+      items: [{
+        productId: "11111111-1111-4111-8111-111111111111",
+        quantity: 25,
+        configuration: { giftBoxUpsell: true },
+      }],
+    });
+
+    expect(result.success).toBe(true);
   });
 });
 

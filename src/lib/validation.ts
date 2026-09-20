@@ -1,23 +1,50 @@
 import { z } from "zod";
-import { GIFT_BOX_ITEMS, GIFT_BOX_SIZE } from "@/lib/gift-box";
+import { GIFT_BOX_ITEMS, GIFT_BOX_SIZES } from "@/lib/gift-box";
 
 export const giftBoxContentsSchema = z.array(z.object({
   item: z.enum(GIFT_BOX_ITEMS),
-  quantity: z.int().min(1).max(GIFT_BOX_SIZE),
+  quantity: z.int().min(1).max(100),
 })).min(1).max(GIFT_BOX_ITEMS.length).superRefine((contents, context) => {
   if (new Set(contents.map(({ item }) => item)).size !== contents.length)
     context.addIssue({ code: "custom", message: "Choose each gift-box product only once" });
-  const total = contents.reduce((sum, { quantity }) => sum + quantity, 0);
-  if (total !== GIFT_BOX_SIZE)
-    context.addIssue({ code: "custom", message: `Choose exactly ${GIFT_BOX_SIZE} pieces for your gift box` });
+});
+
+const giftBoxConfigurationSchema = z.object({
+  giftBoxSize: z.union([z.literal(25), z.literal(50), z.literal(100)]).optional(),
+  giftBoxContents: giftBoxContentsSchema.optional(),
+  giftBoxUpsell: z.literal(true).optional(),
+}).strict().superRefine((configuration, context) => {
+  const hasBoxConfiguration =
+    configuration.giftBoxSize !== undefined ||
+    configuration.giftBoxContents !== undefined;
+  if (hasBoxConfiguration) {
+    const total = configuration.giftBoxContents?.reduce(
+      (sum, { quantity }) => sum + quantity,
+      0,
+    );
+    if (
+      !configuration.giftBoxSize ||
+      !configuration.giftBoxContents ||
+      total !== configuration.giftBoxSize
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: `Choose exactly ${GIFT_BOX_SIZES.slice(0, -1).join(", ")} or ${GIFT_BOX_SIZES.at(-1)} towels for your selected gift box`,
+      });
+    }
+  }
+  if (configuration.giftBoxUpsell && hasBoxConfiguration) {
+    context.addIssue({
+      code: "custom",
+      message: "Keep the wipe add-on separate from the gift-box selection",
+    });
+  }
 });
 
 export const cartItemSchema = z.object({
   productId: z.uuid(),
   quantity: z.int().min(1).max(200),
-  configuration: z.object({
-    giftBoxContents: giftBoxContentsSchema.optional(),
-  }).optional(),
+  configuration: giftBoxConfigurationSchema.optional(),
 });
 
 export const cartQuoteSchema = z.object({

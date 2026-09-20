@@ -3,11 +3,15 @@ import {
   assertCompleteGiftBox,
   isCompleteGiftBox,
   isDiscoveryGiftBox,
-  type GiftBoxSelection,
+  type GiftBoxCartConfiguration,
 } from "@/lib/gift-box";
-import { getLinePricing, getPackOptions, hasPackOptions } from "@/lib/product-pricing";
+import {
+  getConfiguredLinePricing,
+  getPackOptions,
+  hasPackOptions,
+} from "@/lib/product-pricing";
 
-export type CartConfiguration = { giftBoxContents?: GiftBoxSelection[] };
+export type CartConfiguration = GiftBoxCartConfiguration;
 export type CartItem = {
   product: Product;
   quantity: number;
@@ -22,9 +26,15 @@ export type CartRequestItem = {
 const availableStock = (product: Product) =>
   Math.max(0, product.stockOnHand - product.stockReserved);
 
-const acceptedQuantity = (product: Product, quantity: number) => {
+const acceptedQuantity = (
+  product: Product,
+  quantity: number,
+  configuration?: CartConfiguration,
+) => {
   if (!Number.isInteger(quantity) || quantity < 1) return null;
   const available = availableStock(product);
+  if (configuration?.giftBoxUpsell)
+    return quantity === 25 && quantity <= available ? quantity : null;
   if (hasPackOptions(product)) {
     const valid = getPackOptions(product).some((option) => option.quantity === quantity);
     return valid && quantity <= available ? quantity : null;
@@ -36,16 +46,33 @@ export const getCartUnitCount = (items: Pick<CartItem, "quantity">[]) =>
   items.reduce((total, item) => total + item.quantity, 0);
 
 export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
+  const replacesGiftBox = incomingItems.some(({ product }) =>
+    isDiscoveryGiftBox(product)
+  );
+  const startingItems = replacesGiftBox
+    ? current.filter(
+        (item) =>
+          !isDiscoveryGiftBox(item.product) &&
+          !item.configuration?.giftBoxUpsell,
+      )
+    : current;
   return incomingItems.reduce<CartItem[]>((next, incoming) => {
     if (
       isDiscoveryGiftBox(incoming.product) &&
-      !isCompleteGiftBox(incoming.configuration?.giftBoxContents)
+      !isCompleteGiftBox(
+        incoming.configuration?.giftBoxContents,
+        incoming.configuration?.giftBoxSize,
+      )
     ) return next;
     const existing = next.find((item) => item.product.id === incoming.product.id);
     const requested = hasPackOptions(incoming.product)
       ? incoming.quantity
       : (existing?.quantity ?? 0) + incoming.quantity;
-    const quantity = acceptedQuantity(incoming.product, requested);
+    const quantity = acceptedQuantity(
+      incoming.product,
+      requested,
+      incoming.configuration,
+    );
     if (quantity === null) return next;
     if (!existing) return [...next, { ...incoming, quantity }];
     return next.map((item) =>
@@ -54,11 +81,44 @@ export function mergeCartItems(current: CartItem[], incomingItems: CartItem[]) {
             ...item,
             product: incoming.product,
             quantity,
-            configuration: incoming.configuration ?? item.configuration,
+            configuration: incoming.configuration,
           }
         : item,
     );
-  }, current);
+  }, startingItems);
+}
+
+function assertCartRelationships(
+  catalog: Product[],
+  requestedItems: CartRequestItem[],
+) {
+  const byId = new Map(catalog.map((product) => [product.id, product]));
+  const hasGiftBox = requestedItems.some((item) =>
+    isDiscoveryGiftBox(byId.get(item.productId) ?? {})
+  );
+  const upsells = requestedItems.filter(
+    ({ configuration }) => configuration?.giftBoxUpsell,
+  );
+  if (upsells.length > 1)
+    throw new Error("Choose only one 25-piece wet-wipe add-on");
+  for (const requested of requestedItems) {
+    const product = byId.get(requested.productId);
+    if (!product) throw new Error("One or more products are unavailable");
+    assertCompleteGiftBox(product, requested.configuration);
+    if (
+      !isDiscoveryGiftBox(product) &&
+      (requested.configuration?.giftBoxSize ||
+        requested.configuration?.giftBoxContents)
+    ) throw new Error("Choose a valid Discovery Gift Box configuration");
+    if (requested.configuration?.giftBoxUpsell) {
+      if (!hasGiftBox)
+        throw new Error("The 25-piece wet-wipe add-on requires a Discovery Gift Box");
+      if (
+        product.category !== "Refreshing wet wipes" ||
+        requested.quantity !== 25
+      ) throw new Error("Choose a valid 25-piece wet-wipe add-on");
+    }
+  }
 }
 
 export function createCartQuote(
@@ -70,11 +130,15 @@ export function createCartQuote(
     throw new Error("Each product can appear only once in your basket");
 
   const byId = new Map(catalog.map((product) => [product.id, product]));
+  assertCartRelationships(catalog, requestedItems);
   const items = requestedItems.map((requested) => {
     const product = byId.get(requested.productId);
     if (!product?.active) throw new Error("One or more products are unavailable");
-    assertCompleteGiftBox(product, requested.configuration?.giftBoxContents);
-    const pricing = getLinePricing(product, requested.quantity);
+    const pricing = getConfiguredLinePricing(
+      product,
+      requested.quantity,
+      requested.configuration,
+    );
     if (availableStock(product) < requested.quantity)
       throw new Error(`${product.name} does not have enough stock`);
     return {

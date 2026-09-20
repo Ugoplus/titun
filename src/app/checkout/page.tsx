@@ -16,13 +16,13 @@ import type { Product } from "@/lib/db/schema";
 import {
   formatGiftBoxContents,
   isDiscoveryGiftBox,
-  type GiftBoxSelection,
 } from "@/lib/gift-box";
+import type { CartConfiguration } from "@/lib/cart";
 import type { PaymentProvider } from "@/lib/payments";
 import { getAlternativePaymentProvider } from "@/lib/payment-recommendation";
 import {
   getDefaultPurchaseQuantity,
-  getLinePricing,
+  getConfiguredLinePricing,
   getPackOptions,
   hasPackOptions,
 } from "@/lib/product-pricing";
@@ -41,7 +41,7 @@ export default function CheckoutPage() {
     items: Array<{
       product: Product;
       quantity: number;
-      configuration?: { giftBoxContents?: GiftBoxSelection[] };
+      configuration?: CartConfiguration;
     }>;
     subtotal: number;
     cartKey: string;
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
   } | null>(null);
   const [quoteVersion, setQuoteVersion] = useState(0);
   const cartKey = useMemo(
-    () => items.map((item) => `${item.product.id}:${item.quantity}:${JSON.stringify(item.configuration?.giftBoxContents ?? [])}`).join(","),
+    () => items.map((item) => `${item.product.id}:${item.quantity}:${JSON.stringify(item.configuration ?? {})}`).join(","),
     [items],
   );
   const activeQuote =
@@ -65,7 +65,13 @@ export default function CheckoutPage() {
       : null;
   const displayItems = activeQuote?.items ?? items;
   const localSubtotal = items.reduce(
-    (sum, item) => sum + getLinePricing(item.product, item.quantity).total,
+    (sum, item) =>
+      sum +
+      getConfiguredLinePricing(
+        item.product,
+        item.quantity,
+        item.configuration,
+      ).total,
     0,
   );
   const subtotal = activeQuote?.subtotal ?? localSubtotal;
@@ -411,9 +417,9 @@ export default function CheckoutPage() {
               <div>
                 <p className="font-bold">{item.product.name}</p>
                 <p className="mt-1 text-xs text-ink/70">
-                  {getLinePricing(item.product, item.quantity).label}
+                  {getConfiguredLinePricing(item.product, item.quantity, item.configuration).label}
                 </p>
-                {!hasPackOptions(item.product) && (
+                {!hasPackOptions(item.product) && !item.configuration?.giftBoxSize && !item.configuration?.giftBoxUpsell && (
                   <p className="mt-1 text-xs font-semibold tabular-nums">
                     Quantity: {item.quantity}
                   </p>
@@ -426,7 +432,11 @@ export default function CheckoutPage() {
               </div>
               <p className="text-sm font-bold">
                 {formatMoney(
-                  getLinePricing(item.product, item.quantity).total,
+                  getConfiguredLinePricing(
+                    item.product,
+                    item.quantity,
+                    item.configuration,
+                  ).total,
                 )}
               </p>
             </div>

@@ -15,9 +15,10 @@ const item = {
   packSize: "Custom 25-piece gift box",
   quantity: 1,
   configuration: {
+    giftBoxSize: 25,
     giftBoxContents: [
       { item: "Green Tea towel", quantity: 15 },
-      { item: "Sandalwood wet wipes", quantity: 10 },
+      { item: "Sandalwood towel", quantity: 10 },
     ],
   },
 } as OrderItem;

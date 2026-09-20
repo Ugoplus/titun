@@ -55,15 +55,53 @@ describe("cart merging", () => {
     const giftBox = product({ slug: "titun-discovery-gift-box" });
     const complete: GiftBoxSelection[] = [
       { item: "Green Tea towel", quantity: 15 },
-      { item: "Lemongrass wet wipes", quantity: 10 },
+      { item: "Lemongrass towel", quantity: 10 },
     ];
 
     expect(mergeCartItems([], [{ product: giftBox, quantity: 1 }])).toEqual([]);
     expect(mergeCartItems([], [{
       product: giftBox,
       quantity: 1,
-      configuration: { giftBoxContents: complete },
+      configuration: { giftBoxSize: 25, giftBoxContents: complete },
     }])).toHaveLength(1);
+  });
+
+  it("adds one 25-piece wipe upsell only alongside a Discovery Gift Box", () => {
+    const giftBox = product({ slug: "titun-discovery-gift-box" });
+    const wipe = product({
+      id: "22222222-2222-4222-8222-222222222222",
+      slug: "green-tea-refreshing-wipes",
+      category: "Refreshing wet wipes",
+      price: 50_000,
+      stockOnHand: 100,
+    });
+    const boxItem = {
+      product: giftBox,
+      quantity: 1,
+      configuration: {
+        giftBoxSize: 25 as const,
+        giftBoxContents: [{ item: "Green Tea towel" as const, quantity: 25 }],
+      },
+    };
+    const upsell = {
+      product: wipe,
+      quantity: 25,
+      configuration: { giftBoxUpsell: true as const },
+    };
+
+    const boxRequest = {
+      productId: boxItem.product.id,
+      quantity: boxItem.quantity,
+      configuration: boxItem.configuration,
+    };
+    const upsellRequest = {
+      productId: upsell.product.id,
+      quantity: upsell.quantity,
+      configuration: upsell.configuration,
+    };
+
+    expect(() => createCartQuote([wipe], [upsellRequest])).toThrow("Discovery Gift Box");
+    expect(createCartQuote([giftBox, wipe], [boxRequest, upsellRequest]).subtotal).toBe(6_250_000);
   });
 });
 
@@ -88,8 +126,9 @@ describe("canonical cart quote", () => {
       productId: giftBox.id,
       quantity: 1,
       configuration: {
+        giftBoxSize: 25,
         giftBoxContents: [{ item: "Green Tea towel", quantity: 24 }],
       },
-    }])).toThrow("exactly 25 pieces");
+    }])).toThrow("exactly 25, 50 or 100 towels");
   });
 });

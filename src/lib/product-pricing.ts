@@ -1,4 +1,11 @@
 import type { Product } from "@/lib/db/schema";
+import {
+  GIFT_BOX_WIPE_UPSELL_SIZE,
+  getGiftBoxPrice,
+  isCompleteGiftBox,
+  isDiscoveryGiftBox,
+  type GiftBoxCartConfiguration,
+} from "@/lib/gift-box";
 
 export type PackOption = {
   quantity: number;
@@ -79,6 +86,40 @@ export function getLinePricing(
     unitPrice: Math.round(option.total / option.quantity),
     label: option.label,
   };
+}
+
+export function getConfiguredLinePricing(
+  product: Pick<Product, "slug" | "category" | "price" | "packSize">,
+  quantity: number,
+  configuration?: GiftBoxCartConfiguration,
+) {
+  if (isDiscoveryGiftBox(product)) {
+    const size = configuration?.giftBoxSize;
+    if (!size || !isCompleteGiftBox(configuration.giftBoxContents, size))
+      throw new Error("Complete your Discovery Gift Box before checkout");
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20)
+      throw new Error("Choose a valid quantity");
+    const boxPrice = getGiftBoxPrice(size);
+    return {
+      total: boxPrice * quantity,
+      unitPrice: boxPrice,
+      label: `${size}-piece custom gift box`,
+    };
+  }
+
+  if (configuration?.giftBoxUpsell) {
+    if (
+      !isRefreshingWipe(product) ||
+      quantity !== GIFT_BOX_WIPE_UPSELL_SIZE
+    ) throw new Error("Choose a valid gift-box wipe add-on");
+    return {
+      total: product.price * quantity,
+      unitPrice: product.price,
+      label: `${quantity} wet wipes · Gift-box add-on`,
+    };
+  }
+
+  return getLinePricing(product, quantity);
 }
 
 export function getAdjacentPackQuantity(
