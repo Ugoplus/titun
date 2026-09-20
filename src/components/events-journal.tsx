@@ -50,9 +50,9 @@ export function EventsJournal({
 
   return (
     <section aria-labelledby="events-archive-title">
-      <h2 id="events-archive-title" className="sr-only">
+      <h1 id="events-archive-title" className="sr-only">
         TITUN events archive
-      </h2>
+      </h1>
       <nav
         aria-label="Filter events"
         className="flex min-h-16 items-center justify-center gap-7 border-y border-ink/15 px-5 md:gap-12"

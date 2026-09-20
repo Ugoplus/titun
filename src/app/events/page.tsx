@@ -37,15 +37,6 @@ export default async function EventsPage() {
 
   return (
     <main className="min-w-0 overflow-x-clip bg-white">
-      <header className="mx-auto max-w-[1440px] px-5 pb-14 pt-20 text-center md:px-8 md:pb-20 md:pt-28 lg:px-12">
-        <h1 className="mx-auto max-w-5xl text-balance font-display text-[clamp(3.5rem,8vw,6rem)] leading-[.88] tracking-[-.035em]">
-          Moments worth remembering.
-        </h1>
-        <p className="mx-auto mt-7 max-w-[62ch] text-base leading-relaxed text-ink/65 md:text-lg">
-          Discover the experiences, gatherings and moments that bring the world
-          of TITUN to life.
-        </p>
-      </header>
       <EventsJournal events={events} now={now.toISOString()} />
     </main>
   );

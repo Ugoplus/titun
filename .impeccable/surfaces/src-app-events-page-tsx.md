@@ -32,7 +32,7 @@ Use only administrator-authored event stories, dates, venues, links, pricing and
 
 **STORY:** The visitor enters through “Moments worth remembering,” filters the growing archive without leaving the page, opens an image-led story and reaches the appropriate next step: direct registration, free attendance, paid checkout or a quiet archive close.
 
-**FIRST VIEWPORT:** A centered editorial heading and one restrained supporting sentence establish the page, followed immediately by the ALL / UPCOMING / PAST filter rail. Large 4:3 imagery leads into offset white story sheets. Mobile becomes one calm, fully contained column.
+**FIRST VIEWPORT:** The ALL / UPCOMING / PAST filter rail opens the page without an introductory masthead. Large 4:3 imagery leads directly into offset white story sheets. Mobile becomes one calm, fully contained column.
 
 **FORM:** User-pinned editorial events archive, code-led. Direction key: `brief-pinned:leluxe-events-2026-09-20`. The signature composition is the image-to-offset-story-sheet handoff; the signature interaction is instant, date-derived archive filtering.
 
