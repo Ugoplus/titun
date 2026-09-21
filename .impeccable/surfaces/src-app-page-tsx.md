@@ -32,3 +32,11 @@ Use the supplied client brief, reference-site structure and existing TITUN photo
 **FORM:** Brief-pinned editorial hospitality storefront, code-first for this session. Direction key: `brief-pinned:titun-2026-09-17`. The signature interaction is the pack selector: three precise quantity choices reveal total and per-piece value without promotional noise.
 
 **FINISH:** unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## Email sign-up and announcement extension
+
+The top announcement and every customer-facing email-popup text field are editable in the administrator content workspace. Default messaging invites visitors to register for upcoming sales promotions without promising a discount that the commerce system does not guarantee. The form action remains the truthful “Register”; after successful registration, “Shop TITUN” appears as a separate customer choice rather than disguising navigation as form submission.
+
+The responsive popup remains a premium, compact dialog within the Quiet Ritual system: Newsreader carries the invitation, Manrope carries form labels and actions, controls remain square and touch-friendly, and the panel stays contained on small screens. Administrator input is validated on the server and customer-facing output is rendered as escaped text.
+
+**SYSTEM IMPACT:** No design-system change. This extension composes the existing dialog elevation, typography, square controls and responsive layout rules, so `DESIGN.md` and `.impeccable/design.json` remain unchanged.

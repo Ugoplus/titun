@@ -68,7 +68,7 @@ export function Header({ announcementText }: { announcementText: string }) {
   return (
     <>
       <Link
-        href="/#welcome-offer"
+        href="/#email-signup"
         className="block bg-walnut px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[.09em] text-white focus-visible:outline-white"
       >
         {announcementText}

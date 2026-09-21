@@ -2,15 +2,24 @@
 
 import { ArrowRight } from "@phosphor-icons/react";
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 
 export function NewsletterForm({
   source = "footer",
   compact = false,
   onSuccess,
+  buttonLabel = "Join the list",
+  successHeading = "You’re on the TITUN list.",
+  successCopy = "We’ll share upcoming sales promotions and collection notes with you.",
+  successActionLabel,
 }: {
   source?: "welcome" | "footer";
   compact?: boolean;
   onSuccess?: () => void;
+  buttonLabel?: string;
+  successHeading?: string;
+  successCopy?: string;
+  successActionLabel?: string;
 }) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
@@ -36,10 +45,18 @@ export function NewsletterForm({
   if (status === "success")
     return (
       <div role="status" className="border-t border-current/20 pt-4">
-        <p className="font-semibold">Welcome to TITUN.</p>
+        <p className="font-semibold">{successHeading}</p>
         <p className="mt-1 text-sm opacity-70">
-          Use code <strong>WELCOME10</strong> at checkout.
+          {successCopy}
         </p>
+        {successActionLabel ? (
+          <Link
+            href="/shop"
+            className="mt-4 inline-flex min-h-11 items-center gap-3 border-b border-current pb-1 text-sm font-semibold"
+          >
+            {successActionLabel} <ArrowRight aria-hidden="true" />
+          </Link>
+        ) : null}
       </div>
     );
 
@@ -75,9 +92,8 @@ export function NewsletterForm({
           className={source === "welcome"
             ? "inline-flex min-h-12 items-center justify-center gap-4 bg-ink px-6 text-sm font-semibold text-white transition-colors hover:bg-walnut disabled:cursor-wait disabled:opacity-50 sm:min-h-14"
             : "flex h-12 w-12 items-center justify-center disabled:opacity-50"}
-          aria-label="Join the TITUN newsletter"
         >
-          {source === "welcome" && (status === "loading" ? "Joining…" : "Get 10% off")}
+          {source === "welcome" && (status === "loading" ? "Registering…" : buttonLabel)}
           <ArrowRight aria-hidden="true" />
         </button>
       </div>

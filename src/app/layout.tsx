@@ -69,6 +69,15 @@ export default async function RootLayout({
           <SiteShell
             announcementText={siteSettings.announcementText}
             contactDetails={contactDetails}
+            emailPopupContent={{
+              emailPopupHeading: siteSettings.emailPopupHeading,
+              emailPopupCopy: siteSettings.emailPopupCopy,
+              emailPopupButtonLabel: siteSettings.emailPopupButtonLabel,
+              emailPopupConsentText: siteSettings.emailPopupConsentText,
+              emailPopupSuccessHeading: siteSettings.emailPopupSuccessHeading,
+              emailPopupSuccessCopy: siteSettings.emailPopupSuccessCopy,
+              emailPopupSuccessButtonLabel: siteSettings.emailPopupSuccessButtonLabel,
+            }}
           >
             {children}
           </SiteShell>

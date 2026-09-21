@@ -20,7 +20,7 @@ TITUN is not positioned as a cleaning-product store. It turns the refreshing tow
 
 ## Operating Context
 
-Customers discover TITUN primarily through mobile and social channels, learn the difference between refreshing towels and wet wipes, compare scents and pack sizes, then purchase through Paystack or Stripe. Business buyers need a visible enquiry path for larger or bespoke orders. Administrators manage products, pricing, inventory, low-stock thresholds and paid community events.
+Customers discover TITUN primarily through mobile and social channels, learn the difference between refreshing towels and wet wipes, compare scents and pack sizes, then purchase through Paystack or Stripe. Business buyers need a visible enquiry path for larger or bespoke orders. Administrators manage products, pricing, inventory, low-stock thresholds, paid community events and approved storefront messaging.
 
 ## Capabilities and Constraints
 
@@ -28,6 +28,7 @@ Customers discover TITUN primarily through mobile and social channels, learn the
 - Refreshing towels are offered in 25, 50 and 100-piece packs at the confirmed prices in the client brief.
 - The 100-piece pack is the best-value option.
 - Checkout, inventory reservation, low-stock alerts, discount codes, recommendations, events and payment-provider integrations must remain intact.
+- The top announcement and every email sign-up popup message are administrator-editable. The popup must request registration truthfully without promising an unconfigured discount, then offer a separate path to shop after successful registration.
 - Corporate enquiries collect name, company, industry, email, phone, estimated quantity, product and message.
 - Customer accounts remain an open product decision; no customer authentication system is currently approved.
 - Final shipping, returns, privacy and terms wording requires client/legal approval and must not be presented as legal advice.

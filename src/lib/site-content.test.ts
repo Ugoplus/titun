@@ -43,6 +43,18 @@ describe("homepage content", () => {
 
   it("accepts the editable site details", () => {
     expect(siteSettingsSchema.parse(defaultSiteSettings)).toEqual(defaultSiteSettings);
+    expect(defaultSiteSettings.emailPopupCopy).not.toMatch(/10%|discount/i);
+    expect(defaultSiteSettings.emailPopupButtonLabel).toBe("Register");
+    expect(defaultSiteSettings.emailPopupSuccessButtonLabel).toBe("Shop TITUN");
+  });
+
+  it("validates the editable email popup copy", () => {
+    expect(() =>
+      siteSettingsSchema.parse({
+        ...defaultSiteSettings,
+        emailPopupButtonLabel: "x".repeat(41),
+      }),
+    ).toThrow();
   });
 
   it("rejects unsafe social account values", () => {

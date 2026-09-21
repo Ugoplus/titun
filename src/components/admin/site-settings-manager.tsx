@@ -31,6 +31,19 @@ const sections: Array<{
     ],
   },
   {
+    name: "Email sign-up popup",
+    description: "Edit every message in the email popup, including what visitors see after registering.",
+    fields: [
+      { key: "emailPopupHeading", label: "Popup heading", maxLength: 90 },
+      { key: "emailPopupCopy", label: "Popup message", multiline: true, maxLength: 320 },
+      { key: "emailPopupButtonLabel", label: "Button label", maxLength: 40 },
+      { key: "emailPopupConsentText", label: "Consent note", multiline: true, maxLength: 240 },
+      { key: "emailPopupSuccessHeading", label: "Confirmation heading", maxLength: 90 },
+      { key: "emailPopupSuccessCopy", label: "Confirmation message", multiline: true, maxLength: 240 },
+      { key: "emailPopupSuccessButtonLabel", label: "Shop button label", maxLength: 40 },
+    ],
+  },
+  {
     name: "About TITUN",
     description: "Edit the complete brand story shown on the About page. Each paragraph is kept separate for a clean reading layout.",
     fields: [
@@ -114,7 +127,7 @@ export function SiteSettingsManager({ initialSettings }: { initialSettings: Site
       <div className="border-b border-ink/20 pb-7">
         <h2 className="font-display text-4xl tracking-[-.025em] md:text-5xl">Site details</h2>
         <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-ink/70">
-          Manage the top announcement, About page story and public contact details in one place.
+          Manage the top announcement, email sign-up popup, About page story and public contact details in one place.
         </p>
       </div>
 

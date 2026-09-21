@@ -55,7 +55,7 @@ export function Footer({ contactDetails }: { contactDetails: ContactDetails }) {
               Premium refreshment essentials designed to elevate the moments
               that matter.
             </p>
-            <div className="mt-8 max-w-md">
+            <div id="email-signup" className="mt-8 max-w-md scroll-mt-32">
               <p className="mb-3 text-sm font-semibold">Notes on renewal</p>
               <NewsletterForm />
             </div>

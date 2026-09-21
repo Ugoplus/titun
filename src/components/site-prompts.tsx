@@ -5,10 +5,17 @@ import { useEffect, useState } from "react";
 import { NewsletterForm } from "./newsletter-form";
 import { DialogShell } from "./dialog-shell";
 import Image from "next/image";
+import type { EmailPopupContent } from "@/lib/site-content";
 
 type Consent = "all" | "essential";
 
-export function SitePrompts({ whatsappHref }: { whatsappHref: string }) {
+export function SitePrompts({
+  whatsappHref,
+  emailPopupContent,
+}: {
+  whatsappHref: string;
+  emailPopupContent: EmailPopupContent;
+}) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
@@ -50,7 +57,7 @@ export function SitePrompts({ whatsappHref }: { whatsappHref: string }) {
     <>
       {showWelcome && (
         <DialogShell
-          labelledBy="welcome-offer-title"
+          labelledBy="email-signup-title"
           onClose={dismissWelcome}
           backdropClassName="p-3 sm:p-5 md:p-8"
           panelClassName="relative m-auto max-h-[calc(100svh-1.5rem)] w-full max-w-[22rem] overflow-y-auto bg-cream shadow-[0_18px_60px_rgba(24,21,17,.18)] sm:max-w-[32rem] md:max-h-[calc(100svh-4rem)] md:max-w-[58rem]"
@@ -59,7 +66,7 @@ export function SitePrompts({ whatsappHref }: { whatsappHref: string }) {
             onClick={dismissWelcome}
             data-autofocus
             className="absolute right-3 top-3 z-20 grid h-11 w-11 place-content-center border border-ink/25 bg-white/95 text-ink transition-colors hover:bg-ink hover:text-white md:right-5 md:top-5"
-            aria-label="Close welcome offer"
+            aria-label="Close email sign-up"
           >
             <X size={22} />
           </button>
@@ -75,17 +82,24 @@ export function SitePrompts({ whatsappHref }: { whatsappHref: string }) {
             </div>
             <div className="flex items-center px-5 pb-6 pt-16 sm:px-8 sm:pb-8 sm:pt-16 md:p-10 lg:p-12">
               <div className="w-full max-w-lg">
-                <h2 id="welcome-offer-title" className="text-balance font-display text-4xl leading-[.92] tracking-[-.03em] sm:text-5xl md:text-[4.25rem]">
-                  A more considered kind of refresh.
+                <h2 id="email-signup-title" className="text-balance font-display text-4xl leading-[.92] tracking-[-.03em] sm:text-5xl md:text-[4.25rem]">
+                  {emailPopupContent.emailPopupHeading}
                 </h2>
                 <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink/70 md:mt-5 md:text-base">
-                  Join the TITUN list for 10% off your first order, new collection notes and invitations from our community.
+                  {emailPopupContent.emailPopupCopy}
                 </p>
                 <div className="mt-5 max-w-lg md:mt-7">
-                  <NewsletterForm source="welcome" onSuccess={rememberWelcomeSignup} />
+                  <NewsletterForm
+                    source="welcome"
+                    onSuccess={rememberWelcomeSignup}
+                    buttonLabel={emailPopupContent.emailPopupButtonLabel}
+                    successHeading={emailPopupContent.emailPopupSuccessHeading}
+                    successCopy={emailPopupContent.emailPopupSuccessCopy}
+                    successActionLabel={emailPopupContent.emailPopupSuccessButtonLabel}
+                  />
                 </div>
                 <p className="mt-3 max-w-[54ch] text-xs leading-relaxed text-ink/60 md:mt-4">
-                  By joining, you agree to receive TITUN emails. You can unsubscribe at any time.
+                  {emailPopupContent.emailPopupConsentText}
                 </p>
               </div>
             </div>

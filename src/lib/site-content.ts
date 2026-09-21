@@ -72,6 +72,13 @@ const socialHandle = z
 
 export const siteSettingsSchema = z.object({
   announcementText: z.string().trim().min(1, "Add an announcement").max(140, "Keep the announcement under 140 characters"),
+  emailPopupHeading: shortHeading,
+  emailPopupCopy: shortCopy,
+  emailPopupButtonLabel: z.string().trim().min(1, "Add a button label").max(40, "Keep the button label under 40 characters"),
+  emailPopupConsentText: z.string().trim().min(1, "Add the email consent note").max(240, "Keep the consent note under 240 characters"),
+  emailPopupSuccessHeading: shortHeading,
+  emailPopupSuccessCopy: z.string().trim().min(1, "Add the confirmation message").max(240, "Keep the confirmation message under 240 characters"),
+  emailPopupSuccessButtonLabel: z.string().trim().min(1, "Add a shop button label").max(40, "Keep the shop button label under 40 characters"),
   aboutHeading: shortHeading,
   aboutIntroduction: shortCopy,
   aboutParagraphOne: z.string().trim().min(1, "Add the first About paragraph").max(600, "Keep this paragraph under 600 characters"),
@@ -85,9 +92,26 @@ export const siteSettingsSchema = z.object({
 });
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
+export type EmailPopupContent = Pick<
+  SiteSettings,
+  | "emailPopupHeading"
+  | "emailPopupCopy"
+  | "emailPopupButtonLabel"
+  | "emailPopupConsentText"
+  | "emailPopupSuccessHeading"
+  | "emailPopupSuccessCopy"
+  | "emailPopupSuccessButtonLabel"
+>;
 
 export const defaultSiteSettings: SiteSettings = {
-  announcementText: "Register your email address to receive upcoming sales promotions",
+  announcementText: "Register your email address to receive upcoming sales promotions.",
+  emailPopupHeading: "Stay close to TITUN.",
+  emailPopupCopy: "Register your email address to receive upcoming sales promotions, collection notes and invitations from TITUN.",
+  emailPopupButtonLabel: "Register",
+  emailPopupConsentText: "By registering, you agree to receive TITUN emails. You can unsubscribe at any time.",
+  emailPopupSuccessHeading: "You’re on the TITUN list.",
+  emailPopupSuccessCopy: "We’ll share upcoming sales promotions, collection notes and invitations with you.",
+  emailPopupSuccessButtonLabel: "Shop TITUN",
   aboutHeading: "Care, thoughtfully given.",
   aboutIntroduction: "TITUN was created from a simple belief: the smallest gestures can leave the most lasting impression.",
   aboutParagraphOne: "Inspired by the art of hospitality, we create premium refreshing towels and wipes for moments that deserve a little more thought. A welcome at the table, a pause between journeys or simply a moment to reset.",
