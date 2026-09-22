@@ -18,11 +18,20 @@ describe("TITUN contact details", () => {
 
   it("preserves a UK number as an international WhatsApp destination", () => {
     expect(normalizeWhatsAppNumber("+44 7933 965107")).toBe("447933965107");
+    expect(normalizeWhatsAppNumber("07933 965107")).toBe("447933965107");
     expect(formatWhatsAppPhone("+44 7933 965107")).toBe("+44 7933 965107");
+    expect(formatWhatsAppPhone("07933 965107")).toBe("+44 7933 965107");
 
     expect(getContactDetails({
       ...defaultSiteSettings,
       whatsappNumber: "+44 7933 965107",
+    })).toMatchObject({
+      whatsappHref: "https://wa.me/447933965107",
+      whatsappLabel: "+44 7933 965107",
+    });
+    expect(getContactDetails({
+      ...defaultSiteSettings,
+      whatsappNumber: "07933 965107",
     })).toMatchObject({
       whatsappHref: "https://wa.me/447933965107",
       whatsappLabel: "+44 7933 965107",

@@ -3,6 +3,8 @@ import type { SiteSettings } from "@/lib/site-content";
 export const normalizeWhatsAppNumber = (value: string) => {
   const digits = value.replace(/\D/g, "");
   const internationalDigits = digits.startsWith("00") ? digits.slice(2) : digits;
+  if (/^07[1-57-9]\d{8}$/.test(internationalDigits))
+    return `44${internationalDigits.slice(1)}`;
   return /^0\d{10}$/.test(internationalDigits)
     ? `234${internationalDigits.slice(1)}`
     : internationalDigits;
