@@ -23,6 +23,7 @@ import {
   getPackOptions,
 } from "@/lib/product-pricing";
 import { useCart } from "./cart-provider";
+import { hasAvailableStock } from "@/lib/inventory";
 
 export function AddToCart({
   product,
@@ -38,10 +39,12 @@ export function AddToCart({
   const [includeWipeAddOn, setIncludeWipeAddOn] = useState(false);
   const isGiftBox = isDiscoveryGiftBox(product);
   const { addItem } = useCart();
-  const available = product.stockOnHand - product.stockReserved;
   const selected =
     options.find((option) => option.quantity === quantity) ?? options[0];
-  const selectedAvailable = available >= (isGiftBox ? 1 : selected.quantity);
+  const selectedAvailable = hasAvailableStock(
+    product,
+    isGiftBox ? 1 : selected.quantity,
+  );
   const selectedPieceCount = getGiftBoxTotal(selectedContents);
   const remainingPieceCount = getGiftBoxRemaining(
     selectedContents,
@@ -226,7 +229,7 @@ export function AddToCart({
           <div className="grid gap-2 sm:grid-cols-3">
             {options.map((option) => {
               const checked = option.quantity === quantity;
-              const inStock = available >= option.quantity;
+              const inStock = hasAvailableStock(product, option.quantity);
               return (
                 <label
                   key={option.quantity}

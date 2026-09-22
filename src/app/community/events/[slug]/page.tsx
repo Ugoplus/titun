@@ -14,6 +14,7 @@ import { getCommunityEventBySlug } from "@/lib/community";
 import { getEventStatus } from "@/lib/events";
 import { formatMoney } from "@/lib/money";
 import { absoluteUrl } from "@/lib/site";
+import { hasAvailableStock } from "@/lib/inventory";
 
 export async function generateMetadata({
   params,
@@ -44,8 +45,6 @@ export default async function CommunityEventPage({
   const event = await getCommunityEventBySlug(slug);
   if (!event) notFound();
 
-  const available =
-    event.ticketProduct.stockOnHand - event.ticketProduct.stockReserved;
   const storyParagraphs = (event.story || event.description)
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -86,7 +85,7 @@ export default async function CommunityEventPage({
                 priceCurrency: event.ticketProduct.currency,
                 price: (event.ticketProduct.price / 100).toFixed(2),
                 availability:
-                  available > 0
+                  hasAvailableStock(event.ticketProduct, 1)
                     ? "https://schema.org/InStock"
                     : "https://schema.org/SoldOut",
               }

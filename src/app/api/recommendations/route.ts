@@ -3,6 +3,7 @@ import { getProducts } from "@/lib/catalog";
 import { getAdminRateLimitIdentity } from "@/lib/auth";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { getDefaultPurchaseQuantity } from "@/lib/product-pricing";
+import { hasAvailableStock } from "@/lib/inventory";
 
 export async function GET(request: Request) {
   const identity = await getAdminRateLimitIdentity();
@@ -25,8 +26,7 @@ export async function GET(request: Request) {
     .filter(
       (product) =>
         !exclude.has(product.id) &&
-        product.stockOnHand - product.stockReserved >=
-          getDefaultPurchaseQuantity(product),
+        hasAvailableStock(product, getDefaultPurchaseQuantity(product)),
     )
     .sort((a, b) => Number(b.featured) - Number(a.featured))
     .slice(0, 2);

@@ -8,6 +8,11 @@ import { formatMoney } from "@/lib/money";
 import { ProductVisual } from "@/components/product-visual";
 import { DialogShell } from "@/components/dialog-shell";
 import { isRefreshingTowel } from "@/lib/product-pricing";
+import {
+  availableStock,
+  isLowStock,
+  isUnlimitedStock,
+} from "@/lib/inventory";
 
 export function ProductManager({
   initialProducts,
@@ -211,11 +216,14 @@ export function ProductManager({
                 Opening stock
                 <input
                   required
-                  min="0"
+                  min="-1"
                   name="stockOnHand"
                   type="number"
                   className={field}
                 />
+                <span className="font-normal text-ink/60">
+                  Use −1 for unlimited stock.
+                </span>
               </label>
               <label className="grid gap-1 text-xs font-bold">
                 Low-stock alert at
@@ -268,7 +276,8 @@ export function ProductManager({
       )}
       <div className="mt-6 grid gap-3">
         {catalog.map((product, index) => {
-          const available = product.stockOnHand - product.stockReserved;
+          const available = availableStock(product);
+          const unlimited = isUnlimitedStock(product.stockOnHand);
           return (
             <article
               key={product.id}
@@ -286,9 +295,11 @@ export function ProductManager({
                   {product.packSize} · {formatMoney(product.price)}
                 </p>
                 <p
-                  className={`mt-2 text-xs font-bold ${available <= product.lowStockThreshold ? "text-clayInk" : "text-leaf"}`}
+                  className={`mt-2 text-xs font-bold ${isLowStock(product) ? "text-clayInk" : "text-leaf"}`}
                 >
-                  {available} available · {product.stockReserved} reserved
+                  {unlimited
+                    ? "Unlimited stock"
+                    : `${available} available · ${product.stockReserved} reserved`}
                 </p>
               </div>
               <form
@@ -311,10 +322,13 @@ export function ProductManager({
                   <input
                     name="stock"
                     type="number"
-                    min={product.stockReserved}
+                    min={-1}
                     defaultValue={product.stockOnHand}
                     className="h-10 border border-ink/25 bg-transparent px-2 text-sm"
                   />
+                  <span className="font-normal normal-case tracking-normal text-ink/60">
+                    Use −1 for unlimited stock.
+                  </span>
                 </label>
                 <button
                   disabled={savingProductId === product.id}

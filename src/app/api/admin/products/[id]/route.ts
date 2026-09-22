@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 import { inventoryEvents, products } from "@/lib/db/schema";
 import { productSchema } from "@/lib/validation";
 import { protectAdminRequest } from "@/lib/rate-limit";
+import { isUnlimitedStock } from "@/lib/inventory";
 
 export async function PATCH(
   request: Request,
@@ -26,13 +27,15 @@ export async function PATCH(
       if (!before) throw new Error("Product not found");
       if (
         input.stockOnHand !== undefined &&
+        !isUnlimitedStock(input.stockOnHand) &&
         input.stockOnHand < before.stockReserved
       )
         throw new Error("Stock cannot be lower than reserved units");
       const shouldResetAlert =
         input.stockOnHand !== undefined &&
-        input.stockOnHand >
-          (input.lowStockThreshold ?? before.lowStockThreshold);
+        (isUnlimitedStock(input.stockOnHand) ||
+          input.stockOnHand >
+            (input.lowStockThreshold ?? before.lowStockThreshold));
       const changed = await tx
         .update(products)
         .set({

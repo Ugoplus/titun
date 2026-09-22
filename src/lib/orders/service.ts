@@ -17,6 +17,7 @@ import type { PaymentProvider } from "@/lib/payments";
 import { getConfiguredLinePricing } from "@/lib/product-pricing";
 import { createCartQuote, type CartConfiguration } from "@/lib/cart";
 import { findDeliveryOption, getDeliveryContent } from "@/lib/delivery-content";
+import { isUnlimitedStock } from "@/lib/inventory";
 
 export type CheckoutInput = {
   customer: {
@@ -117,8 +118,14 @@ export const createPendingOrder = async (input: CheckoutInput) => {
     for (const product of catalog) {
       const quantity = quantityById.get(product.id) ?? 0;
       const [reserved] = await tx.update(products)
-        .set({ stockReserved: sql`${products.stockReserved} + ${quantity}`, updatedAt: new Date() })
-        .where(and(eq(products.id, product.id), sql`${products.stockOnHand} - ${products.stockReserved} >= ${quantity}`))
+        .set({
+          stockReserved: sql`CASE WHEN ${products.stockOnHand} = -1 THEN ${products.stockReserved} ELSE ${products.stockReserved} + ${quantity} END`,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(products.id, product.id),
+          sql`${products.stockOnHand} = -1 OR ${products.stockOnHand} - ${products.stockReserved} >= ${quantity}`,
+        ))
         .returning({ id: products.id });
       if (!reserved) throw new Error(`${product.name} does not have enough stock`);
     }
@@ -168,9 +175,14 @@ export const releasePendingOrder = async (reference: string, status: "failed" | 
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
     for (const item of items) {
       const [product] = await tx.update(products)
-        .set({ stockReserved: sql`GREATEST(0, ${products.stockReserved} - ${item.quantity})`, updatedAt: new Date() })
+        .set({
+          stockReserved: sql`CASE WHEN ${products.stockOnHand} = -1 THEN ${products.stockReserved} ELSE GREATEST(0, ${products.stockReserved} - ${item.quantity}) END`,
+          updatedAt: new Date(),
+        })
         .where(eq(products.id, item.productId))
         .returning();
+      if (!product) continue;
+      if (isUnlimitedStock(product.stockOnHand)) continue;
       await tx.insert(inventoryEvents).values({ productId: item.productId, orderId: order.id, type: "reservation_release", quantityChange: 0, stockAfter: product.stockOnHand, note: `Released ${item.quantity} reserved units` });
     }
   });
@@ -201,11 +213,15 @@ export const completePaidOrder = async (reference: string, paymentReference: str
     const lowStock: { id: string; name: string; stock: number; threshold: number }[] = [];
     for (const item of items) {
       const [product] = await tx.update(products).set({
-        stockOnHand: sql`${products.stockOnHand} - ${item.quantity}`,
-        stockReserved: sql`GREATEST(0, ${products.stockReserved} - ${item.quantity})`,
+        stockOnHand: sql`CASE WHEN ${products.stockOnHand} = -1 THEN -1 ELSE ${products.stockOnHand} - ${item.quantity} END`,
+        stockReserved: sql`CASE WHEN ${products.stockOnHand} = -1 THEN ${products.stockReserved} ELSE GREATEST(0, ${products.stockReserved} - ${item.quantity}) END`,
         updatedAt: new Date(),
-      }).where(and(eq(products.id, item.productId), sql`${products.stockOnHand} >= ${item.quantity}`)).returning();
+      }).where(and(
+        eq(products.id, item.productId),
+        sql`${products.stockOnHand} = -1 OR ${products.stockOnHand} >= ${item.quantity}`,
+      )).returning();
       if (!product) throw new Error("Inventory reconciliation failed");
+      if (isUnlimitedStock(product.stockOnHand)) continue;
       await tx.insert(inventoryEvents).values({ productId: product.id, orderId: order.id, type: "sale", quantityChange: -item.quantity, stockAfter: product.stockOnHand, note: reference });
       if (product.stockOnHand <= product.lowStockThreshold && !product.lowStockAlertedAt) {
         lowStock.push({ id: product.id, name: product.name, stock: product.stockOnHand, threshold: product.lowStockThreshold });

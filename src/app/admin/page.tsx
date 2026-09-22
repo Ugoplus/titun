@@ -12,6 +12,7 @@ import { getDb } from "@/lib/db";
 import { orders, products } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { isAdminEmailSecurityReady } from "@/lib/email";
+import { availableStock, isLowStock } from "@/lib/inventory";
 
 export const dynamic = "force-dynamic";
 
@@ -44,10 +45,7 @@ export default async function AdminPage({
           .from(orders)
       : Promise.resolve([]),
   ]);
-  const lowStock = catalog.filter(
-    (product) =>
-      product.stockOnHand - product.stockReserved <= product.lowStockThreshold,
-  );
+  const lowStock = catalog.filter(isLowStock);
 
   async function logout() {
     "use server";
@@ -117,7 +115,7 @@ export default async function AdminPage({
           <div className="mt-4 flex flex-wrap gap-2">
             {lowStock.map((product) => (
               <span key={product.id} className="border border-clay px-3 py-2 text-xs font-bold">
-                {product.name}: {product.stockOnHand - product.stockReserved} available
+                {product.name}: {availableStock(product)} available
               </span>
             ))}
           </div>

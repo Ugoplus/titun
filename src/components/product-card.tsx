@@ -9,6 +9,7 @@ import {
   getDefaultPurchaseQuantity,
   getPackOptions,
 } from "@/lib/product-pricing";
+import { hasAvailableStock } from "@/lib/inventory";
 export function ProductCard({
   product,
   index = 0,
@@ -21,13 +22,12 @@ export function ProductCard({
   priority?: boolean;
 }) {
   const { addItem } = useCart();
-  const available = product.stockOnHand - product.stockReserved;
   const defaultQuantity = getDefaultPurchaseQuantity(product);
   const packOptions = getPackOptions(product);
   const startingPrice = packOptions[0].total;
   const hasMultiplePacks = packOptions.length > 1;
   const isConfigurableGiftBox = product.category === "Boxes and multipacks";
-  const canAdd = available >= defaultQuantity;
+  const canAdd = hasAvailableStock(product, defaultQuantity);
   const Heading = headingLevel;
   return (
     <article className="group snap-start bg-white">

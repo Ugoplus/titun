@@ -344,12 +344,15 @@ export function EventManager({
                 Guest capacity
                 <input
                   required
-                  min="1"
+                  min="-1"
                   name="capacity"
                   type="number"
                   defaultValue={editingEvent?.capacity}
                   className={field}
                 />
+                <span className="font-normal text-ink/60">
+                  Use −1 for unlimited admission.
+                </span>
               </label>
               <label className="grid gap-1 text-xs font-bold">
                 Low-capacity alert at
@@ -619,7 +622,9 @@ export function EventManager({
                   {event.ticketPrice === 0
                     ? "Free"
                     : formatMoney(event.ticketPrice)}{" "}
-                  · {event.available} of {event.capacity} places available
+                  · {event.capacity === -1
+                    ? "Unlimited places"
+                    : `${event.available} of ${event.capacity} places available`}
                 </p>
               </div>
             </article>

@@ -10,6 +10,7 @@ import {
   getPackOptions,
   hasPackOptions,
 } from "@/lib/product-pricing";
+import { availableStock, hasAvailableStock } from "@/lib/inventory";
 
 export type CartConfiguration = GiftBoxCartConfiguration;
 export type CartItem = {
@@ -22,9 +23,6 @@ export type CartRequestItem = {
   quantity: number;
   configuration?: CartConfiguration;
 };
-
-const availableStock = (product: Product) =>
-  Math.max(0, product.stockOnHand - product.stockReserved);
 
 const acceptedQuantity = (
   product: Product,
@@ -116,7 +114,7 @@ export function createCartQuote(
       requested.quantity,
       requested.configuration,
     );
-    if (availableStock(product) < requested.quantity)
+    if (!hasAvailableStock(product, requested.quantity))
       throw new Error(`${product.name} does not have enough stock`);
     return {
       product,

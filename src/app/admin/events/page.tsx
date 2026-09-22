@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { adminCan, getAdminIdentity } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import { availableStock, isUnlimitedStock } from "@/lib/inventory";
 import {
   communityMembers,
   eventProducts,
@@ -46,7 +47,9 @@ export default async function AdminEventsPage() {
     ...event,
     ticketPrice: ticket.price,
     capacity: ticket.stockOnHand,
-    available: ticket.stockOnHand - ticket.stockReserved,
+    available: isUnlimitedStock(ticket.stockOnHand)
+      ? -1
+      : availableStock(ticket),
     lowStockThreshold: ticket.lowStockThreshold,
     recommendedProductIds: recommendations
       .filter((item) => item.eventId === event.id)

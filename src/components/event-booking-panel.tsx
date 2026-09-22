@@ -11,6 +11,11 @@ import {
   getDefaultPurchaseQuantity,
   getPackOptions,
 } from "@/lib/product-pricing";
+import {
+  availableStock,
+  hasAvailableStock,
+  isUnlimitedStock,
+} from "@/lib/inventory";
 
 export function EventBookingPanel({
   eventId,
@@ -30,7 +35,8 @@ export function EventBookingPanel({
   const [isRegistering, setIsRegistering] = useState(false);
   const [registrationError, setRegistrationError] = useState("");
   const [registrationReference, setRegistrationReference] = useState("");
-  const available = ticket.stockOnHand - ticket.stockReserved;
+  const available = availableStock(ticket);
+  const hasUnlimitedPlaces = isUnlimitedStock(ticket.stockOnHand);
   const isFree = ticket.price === 0;
   const selectedProducts = useMemo(
     () => recommendations.filter((product) => selected.includes(product.id)),
@@ -114,7 +120,8 @@ export function EventBookingPanel({
         <div className="min-w-0">
           <p className="text-sm font-semibold">Guest admission</p>
           <p className="mt-1 text-sm text-ink/70">
-            {isFree ? "Free" : `${formatMoney(ticket.price)} per guest`} · {available} places left
+            {isFree ? "Free" : `${formatMoney(ticket.price)} per guest`}
+            {!hasUnlimitedPlaces && ` · ${available} places left`}
           </p>
         </div>
         <div className="flex w-fit shrink-0 items-center border border-ink/25">
@@ -171,9 +178,10 @@ export function EventBookingPanel({
           <div className="mt-5 grid min-w-0 gap-3">
             {recommendations.map((product, index) => {
               const isSelected = selected.includes(product.id);
-              const productAvailable =
-                product.stockOnHand - product.stockReserved >=
-                getDefaultPurchaseQuantity(product);
+              const productAvailable = hasAvailableStock(
+                product,
+                getDefaultPurchaseQuantity(product),
+              );
               return (
                 <button
                   key={product.id}

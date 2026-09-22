@@ -26,6 +26,7 @@ import {
   getPackOptions,
   hasPackOptions,
 } from "@/lib/product-pricing";
+import { availableStock } from "@/lib/inventory";
 
 export type { CartConfiguration, CartItem } from "@/lib/cart";
 type CartContextValue = {
@@ -129,7 +130,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   1,
                   Math.min(
                     200,
-                    item.product.stockOnHand - item.product.stockReserved,
+                    availableStock(item.product),
                     quantity,
                   ),
                 ),

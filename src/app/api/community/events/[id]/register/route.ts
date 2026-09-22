@@ -14,6 +14,7 @@ import {
 import { sendFreeEventConfirmation } from "@/lib/email";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { freeEventRegistrationSchema } from "@/lib/validation";
+import { isUnlimitedStock } from "@/lib/inventory";
 
 const makeReference = () =>
   `TIT-FREE-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString("hex").toUpperCase()}`;
@@ -90,12 +91,12 @@ export async function POST(
       const [updatedTicket] = await tx
         .update(products)
         .set({
-          stockOnHand: sql`${products.stockOnHand} - ${input.quantity}`,
+          stockOnHand: sql`CASE WHEN ${products.stockOnHand} = -1 THEN -1 ELSE ${products.stockOnHand} - ${input.quantity} END`,
           updatedAt: new Date(),
         })
         .where(and(
           eq(products.id, ticket.id),
-          sql`${products.stockOnHand} - ${products.stockReserved} >= ${input.quantity}`,
+          sql`${products.stockOnHand} = -1 OR ${products.stockOnHand} - ${products.stockReserved} >= ${input.quantity}`,
         ))
         .returning();
       if (!updatedTicket) throw new Error("This event does not have enough places remaining");
@@ -141,14 +142,16 @@ export async function POST(
         orderId: order.id,
         ticketQuantity: input.quantity,
       });
-      await tx.insert(inventoryEvents).values({
-        productId: ticket.id,
-        orderId: order.id,
-        type: "sale",
-        quantityChange: -input.quantity,
-        stockAfter: updatedTicket.stockOnHand,
-        note: reference,
-      });
+      if (!isUnlimitedStock(updatedTicket.stockOnHand)) {
+        await tx.insert(inventoryEvents).values({
+          productId: ticket.id,
+          orderId: order.id,
+          type: "sale",
+          quantityChange: -input.quantity,
+          stockAfter: updatedTicket.stockOnHand,
+          note: reference,
+        });
+      }
 
       return {
         reference,

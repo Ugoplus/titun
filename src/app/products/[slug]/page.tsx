@@ -8,6 +8,7 @@ import { getProductBySlug, getProducts } from "@/lib/catalog";
 import { formatMoney } from "@/lib/money";
 import { getPackOptions, isRefreshingTowel } from "@/lib/product-pricing";
 import { absoluteUrl } from "@/lib/site";
+import { hasAvailableStock } from "@/lib/inventory";
 import { getHomepageCopy, type HomepageCopy } from "@/lib/site-content";
 import {
   GIFT_BOX_SIZES,
@@ -109,7 +110,6 @@ export default async function ProductPage({
     getHomepageCopy(),
   ]);
   if (!product) notFound();
-  const available = product.stockOnHand - product.stockReserved;
   const packOptions = getPackOptions(product);
   const isGiftBox = isDiscoveryGiftBox(product);
   const offerOptions = isGiftBox
@@ -120,7 +120,7 @@ export default async function ProductPage({
       }))
     : packOptions;
   const isTowel = isRefreshingTowel(product);
-  const inStock = available >= packOptions[0].quantity;
+  const inStock = hasAvailableStock(product, packOptions[0].quantity);
   const scentStoryKey = scentStoryKeys[slug as keyof typeof scentStoryKeys];
   const scentCollection = scentCollections[slug as keyof typeof scentCollections];
   const scentProducts = scentCollection
@@ -152,7 +152,7 @@ export default async function ProductPage({
             url: absoluteUrl(`/products/${product.slug}`),
             priceCurrency: product.currency,
             price: (option.total / 100).toFixed(2),
-            availability: available >= option.quantity
+            availability: hasAvailableStock(product, option.quantity)
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
             itemCondition: "https://schema.org/NewCondition",

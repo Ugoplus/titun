@@ -10,6 +10,7 @@ import {
 } from "@/lib/db/schema";
 import { protectAdminRequest } from "@/lib/rate-limit";
 import { eventSchema } from "@/lib/validation";
+import { isUnlimitedStock } from "@/lib/inventory";
 
 export async function PATCH(
   request: Request,
@@ -48,7 +49,7 @@ export async function PATCH(
         .where(eq(products.id, currentEvent.ticketProductId))
         .limit(1);
       if (!ticket) throw new Error("Event admission product not found");
-      if (input.capacity < ticket.stockReserved)
+      if (!isUnlimitedStock(input.capacity) && input.capacity < ticket.stockReserved)
         throw new Error(
           `Capacity cannot be lower than the ${ticket.stockReserved} places currently reserved`,
         );

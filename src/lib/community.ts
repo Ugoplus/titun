@@ -25,7 +25,7 @@ const sampleTicket: Product = {
   category: "Community event",
   packSize: "1 guest admission",
   price: 3500000,
-  stockOnHand: 40,
+  stockOnHand: -1,
   stockReserved: 0,
   images: ["/images/titun/hero-lounge.jpg"],
 };

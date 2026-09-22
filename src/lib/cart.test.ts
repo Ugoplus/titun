@@ -56,6 +56,14 @@ describe("cart merging", () => {
     expect(mergeCartItems([], [{ product: product({ stockOnHand: 0 }), quantity: 1 }])).toEqual([]);
   });
 
+  it("adds products with unlimited stock", () => {
+    const unlimited = product({ stockOnHand: -1 });
+
+    expect(mergeCartItems([], [{ product: unlimited, quantity: 1 }])).toEqual([
+      { product: unlimited, quantity: 1 },
+    ]);
+  });
+
   it("only adds a Discovery Gift Box with a complete 25-piece configuration", () => {
     const giftBox = product({ slug: "titun-discovery-gift-box" });
     const complete: GiftBoxSelection[] = [
@@ -122,6 +130,13 @@ describe("canonical cart quote", () => {
     const current = product({ stockOnHand: 1 });
     expect(() => createCartQuote([current], [{ productId: current.id, quantity: 2 }]))
       .toThrow("does not have enough stock");
+  });
+
+  it("quotes any valid quantity when stock is unlimited", () => {
+    const current = product({ stockOnHand: -1 });
+
+    expect(createCartQuote([current], [{ productId: current.id, quantity: 20 }]).items[0].quantity)
+      .toBe(20);
   });
 
   it("rejects an incomplete Discovery Gift Box before checkout", () => {
