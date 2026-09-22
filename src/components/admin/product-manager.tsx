@@ -219,11 +219,9 @@ export function ProductManager({
                   min="-1"
                   name="stockOnHand"
                   type="number"
+                  title="Enter −1 for unlimited stock"
                   className={field}
                 />
-                <span className="font-normal text-ink/60">
-                  Use −1 for unlimited stock.
-                </span>
               </label>
               <label className="grid gap-1 text-xs font-bold">
                 Low-stock alert at
@@ -324,11 +322,9 @@ export function ProductManager({
                     type="number"
                     min={-1}
                     defaultValue={product.stockOnHand}
+                    title="Enter −1 for unlimited stock"
                     className="h-10 border border-ink/25 bg-transparent px-2 text-sm"
                   />
-                  <span className="font-normal normal-case tracking-normal text-ink/60">
-                    Use −1 for unlimited stock.
-                  </span>
                 </label>
                 <button
                   disabled={savingProductId === product.id}

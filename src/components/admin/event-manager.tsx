@@ -348,11 +348,9 @@ export function EventManager({
                   name="capacity"
                   type="number"
                   defaultValue={editingEvent?.capacity}
+                  title="Enter −1 for unlimited admission"
                   className={field}
                 />
-                <span className="font-normal text-ink/60">
-                  Use −1 for unlimited admission.
-                </span>
               </label>
               <label className="grid gap-1 text-xs font-bold">
                 Low-capacity alert at
