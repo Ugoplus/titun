@@ -69,7 +69,7 @@ const sections: Array<{
       {
         key: "whatsappNumber",
         label: "WhatsApp number",
-        help: "A Nigerian number can be entered as 07069310085.",
+        help: "Include the country code, for example +44 7933 965107.",
         type: "tel",
         maxLength: 24,
       },
