@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "products" (
   "pack_size" text NOT NULL,
   "price" integer NOT NULL CHECK (price >= 0),
   "currency" text NOT NULL DEFAULT 'NGN',
-  "stock_on_hand" integer NOT NULL DEFAULT 0 CHECK (stock_on_hand >= 0),
+  "stock_on_hand" integer NOT NULL DEFAULT 0 CHECK (stock_on_hand = -1 OR stock_on_hand >= 0),
   "stock_reserved" integer NOT NULL DEFAULT 0 CHECK (stock_reserved >= 0),
   "low_stock_threshold" integer NOT NULL DEFAULT 10 CHECK (low_stock_threshold >= 0),
   "low_stock_alerted_at" timestamptz,
@@ -27,8 +27,17 @@ CREATE TABLE IF NOT EXISTS "products" (
   "active" boolean NOT NULL DEFAULT true,
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now(),
-  CHECK (stock_reserved <= stock_on_hand)
+  CHECK (stock_on_hand = -1 OR stock_reserved <= stock_on_hand)
 );
+
+ALTER TABLE products DROP CONSTRAINT IF EXISTS products_check;
+ALTER TABLE products DROP CONSTRAINT IF EXISTS products_stock_on_hand_check;
+ALTER TABLE products
+  ADD CONSTRAINT products_check
+  CHECK (stock_on_hand = -1 OR stock_reserved <= stock_on_hand);
+ALTER TABLE products
+  ADD CONSTRAINT products_stock_on_hand_check
+  CHECK (stock_on_hand = -1 OR stock_on_hand >= 0);
 
 CREATE TABLE IF NOT EXISTS "discounts" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -271,17 +280,17 @@ ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured)
 VALUES
-  ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, 72, 12, true),
-  ('lemongrass-refreshing-towel', 'Lemongrass Refreshing Towel', 'Lemongrass', 'A bright, delicately scented towel that makes a clean reset feel effortless after travel, dining or movement.', 'Individual towels', '1 individually wrapped towel', 180000, 34, 8, true),
-  ('sandalwood-refreshing-towel', 'Sandalwood Refreshing Towel', 'Sandalwood', 'A warm, grounded scent in TITUN''s signature black-and-gold wrap—made for considered hospitality and evening rituals.', 'Individual towels', '1 individually wrapped towel', 180000, 18, 6, true),
-  ('titun-discovery-gift-box', 'TITUN Discovery Gift Box', 'Green tea, lemongrass and sandalwood', 'A presentation-ready collection of TITUN refreshing towels, composed in any mix of signature fragrances.', 'Boxes and multipacks', 'Custom 25, 50 or 100-piece gift box', 5000000, 9, 5, false)
+  ('green-tea-refreshing-towel', 'Green Tea Refreshing Towel', 'Green tea', 'A soft, individually wrapped wet towel with a clean green-tea scent for graceful everyday refreshment.', 'Individual towels', '1 individually wrapped towel', 180000, -1, 12, true),
+  ('lemongrass-refreshing-towel', 'Lemongrass Refreshing Towel', 'Lemongrass', 'A bright, delicately scented towel that makes a clean reset feel effortless after travel, dining or movement.', 'Individual towels', '1 individually wrapped towel', 180000, -1, 8, true),
+  ('sandalwood-refreshing-towel', 'Sandalwood Refreshing Towel', 'Sandalwood', 'A warm, grounded scent in TITUN''s signature black-and-gold wrap—made for considered hospitality and evening rituals.', 'Individual towels', '1 individually wrapped towel', 180000, -1, 6, true),
+  ('titun-discovery-gift-box', 'TITUN Discovery Gift Box', 'Green tea, lemongrass and sandalwood', 'A presentation-ready collection of TITUN refreshing towels, composed in any mix of signature fragrances.', 'Boxes and multipacks', 'Custom 25, 50 or 100-piece gift box', 5000000, -1, 5, false)
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO products (slug, name, scent, description, category, pack_size, price, stock_on_hand, low_stock_threshold, featured, images)
 VALUES
-  ('green-tea-refreshing-wipes', 'Green Tea Refreshing Wipes', 'Fresh · Clean · Restorative', 'Individually wrapped Green Tea wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/green-tea-wipes.jpg"]'::jsonb),
-  ('lemongrass-refreshing-wipes', 'Lemongrass Refreshing Wipes', 'Bright · Fresh · Invigorating', 'Individually wrapped Lemongrass wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/lemongrass-wipes.jpg"]'::jsonb),
-  ('sandalwood-refreshing-wipes', 'Sandalwood Refreshing Wipes', 'Warm · Refined · Grounding', 'Individually wrapped Sandalwood wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, 1000, 100, false, '["/images/titun/sandalwood-wipes.jpg"]'::jsonb)
+  ('green-tea-refreshing-wipes', 'Green Tea Refreshing Wipes', 'Fresh · Clean · Restorative', 'Individually wrapped Green Tea wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, -1, 100, false, '["/images/titun/green-tea-wipes.jpg"]'::jsonb),
+  ('lemongrass-refreshing-wipes', 'Lemongrass Refreshing Wipes', 'Bright · Fresh · Invigorating', 'Individually wrapped Lemongrass wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, -1, 100, false, '["/images/titun/lemongrass-wipes.jpg"]'::jsonb),
+  ('sandalwood-refreshing-wipes', 'Sandalwood Refreshing Wipes', 'Warm · Refined · Grounding', 'Individually wrapped Sandalwood wet wipes for dining, travel, events and everyday refreshment.', 'Refreshing wet wipes', 'Minimum 50 wipes', 50000, -1, 100, false, '["/images/titun/sandalwood-wipes.jpg"]'::jsonb)
 ON CONFLICT (slug) DO UPDATE SET
   price = EXCLUDED.price,
   category = EXCLUDED.category,
